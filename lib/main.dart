@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:uber_drivers_app/pages/auth/register_screen.dart';
@@ -10,11 +11,15 @@ import 'package:uber_drivers_app/providers/dashboard_provider.dart';
 import 'package:uber_drivers_app/providers/registration_provider.dart';
 import 'package:uber_drivers_app/providers/trips_provider.dart';
 import 'package:uber_drivers_app/widgets/blocked_screen.dart';
+import 'package:uber_drivers_app/injection/injection_container.dart' as di;
+import 'package:uber_drivers_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:uber_drivers_app/features/auth/presentation/widgets/auth_check_widget.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await di.configureDependencies();
   await Permission.locationWhenInUse.isDenied.then((valueOfPermission) {
     if (valueOfPermission) {
       Permission.locationWhenInUse.request();
@@ -33,8 +38,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
+    return MultiBlocProvider(
       providers: [
+        BlocProvider<AuthBloc>(
+          create: (_) => di.sl<AuthBloc>()..add(AuthCheckRequested()),
+        ),
+        // Keep existing providers for gradual migration
         ChangeNotifierProvider(
           create: (_) => DashboardProvider(),
         ),
@@ -56,7 +65,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: const AuthCheck(),
+        home: const AuthCheckWidget(),
       ),
     );
   }
