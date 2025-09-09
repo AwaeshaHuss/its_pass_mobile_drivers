@@ -55,3 +55,13 @@ Migrating from Provider-based state management to Clean Architecture with BLoC p
 - Gradual migration approach reduces risk and allows for incremental testing
 - Freezed and json_annotation help with immutable data models
 - Register fallback values in mocktail tests to avoid NoParams issues
+
+## Build Configuration Lessons:
+- AGP 8.1.0 causes JVM target compatibility issues with newer Kotlin versions
+- Upgrading to AGP 8.3.0+ resolves Flutter compatibility warnings
+- Java and Kotlin JVM targets must match (both Java 21 and Kotlin JVM target 21)
+- Always run flutter clean after major build configuration changes
+- assets_audio_player_web plugin requires consistent JVM targets across all modules
+- kotlinOptions() method not available on all Android plugin types (LibraryExtension)
+- Global JVM target enforcement can break Firebase and other plugins
+- Safer to keep Java 1.8 compatibility for plugin ecosystem stability
