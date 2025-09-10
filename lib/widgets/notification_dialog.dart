@@ -45,7 +45,7 @@ class _NotificationDialogState extends State<NotificationDialog> {
       if (driverTripRequestTimeout == 0) {
         timer.cancel();
         driverTripRequestTimeout = 40;
-        audioPlayer.stop();
+        // audioPlayer.stop(); // Commented out due to compatibility issues
 
         if (mounted) {
           Navigator.pop(context);
@@ -237,7 +237,7 @@ class _NotificationDialogState extends State<NotificationDialog> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        audioPlayer.stop();
+                        // audioPlayer.stop(); // Commented out due to compatibility issues
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
@@ -252,7 +252,7 @@ class _NotificationDialogState extends State<NotificationDialog> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
-                        audioPlayer.stop();
+                        // audioPlayer.stop(); // Commented out due to compatibility issues
                         setState(() {
                           tripRequestStatus = "accepted";
                         });

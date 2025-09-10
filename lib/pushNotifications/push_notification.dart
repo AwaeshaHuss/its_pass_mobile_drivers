@@ -1,12 +1,12 @@
 import 'dart:developer';
 
-import 'package:assets_audio_player/assets_audio_player.dart';
+// import 'package:assets_audio_player/assets_audio_player.dart'; // Commented out due to compatibility issues
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_notification_channel/flutter_notification_channel.dart';
-import 'package:flutter_notification_channel/notification_importance.dart';
+// import 'package:flutter_notification_channel/flutter_notification_channel.dart'; // Commented out due to compatibility issues
+// import 'package:flutter_notification_channel/notification_importance.dart'; // Commented out due to compatibility issues
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../global/global.dart';
 import '../main.dart';
@@ -30,14 +30,14 @@ class PushNotificationSystem {
   }
 
   startListeningForNewNotification(BuildContext context) async {
-    var result = await FlutterNotificationChannel().registerNotificationChannel(
-      description: 'For Showing Message Notification',
-      id: 'uberApp',
-      importance: NotificationImportance.IMPORTANCE_HIGH,
-      name: 'UberApp',
-    );
+    // var result = await FlutterNotificationChannel().registerNotificationChannel(
+    //   description: 'For Showing Message Notification',
+    //   id: 'uberApp',
+    //   importance: NotificationImportance.IMPORTANCE_HIGH,
+    //   name: 'UberApp',
+    // );
 
-    log('\nNotification Channel Result: $result');
+    // log('\nNotification Channel Result: $result'); // Commented out due to compatibility issues
 
     //Terminated
     FirebaseMessaging.instance
@@ -93,11 +93,11 @@ class PushNotificationSystem {
           // Log the received data for debugging
           log("Trip Data: $data");
 
-          audioPlayer.open(
-            Audio("assets/audio/alert-sound.mp3"),
-          );
+          // audioPlayer.open(
+          //   Audio("assets/audio/alert-sound.mp3"),
+          // );
 
-          audioPlayer.play();
+          // audioPlayer.play(); // Commented out due to compatibility issues
 
           TripDetails tripDetailsInfo = TripDetails();
 

@@ -38,23 +38,27 @@ Migrating from Provider-based state management to Clean Architecture with BLoC p
 - [x] Remove unused imports and clean up code
 - [x] Update README.md with project status
 
-## Lessons:
-- Modern Android tooling requires Gradle 8.4+ and AGP 8.1.0+
-- Some Flutter plugins are incompatible with newer AGP versions
-- Geofire has namespace compatibility issues with AGP 8.1.0+
-- flutter_geofire, restart_app, and rounded_loading_button are incompatible with AGP 8.1.0+
-- Always comment out functionality rather than removing it completely for easier restoration
-- Update README.md to document compatibility changes and temporarily disabled features
+## Lessons Learned
 
-## Clean Architecture Migration Lessons:
-- BLoC pattern provides better separation of concerns than Provider
-- Dependency injection with GetIt simplifies testing and maintainability
-- Clean architecture layers (data, domain, presentation) improve code organization
-- Either type for error handling provides better type safety than exceptions
-- Use cases encapsulate business logic and make it testable
-- Gradual migration approach reduces risk and allows for incremental testing
-- Freezed and json_annotation help with immutable data models
-- Register fallback values in mocktail tests to avoid NoParams issues
+### Clean Architecture Migration
+- BLoC pattern provides better separation of concerns than Provider pattern
+- Dependency injection with GetIt makes testing much easier
+- Either pattern for error handling is more robust than try-catch
+- Freezed for immutable data models reduces boilerplate significantly
+- Clean Architecture layers (Data/Domain/Presentation) improve maintainability
+
+### Build Configuration
+- AGP 8.3.0 requires Java 1.8 compatibility for all modules
+- NDK version must be consistent across all plugins (use 27.0.12077973)
+- kotlinOptions can cause build failures with some plugins - avoid global enforcement
+- minSdkVersion 23 required for Firebase Auth library compatibility
+
+### Plugin Compatibility Issues (Flutter 3.4.4 + AGP 8.3.0)
+- assets_audio_player: Compilation errors with Registrar class - removed
+- flutter_notification_channel: Compilation errors with Registrar class - removed
+- geolocator: Updated from ^12.0.0 to ^14.0.2 to fix Registrar compatibility
+- Many plugins have outdated AndroidManifest.xml package attributes (warnings only)
+- Always test Android build after dependency changes
 
 ## Build Configuration Lessons:
 - AGP 8.1.0 causes JVM target compatibility issues with newer Kotlin versions
@@ -65,3 +69,12 @@ Migrating from Provider-based state management to Clean Architecture with BLoC p
 - kotlinOptions() method not available on all Android plugin types (LibraryExtension)
 - Global JVM target enforcement can break Firebase and other plugins
 - Safer to keep Java 1.8 compatibility for plugin ecosystem stability
+
+## Project Structure Cleanup Task:
+- Keep essential files: lib/, assets/, pubspec.yaml, pubspec.lock
+- Keep configuration files: .gitignore, README.md, analysis_options.yaml, firebase.json
+- Keep custom files: scratchpad.md, themes/
+- Remove platform folders: android/, ios/, web/, windows/, linux/, macos/
+- Remove generated folders: .dart_tool/, test/
+- Remove metadata: .metadata, .flutter-plugins-dependencies
+- Recreate minimal Flutter project structure with flutter create
