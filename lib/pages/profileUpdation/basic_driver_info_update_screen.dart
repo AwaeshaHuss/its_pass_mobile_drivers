@@ -156,9 +156,14 @@ class _BasicDriverInfoUpdateScreenState
                               ),
                             ),
                             validator: (value) {
-                              if (value == null ||
-                                  value.isEmpty ||
-                                  !value.contains('@gmail.com')) {
+                              if (value == null || value.isEmpty) {
+                                return 'Email is required';
+                              }
+                              // Email regex pattern for proper validation
+                              final emailRegex = RegExp(
+                                r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+                              );
+                              if (!emailRegex.hasMatch(value)) {
                                 return 'Valid email address is required';
                               }
                               return null;
