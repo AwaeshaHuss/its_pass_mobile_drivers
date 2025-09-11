@@ -6,7 +6,6 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uber_drivers_app/global/global.dart';
@@ -226,8 +225,7 @@ class RegistrationProvider extends ChangeNotifier {
     try {
       final ImagePickerService imagePickerService = ImagePickerService();
 
-      final pickedFile = await imagePickerService.pickCropImage(
-        cropAspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
+      final XFile? pickedFile = await imagePickerService.pickImageOnly(
         imageSource: ImageSource.camera,
       );
 
@@ -241,8 +239,7 @@ class RegistrationProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print('Error picking and cropping CNIC image: $e');
-      // Handle error gracefully - could show a snackbar or dialog to user
+      print('Error picking CNIC image: $e');
     }
   }
 
@@ -250,8 +247,7 @@ class RegistrationProvider extends ChangeNotifier {
     try {
       final ImagePickerService imagePickerService = ImagePickerService();
 
-      final pickedFile = await imagePickerService.pickCropImage(
-        cropAspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 12),
+      final pickedFile = await imagePickerService.pickImageOnly(
         imageSource: ImageSource.camera,
       );
 
@@ -264,7 +260,7 @@ class RegistrationProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print('Error picking and cropping vehicle registration image: $e');
+      print('Error picking vehicle registration image: $e');
     }
   }
 
@@ -272,8 +268,7 @@ class RegistrationProvider extends ChangeNotifier {
     try {
       final ImagePickerService imagePickerService = ImagePickerService();
 
-      final pickedFile = await imagePickerService.pickCropImage(
-        cropAspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
+      final pickedFile = await imagePickerService.pickImageOnly(
         imageSource: ImageSource.camera,
       );
 
@@ -287,7 +282,7 @@ class RegistrationProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print('Error picking and cropping driving license image: $e');
+      print('Error picking driving license image: $e');
     }
   }
 
@@ -295,8 +290,7 @@ class RegistrationProvider extends ChangeNotifier {
     try {
       final ImagePickerService imagePickerService = ImagePickerService();
 
-      final pickedFile = await imagePickerService.pickCropImage(
-        cropAspectRatio: const CropAspectRatio(ratioX: 20, ratioY: 20),
+      final pickedFile = await imagePickerService.pickImageOnly(
         imageSource: ImageSource.camera,
       );
 
@@ -306,7 +300,7 @@ class RegistrationProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print('Error picking and cropping selfie with CNIC image: $e');
+      print('Error picking selfie with CNIC image: $e');
     }
   }
 

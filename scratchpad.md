@@ -304,3 +304,6 @@ Major Firebase removal completed, but compilation issues need resolution before 
 - Import issues can prevent extensions from working properly - need to ensure proper package integration
 - Email validation should use proper regex patterns instead of hardcoded domain restrictions
 - Fixed email validation to accept all valid domains (mail.com, yahoo.com, etc.) instead of only gmail.com
+- Image picker crashes can be prevented with proper error handling and UI settings
+- Always wrap image cropping operations in try-catch blocks to handle user cancellations gracefully
+- ImageCropper requires proper AndroidUiSettings and IOSUiSettings for stable operation
