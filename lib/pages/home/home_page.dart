@@ -36,8 +36,23 @@ class _HomePageState extends State<HomePage> {
 
   getCurrentLiveLocationOfDriver() async {
     try {
+      // Check location permissions first
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          print('Location permissions are denied');
+          return;
+        }
+      }
+      
+      if (permission == LocationPermission.deniedForever) {
+        print('Location permissions are permanently denied');
+        return;
+      }
+
       Position positionOfUser = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.bestForNavigation);
+          desiredAccuracy: LocationAccuracy.high);
       currentPositionOfDriver = positionOfUser;
       driverCurrentPosition = currentPositionOfDriver;
 
@@ -53,8 +68,15 @@ class _HomePageState extends State<HomePage> {
       }
     } catch (e) {
       print("Error getting location: $e");
-      // Set a default position if location access fails
-      currentPositionOfDriver = null;
+      // Use default Jordan location if location access fails
+      LatLng defaultPosition = const LatLng(31.9454, 35.9284); // Amman, Jordan
+      CameraPosition defaultCameraPosition =
+          CameraPosition(target: defaultPosition, zoom: 12);
+      
+      if (controllerGoogleMap != null) {
+        controllerGoogleMap!
+            .animateCamera(CameraUpdate.newCameraPosition(defaultCameraPosition));
+      }
     }
   }
 
