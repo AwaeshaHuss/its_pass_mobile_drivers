@@ -2,8 +2,7 @@ import 'dart:async';
 // import 'dart:convert'; // Removed due to unused import
 // import 'dart:typed_data'; // Removed due to unused import
 
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // import 'package:flutter_geofire/flutter_geofire.dart'; // Commented out due to compatibility issues with AGP 8.1.0+
@@ -32,7 +31,7 @@ class _HomePageState extends State<HomePage> {
   Color colorToShow = Colors.green;
   String titleToShow = "GO ONLINE NOW";
   bool isDriverAvailable = false;
-  DatabaseReference? newTripRequestReference;
+  // Removed Firebase Database reference - now using API calls
   MapThemeMethods themeMethods = MapThemeMethods();
 
   getCurrentLiveLocationOfDriver() async {
@@ -80,14 +79,8 @@ class _HomePageState extends State<HomePage> {
     // );
     print("Geofire functionality temporarily disabled due to compatibility issues.");
 
-    newTripRequestReference = FirebaseDatabase.instance
-        .ref()
-        .child("drivers")
-        .child(FirebaseAuth.instance.currentUser!.uid)
-        .child("newTripStatus");
-    newTripRequestReference!.set("waiting");
-
-    newTripRequestReference!.onValue.listen((event) {});
+    // TODO: Replace with API call to set driver status to "waiting"
+    // await updateDriverStatus("waiting");
   }
 
   setAndGetLocationUpdates() {
@@ -115,14 +108,19 @@ class _HomePageState extends State<HomePage> {
     // Geofire.removeLocation(FirebaseAuth.instance.currentUser!.uid); // Commented out due to compatibility issues with AGP 8.1.0+
     print("Geofire remove location temporarily disabled due to compatibility issues.");
 
-    //stop listening to the newTripStatus
-    newTripRequestReference!.onDisconnect();
-    newTripRequestReference!.remove();
-    newTripRequestReference = null;
+    // TODO: Replace with API call to set driver status to "offline"
+    // await updateDriverStatus("offline");
   }
 
-  initializePushNotificationSystem() {
-    PushNotificationSystem notificationSystem = PushNotificationSystem();
+  initializePushNotificationSystem() async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    final dio = Dio();
+    
+    PushNotificationSystem notificationSystem = PushNotificationSystem(
+      dio: dio,
+      sharedPreferences: sharedPreferences,
+      baseUrl: 'https://your-api-base-url.com/api', // TODO: Replace with actual API URL
+    );
     notificationSystem.generateDeviceRegistrationToken();
     notificationSystem.startListeningForNewNotification(context);
   }

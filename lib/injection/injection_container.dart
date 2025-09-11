@@ -1,9 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:dio/dio.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,10 +22,13 @@ Future<void> configureDependencies() async {
   // External dependencies
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
-  sl.registerLazySingleton(() => FirebaseAuth.instance);
-  sl.registerLazySingleton(() => FirebaseFirestore.instance);
-  sl.registerLazySingleton(() => FirebaseDatabase.instance);
-  sl.registerLazySingleton(() => FirebaseStorage.instance);
+  
+  // Configure Dio for API calls
+  final dio = Dio();
+  dio.options.connectTimeout = const Duration(seconds: 30);
+  dio.options.receiveTimeout = const Duration(seconds: 30);
+  sl.registerLazySingleton(() => dio);
+  
   sl.registerLazySingleton(() => GoogleSignIn());
   sl.registerLazySingleton(() => Connectivity());
   
@@ -40,10 +40,10 @@ Future<void> configureDependencies() async {
   // Data sources
   sl.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(
-      firebaseAuth: sl(),
-      firebaseFirestore: sl(),
-      firebaseStorage: sl(),
+      dio: sl(),
       googleSignIn: sl(),
+      sharedPreferences: sl(),
+      baseUrl: 'https://your-api-base-url.com/api', // TODO: Replace with actual API URL
     ),
   );
   

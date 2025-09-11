@@ -1,8 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:dio/dio.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/errors/exceptions.dart';
 import '../models/driver_model.dart';
 
@@ -19,24 +17,39 @@ abstract class AuthRemoteDataSource {
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  final FirebaseAuth firebaseAuth;
-  final FirebaseFirestore firebaseFirestore;
-  final FirebaseStorage firebaseStorage;
+  final Dio dio;
   final GoogleSignIn googleSignIn;
+  final SharedPreferences sharedPreferences;
+  final String baseUrl;
 
   AuthRemoteDataSourceImpl({
-    required this.firebaseAuth,
-    required this.firebaseFirestore,
-    required this.firebaseStorage,
+    required this.dio,
     required this.googleSignIn,
+    required this.sharedPreferences,
+    required this.baseUrl,
   });
 
   @override
   Future<DriverModel> signInWithPhone(String phoneNumber) async {
     try {
-      // This would typically trigger OTP verification
-      // For now, we'll simulate the process
-      throw UnimplementedError('Phone auth requires OTP verification flow');
+      final response = await dio.post(
+        '$baseUrl/auth/send-otp',
+        data: {'phoneNumber': phoneNumber},
+      );
+
+      if (response.statusCode == 200) {
+        // Return a temporary driver model with verification ID
+        return DriverModel(
+          id: response.data['verificationId'],
+          name: '',
+          email: '',
+          phone: phoneNumber,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+      } else {
+        throw AuthException('Failed to send OTP');
+      }
     } catch (e) {
       throw AuthException('Failed to sign in with phone: ${e.toString()}');
     }
@@ -45,46 +58,25 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<DriverModel> verifyOtp(String verificationId, String otp) async {
     try {
-      final credential = PhoneAuthProvider.credential(
-        verificationId: verificationId,
-        smsCode: otp,
+      final response = await dio.post(
+        '$baseUrl/auth/verify-otp',
+        data: {
+          'verificationId': verificationId,
+          'otp': otp,
+        },
       );
-      
-      final userCredential = await firebaseAuth.signInWithCredential(credential);
-      final user = userCredential.user;
-      
-      if (user == null) {
-        throw AuthException('Authentication failed');
-      }
 
-      // Check if driver exists in Firestore
-      final driverDoc = await firebaseFirestore
-          .collection('drivers')
-          .doc(user.uid)
-          .get();
-
-      if (driverDoc.exists) {
-        return DriverModel.fromJson({
-          'id': user.uid,
-          ...driverDoc.data()!,
-        });
-      } else {
-        // Create new driver document
-        final newDriver = DriverModel(
-          id: user.uid,
-          name: '',
-          email: user.email ?? '',
-          phone: user.phoneNumber ?? '',
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        );
+      if (response.statusCode == 200) {
+        final data = response.data;
+        final driver = DriverModel.fromJson(data['driver']);
         
-        await firebaseFirestore
-            .collection('drivers')
-            .doc(user.uid)
-            .set(newDriver.toJson());
-            
-        return newDriver;
+        // Store authentication token
+        await sharedPreferences.setString('auth_token', data['token']);
+        await sharedPreferences.setString('driver_id', driver.id);
+        
+        return driver;
+      } else {
+        throw AuthException('Invalid OTP');
       }
     } catch (e) {
       throw AuthException('OTP verification failed: ${e.toString()}');
@@ -100,47 +92,26 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
 
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+      
+      final response = await dio.post(
+        '$baseUrl/auth/google-signin',
+        data: {
+          'accessToken': googleAuth.accessToken,
+          'idToken': googleAuth.idToken,
+        },
       );
 
-      final userCredential = await firebaseAuth.signInWithCredential(credential);
-      final user = userCredential.user;
-
-      if (user == null) {
-        throw AuthException('Google authentication failed');
-      }
-
-      // Check if driver exists in Firestore
-      final driverDoc = await firebaseFirestore
-          .collection('drivers')
-          .doc(user.uid)
-          .get();
-
-      if (driverDoc.exists) {
-        return DriverModel.fromJson({
-          'id': user.uid,
-          ...driverDoc.data()!,
-        });
-      } else {
-        // Create new driver document
-        final newDriver = DriverModel(
-          id: user.uid,
-          name: user.displayName ?? '',
-          email: user.email ?? '',
-          phone: user.phoneNumber ?? '',
-          profileImageUrl: user.photoURL,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        );
+      if (response.statusCode == 200) {
+        final data = response.data;
+        final driver = DriverModel.fromJson(data['driver']);
         
-        await firebaseFirestore
-            .collection('drivers')
-            .doc(user.uid)
-            .set(newDriver.toJson());
-            
-        return newDriver;
+        // Store authentication token
+        await sharedPreferences.setString('auth_token', data['token']);
+        await sharedPreferences.setString('driver_id', driver.id);
+        
+        return driver;
+      } else {
+        throw AuthException('Google authentication failed');
       }
     } catch (e) {
       throw AuthException('Google sign in failed: ${e.toString()}');
@@ -150,8 +121,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> signOut() async {
     try {
+      final token = sharedPreferences.getString('auth_token');
+      if (token != null) {
+        await dio.post(
+          '$baseUrl/auth/signout',
+          options: Options(headers: {'Authorization': 'Bearer $token'}),
+        );
+      }
+      
       await Future.wait([
-        firebaseAuth.signOut(),
+        sharedPreferences.remove('auth_token'),
+        sharedPreferences.remove('driver_id'),
         googleSignIn.signOut(),
       ]);
     } catch (e) {
@@ -162,19 +142,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<DriverModel?> getCurrentDriver() async {
     try {
-      final user = firebaseAuth.currentUser;
-      if (user == null) return null;
+      final token = sharedPreferences.getString('auth_token');
+      final driverId = sharedPreferences.getString('driver_id');
+      
+      if (token == null || driverId == null) return null;
 
-      final driverDoc = await firebaseFirestore
-          .collection('drivers')
-          .doc(user.uid)
-          .get();
+      final response = await dio.get(
+        '$baseUrl/drivers/$driverId',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
 
-      if (driverDoc.exists) {
-        return DriverModel.fromJson({
-          'id': user.uid,
-          ...driverDoc.data()!,
-        });
+      if (response.statusCode == 200) {
+        return DriverModel.fromJson(response.data);
       }
       return null;
     } catch (e) {
@@ -185,14 +164,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<bool> isDriverBlocked(String driverId) async {
     try {
-      final driverDoc = await firebaseFirestore
-          .collection('drivers')
-          .doc(driverId)
-          .get();
+      final token = sharedPreferences.getString('auth_token');
+      if (token == null) return false;
 
-      if (driverDoc.exists) {
-        final data = driverDoc.data()!;
-        return data['isBlocked'] ?? false;
+      final response = await dio.get(
+        '$baseUrl/drivers/$driverId/status',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+      if (response.statusCode == 200) {
+        return response.data['isBlocked'] ?? false;
       }
       return false;
     } catch (e) {
@@ -203,19 +184,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<bool> isDriverProfileComplete(String driverId) async {
     try {
-      final driverDoc = await firebaseFirestore
-          .collection('drivers')
-          .doc(driverId)
-          .get();
+      final token = sharedPreferences.getString('auth_token');
+      if (token == null) return false;
 
-      if (driverDoc.exists) {
-        final data = driverDoc.data()!;
-        final driver = DriverModel.fromJson({'id': driverId, ...data});
-        
-        // Check if essential fields are filled
-        return driver.name.isNotEmpty &&
-               driver.phone.isNotEmpty &&
-               driver.vehicle != null;
+      final response = await dio.get(
+        '$baseUrl/drivers/$driverId/profile-status',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+      if (response.statusCode == 200) {
+        return response.data['isComplete'] ?? false;
       }
       return false;
     } catch (e) {
@@ -226,14 +204,22 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<DriverModel> updateDriverProfile(DriverModel driver) async {
     try {
-      final updatedDriver = driver.copyWith(updatedAt: DateTime.now());
-      
-      await firebaseFirestore
-          .collection('drivers')
-          .doc(driver.id)
-          .update(updatedDriver.toJson());
+      final token = sharedPreferences.getString('auth_token');
+      if (token == null) {
+        throw AuthException('User not authenticated');
+      }
 
-      return updatedDriver;
+      final response = await dio.put(
+        '$baseUrl/drivers/${driver.id}',
+        data: driver.toJson(),
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+      if (response.statusCode == 200) {
+        return DriverModel.fromJson(response.data);
+      } else {
+        throw AuthException('Failed to update profile');
+      }
     } catch (e) {
       throw AuthException('Failed to update profile: ${e.toString()}');
     }
@@ -242,22 +228,26 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<String> uploadProfileImage(String imagePath) async {
     try {
-      final user = firebaseAuth.currentUser;
-      if (user == null) {
+      final token = sharedPreferences.getString('auth_token');
+      if (token == null) {
         throw AuthException('User not authenticated');
       }
 
-      final file = File(imagePath);
-      final ref = firebaseStorage
-          .ref()
-          .child('drivers')
-          .child(user.uid)
-          .child('profile.jpg');
+      final formData = FormData.fromMap({
+        'image': await MultipartFile.fromFile(imagePath, filename: 'profile.jpg'),
+      });
 
-      final uploadTask = await ref.putFile(file);
-      final downloadUrl = await uploadTask.ref.getDownloadURL();
-      
-      return downloadUrl;
+      final response = await dio.post(
+        '$baseUrl/upload/profile-image',
+        data: formData,
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+      if (response.statusCode == 200) {
+        return response.data['imageUrl'];
+      } else {
+        throw AuthException('Failed to upload image');
+      }
     } catch (e) {
       throw AuthException('Failed to upload image: ${e.toString()}');
     }

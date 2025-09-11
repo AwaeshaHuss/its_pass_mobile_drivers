@@ -1,9 +1,12 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// Firebase imports commented out - replaced with API-based authentication
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:firebase_database/firebase_database.dart';
+// import 'package:firebase_storage/firebase_storage.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uber_drivers_app/models/driver.dart';
 import 'package:uber_drivers_app/pages/auth/register_screen.dart';
 import '../methods/common_method.dart';
@@ -30,12 +33,16 @@ class AuthenticationProvider extends ChangeNotifier {
   bool get isGoogleSignedIn => _isGoogleSignedIn;
   bool get isGoogleSigInLoading => _isGoogleSignInLoading;
 
-  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-  final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-  final FirebaseStorage firebaseStorage = FirebaseStorage.instance;
-  final FirebaseDatabase firebaseDatabase =
-      FirebaseDatabase.instance; // Add this line
+  // Firebase instances commented out - replaced with API-based services
+  // final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  // final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+  // final FirebaseStorage firebaseStorage = FirebaseStorage.instance;
+  // final FirebaseDatabase firebaseDatabase = FirebaseDatabase.instance;
+  
   final GoogleSignIn googleSignIn = GoogleSignIn(); // Google Sign-In instance
+  final Dio dio = Dio(); // HTTP client for API calls
+  late SharedPreferences sharedPreferences;
+  final String baseUrl = 'https://your-api-base-url.com/api'; // TODO: Replace with actual API URL
 
   void startLoading() {
     _isLoading = true;
@@ -367,7 +374,8 @@ class AuthenticationProvider extends ChangeNotifier {
         _uid = user.uid;
         _isGoogleSignedIn = true;
         notifyListeners();
-        // Handle any post sign-in logic here (e.g., saving user data)
+        final AuthenticationProvider _authProvider = AuthenticationProvider();
+        await _authProvider._initializeProvider();
       }
       onSuccess();
 

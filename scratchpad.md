@@ -1,8 +1,8 @@
-# Uber Drivers App - Clean Architecture & BLoC Migration
+# Uber Drivers App - Firebase Removal & API Integration
 
-## Task: Restructure to Clean Architecture with BLoC State Management
+## Current Task: Remove Firebase Integration and Replace with APIs
 
-Migrating from Provider-based state management to Clean Architecture with BLoC pattern for better separation of concerns, testability, and maintainability.
+Removing Firebase services (Auth, Firestore, Realtime Database, Storage) and replacing them with API-based integration while keeping Firebase Messaging for push notifications.
 
 ## Migration Strategy: Gradual Approach
 - **Phase 1**: Setup BLoC infrastructure alongside existing Provider
@@ -15,20 +15,18 @@ Migrating from Provider-based state management to Clean Architecture with BLoC p
 2. **Domain Layer**: Entities, Use Cases, Repository Interfaces
 3. **Data Layer**: Repository Implementations, Data Sources (Remote/Local)
 
-## Current Progress:
-- [x] Create new branch for clean architecture migration
-- [x] Add BLoC dependencies to pubspec.yaml
-- [x] Create clean architecture folder structure
-- [x] Implement data layer (repositories, data sources)
-- [x] Implement domain layer (entities, use cases)
-- [x] Migrate authentication feature to BLoC
-- [x] Create new AuthCheck widget with BLoC
-- [x] Setup dependency injection container
-- [x] Create basic unit tests for auth feature
-- [ ] Migrate dashboard feature to BLoC
-- [ ] Migrate trips feature to BLoC
-- [ ] Remove old Provider code and cleanup
-- [ ] Update documentation and commit changes
+## Firebase Removal Progress:
+- [x] Create new branch for Firebase removal
+- [x] Remove Firebase dependencies from pubspec.yaml (kept firebase_messaging for push notifications)
+- [x] Remove Firebase configuration files (firebase.json, firebase_options.dart, google-services.json)
+- [x] Update authentication data source to use API calls instead of Firebase Auth
+- [x] Update push notification system to use APIs for data retrieval while keeping Firebase Messaging
+- [x] Update dependency injection container to use Dio and SharedPreferences instead of Firebase services
+- [x] Fix instantiation errors in home_page.dart
+- [ ] Fix Firebase references in legacy provider files (auth_provider.dart, registration_provider.dart)
+- [ ] Update all remaining Firebase Database and Firestore references to use API calls
+- [ ] Test the app after Firebase removal
+- [ ] Create API endpoint documentation for backend team
 
 ## Previous Compatibility Fixes (Completed):
 - [x] Update Gradle wrapper to 8.4 for Java 21 compatibility
@@ -39,6 +37,13 @@ Migrating from Provider-based state management to Clean Architecture with BLoC p
 - [x] Update README.md with project status
 
 ## Lessons Learned
+
+### Firebase Removal & API Integration
+- Firebase Messaging should be kept for push notifications as it's the most reliable cross-platform solution
+- Legacy provider-based code requires extensive refactoring when removing Firebase dependencies
+- API-based authentication with JWT tokens stored in SharedPreferences is more flexible than Firebase Auth
+- Dio with proper error handling and interceptors provides better API integration than Firebase SDKs
+- Clean Architecture with BLoC makes it easier to swap data sources (Firebase → API)
 
 ### Clean Architecture Migration
 - BLoC pattern provides better separation of concerns than Provider pattern
