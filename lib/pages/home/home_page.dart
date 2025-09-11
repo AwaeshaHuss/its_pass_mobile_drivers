@@ -28,9 +28,10 @@ class _HomePageState extends State<HomePage> {
       Completer<GoogleMapController>();
   GoogleMapController? controllerGoogleMap;
   Position? currentPositionOfDriver;
-  Color colorToShow = Colors.green;
+  Color colorToShow = Colors.black;
   String titleToShow = "GO ONLINE NOW";
   bool isDriverAvailable = false;
+  StreamSubscription<Position>? positionStreamHomePage;
   // Removed Firebase Database reference - now using API calls
   MapThemeMethods themeMethods = MapThemeMethods();
 
@@ -63,8 +64,19 @@ class _HomePageState extends State<HomePage> {
           CameraPosition(target: positionOfUserInLatLng, zoom: 15);
       
       if (controllerGoogleMap != null) {
-        controllerGoogleMap!
-            .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+        try {
+          await controllerGoogleMap!
+              .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+        } catch (e) {
+          print("Error animating camera: $e");
+          // Fallback to direct position setting
+          try {
+            await controllerGoogleMap!
+                .moveCamera(CameraUpdate.newCameraPosition(cameraPosition));
+          } catch (moveError) {
+            print("Error moving camera: $moveError");
+          }
+        }
       }
     } catch (e) {
       print("Error getting location: $e");
@@ -74,8 +86,19 @@ class _HomePageState extends State<HomePage> {
           CameraPosition(target: defaultPosition, zoom: 12);
       
       if (controllerGoogleMap != null) {
-        controllerGoogleMap!
-            .animateCamera(CameraUpdate.newCameraPosition(defaultCameraPosition));
+        try {
+          await controllerGoogleMap!
+              .animateCamera(CameraUpdate.newCameraPosition(defaultCameraPosition));
+        } catch (e) {
+          print("Error animating to default camera: $e");
+          // Fallback to direct position setting
+          try {
+            await controllerGoogleMap!
+                .moveCamera(CameraUpdate.newCameraPosition(defaultCameraPosition));
+          } catch (moveError) {
+            print("Error moving to default camera: $moveError");
+          }
+        }
       }
     }
   }
@@ -85,10 +108,10 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       isDriverAvailable = prefs.getBool('isDriverAvailable') ?? false;
       if (isDriverAvailable) {
-        colorToShow = Colors.pink;
+        colorToShow = Colors.red[400]!;
         titleToShow = "GO OFFLINE NOW";
       } else {
-        colorToShow = Colors.green;
+        colorToShow = Colors.black;
         titleToShow = "GO ONLINE NOW";
       }
     });
@@ -130,8 +153,19 @@ class _HomePageState extends State<HomePage> {
 
       LatLng positionLatLng = LatLng(position.latitude, position.longitude);
       if (controllerGoogleMap != null) {
-        controllerGoogleMap!
-            .animateCamera(CameraUpdate.newLatLng(positionLatLng));
+        try {
+          controllerGoogleMap!
+              .animateCamera(CameraUpdate.newLatLng(positionLatLng));
+        } catch (e) {
+          print("Error animating camera in position stream: $e");
+          // Fallback to direct position setting
+          try {
+            controllerGoogleMap!
+                .moveCamera(CameraUpdate.newLatLng(positionLatLng));
+          } catch (moveError) {
+            print("Error moving camera in position stream: $moveError");
+          }
+        }
       }
     });
   }
@@ -140,6 +174,13 @@ class _HomePageState extends State<HomePage> {
     //stop sharing driver live location updates
     // Geofire.removeLocation(FirebaseAuth.instance.currentUser!.uid); // Commented out due to compatibility issues with AGP 8.1.0+
     print("Geofire remove location temporarily disabled due to compatibility issues.");
+
+    // Cancel location stream when going offline
+    if (positionStreamHomePage != null) {
+      positionStreamHomePage!.cancel();
+      positionStreamHomePage = null;
+      print("Location stream cancelled - driver is now offline");
+    }
 
     // TODO: Replace with API call to set driver status to "offline"
     // await updateDriverStatus("offline");
@@ -170,6 +211,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void dispose() {
+    // Cancel location stream to prevent memory leaks
+    if (positionStreamHomePage != null) {
+      positionStreamHomePage!.cancel();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -177,22 +227,33 @@ class _HomePageState extends State<HomePage> {
         children: [
           // Google Map
           GoogleMap(
-            padding: const EdgeInsets.only(top: 160),
+            padding: const EdgeInsets.only(top: 140),
             mapType: MapType.normal,
             myLocationEnabled: true,
             zoomControlsEnabled: false,
             myLocationButtonEnabled: false,
             initialCameraPosition: googlePlexInitialPosition,
-            onMapCreated: (GoogleMapController mapController) {
-              controllerGoogleMap = mapController;
-              googleMapCompleterController.complete(controllerGoogleMap);
-              getCurrentLiveLocationOfDriver();
+            onMapCreated: (GoogleMapController mapController) async {
+              try {
+                controllerGoogleMap = mapController;
+                googleMapCompleterController.complete(controllerGoogleMap);
+                
+                // Add a small delay to ensure map is fully initialized
+                await Future.delayed(const Duration(milliseconds: 500));
+                
+                // Apply dark theme if needed
+                themeMethods.updateMapTheme(controllerGoogleMap!);
+                
+                // Get current location
+                getCurrentLiveLocationOfDriver();
+              } catch (e) {
+                print("Error initializing map: $e");
+              }
             },
           ),
 
           // Top Header
           Container(
-            height: 160,
             decoration: BoxDecoration(
               color: Colors.white,
               boxShadow: [
@@ -205,35 +266,38 @@ class _HomePageState extends State<HomePage> {
             ),
             child: SafeArea(
               child: Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     // Status Header
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              isDriverAvailable ? 'You\'re Online' : 'You\'re Offline',
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                isDriverAvailable ? 'You\'re Online' : 'You\'re Offline',
+                                style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              isDriverAvailable 
-                                  ? 'Ready to accept trips'
-                                  : 'Go online to start earning',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
+                              const SizedBox(height: 4),
+                              Text(
+                                isDriverAvailable 
+                                    ? 'Ready to accept trips'
+                                    : 'Go online to start earning',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                         Container(
                           width: 12,
@@ -246,12 +310,12 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                     
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
                     
                     // Online/Offline Toggle Button
                     SizedBox(
                       width: double.infinity,
-                      height: 50,
+                      height: 48,
                       child: ElevatedButton(
                         onPressed: () => _showStatusChangeDialog(),
                         style: ElevatedButton.styleFrom(
@@ -322,7 +386,7 @@ class _HomePageState extends State<HomePage> {
           ),
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -335,7 +399,7 @@ class _HomePageState extends State<HomePage> {
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   
                   // Title
                   Text(
@@ -360,7 +424,7 @@ class _HomePageState extends State<HomePage> {
                       height: 1.4,
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                   
                   // Action Buttons
                   Row(
@@ -389,7 +453,9 @@ class _HomePageState extends State<HomePage> {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
+                            print("Toggle button pressed. Current state: isDriverAvailable = $isDriverAvailable");
                             if (!isDriverAvailable) {
+                              print("Going online...");
                               goOnlineNow();
                               setAndGetLocationUpdates();
                               setState(() {
@@ -398,7 +464,9 @@ class _HomePageState extends State<HomePage> {
                                 isDriverAvailable = true;
                               });
                               _saveDriverStatus(true);
+                              print("Driver is now ONLINE");
                             } else {
+                              print("Going offline...");
                               goOfflineNow();
                               setState(() {
                                 colorToShow = Colors.black;
@@ -406,6 +474,7 @@ class _HomePageState extends State<HomePage> {
                                 isDriverAvailable = false;
                               });
                               _saveDriverStatus(false);
+                              print("Driver is now OFFLINE");
                             }
                             Navigator.pop(context);
                           },
