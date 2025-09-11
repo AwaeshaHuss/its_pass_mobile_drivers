@@ -107,6 +107,10 @@ The app crashes when navigating from RegistrationScreen → DriverRegistration �
 - [x] Set default rating value to "0.0" in global.dart
 - [x] Replaced missing image asset with icon in EarningsPage
 - [x] Fixed lint warning in TripsPage for non-nullable string check
+- [x] Pushed changes to remote branch: `fix-dashboard-navigation-crash`
+
+### Status: ✅ COMPLETED
+Dashboard navigation crash has been resolved and changes are pushed to remote repository.
 
 ## Progress
 
