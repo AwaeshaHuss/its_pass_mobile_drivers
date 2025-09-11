@@ -184,28 +184,15 @@ class _DriverRegistrationState extends State<DriverRegistration> {
                   width: MediaQuery.of(context).size.width * 0.9,
                   height: MediaQuery.of(context).size.height * 0.09,
                   child: ElevatedButton(
-                    onPressed: isAllComplete && !registrationProvider.isLoading
-                        ? () async {
-                            registrationProvider.startLoading();
-                            try {
-                              await registrationProvider.saveUserData(context);
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (c) => const Dashboard(),
-                                ),
-                              );
-                              CommonMethods commonMethods = CommonMethods();
-                              commonMethods.displaySnackBar(
-                                  "Your account created successfully.",
-                                  context);
-                            } catch (e) {
-                              print("Error while saving data: $e");
-                            } finally {
-                              registrationProvider.stopLoading();
-                            }
-                          }
-                        : null,
+                    onPressed: () {
+                      // For UI testing - navigate directly to dashboard
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (c) => const Dashboard(),
+                        ),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
                           isAllComplete ? Colors.green : Colors.grey,

@@ -31,6 +31,6 @@ String carColor = "";
 String carNumber = "";
 String driverSecondName = "";
 String address = "";
-String ratting = "";
+String ratting = "0.0";
 String bidAmount = "";
 String fareAmount = "";

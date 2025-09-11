@@ -37,9 +37,18 @@ class _EarningsPageState extends State<EarningsPage> {
                   padding: const EdgeInsets.all(18.0),
                   child: Column(
                     children: [
-                      Image.asset(
-                        "assets/images/totalearnings.png",
+                      Container(
                         width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(60),
+                        ),
+                        child: const Icon(
+                          Icons.account_balance_wallet,
+                          size: 60,
+                          color: Colors.white,
+                        ),
                       ),
                       const SizedBox(
                         height: 10,

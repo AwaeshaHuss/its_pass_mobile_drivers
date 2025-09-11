@@ -19,15 +19,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController phoneController = TextEditingController();
 
   Country selectedCountry = Country(
-    phoneCode: '92',
-    countryCode: 'PK',
+    phoneCode: '962',
+    countryCode: 'JO',
     e164Sc: 0,
     geographic: true,
     level: 1,
-    name: 'Pakistan',
-    example: 'Pakistan',
-    displayName: 'Pakistan',
-    displayNameNoCountryCode: 'PK',
+    name: 'Jordan',
+    example: 'Jordan',
+    displayName: 'Jordan',
+    displayNameNoCountryCode: 'JO',
     e164Key: '',
   );
 
@@ -63,7 +63,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 TextFormField(
                   controller: phoneController,
-                  maxLength: 10,
+                  maxLength: 9,
                   textInputAction: TextInputAction.done,
                   keyboardType: TextInputType.number,
                   style: const TextStyle(
@@ -78,7 +78,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   decoration: InputDecoration(
                     fillColor: Colors.grey,
                     counterText: '',
-                    hintText: '313 7426256',
+                    hintText: '791234567',
                     hintStyle: const TextStyle(
                       color: Colors.grey,
                       fontSize: 18,
@@ -107,14 +107,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             },
                           );
                         },
-                        child: Text(
-                          ' +${selectedCountry.phoneCode}',
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              selectedCountry.flagEmoji,
+                              style: const TextStyle(fontSize: 20),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '+${selectedCountry.phoneCode}',
+                              style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    suffixIcon: phoneController.text.length > 9
+                    suffixIcon: phoneController.text.length > 8
                         ? Container(
                             height: 20,
                             width: 20,
@@ -137,8 +147,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   width: MediaQuery.of(context).size.width * 0.9,
                   height: MediaQuery.of(context).size.height * 0.07,
                   child: ElevatedButton(
-                    onPressed:
-                        sendPhoneNumber, // Correctly call the sendPhoneNumber function
+                    onPressed: () {
+                      // For UI testing - navigate directly to next screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => DriverRegistration()),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       shape: RoundedRectangleBorder(
@@ -335,17 +350,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void sendPhoneNumber() {
+    
     final authRepo =
         Provider.of<AuthenticationProvider>(context, listen: false);
     String phoneNumber = phoneController.text.trim();
 
-    // Validate the phone number
-    if (phoneNumber.isEmpty ||
-        phoneNumber.length != 10 ||
-        !RegExp(r'^[3][0-9]{9}$').hasMatch(phoneNumber)) {
+    // Validate the phone number based on country
+    bool isValid = false;
+    String errorMessage = "Please enter a valid mobile number.";
+
+    if (selectedCountry.phoneCode == '962') {
+      // Jordan validation: 9 digits starting with 7
+      isValid = phoneNumber.length == 9 && RegExp(r'^[7][0-9]{8}$').hasMatch(phoneNumber);
+      errorMessage = "Please enter a valid Jordanian mobile number (9 digits starting with 7).";
+    } else if (selectedCountry.phoneCode == '92') {
+      // Pakistan validation: 10 digits starting with 3
+      isValid = phoneNumber.length == 10 && RegExp(r'^[3][0-9]{9}$').hasMatch(phoneNumber);
+      errorMessage = "Please enter a valid Pakistani mobile number (10 digits starting with 3).";
+    } else {
+      // General validation: 8-15 digits
+      isValid = phoneNumber.length >= 8 && phoneNumber.length <= 15 && RegExp(r'^[0-9]+$').hasMatch(phoneNumber);
+    }
+
+    if (phoneNumber.isEmpty || !isValid) {
       // Show error if the phone number is invalid
       commonMethods.displaySnackBar(
-        "Please enter a valid mobile number.",
+        errorMessage,
         context,
       );
       return;

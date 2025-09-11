@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uber_drivers_app/methods/common_method.dart';
 import 'package:uber_drivers_app/pages/dashboard.dart';
@@ -110,213 +111,293 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(10),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(
-                height: 40,
-              ),
-
-              imageFile == null
-                  ? const CircleAvatar(
-                      radius: 86,
-                      backgroundImage:
-                          AssetImage("assets/images/avatarman.png"),
-                    )
-                  : Container(
-                      width: 180,
-                      height: 180,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.grey,
-                          image: DecorationImage(
-                              fit: BoxFit.fitHeight,
-                              image: FileImage(
-                                File(
-                                  imageFile!.path,
-                                ),
-                              ))),
-                    ),
-
-              const SizedBox(
-                height: 10,
-              ),
-
-              GestureDetector(
-                onTap: () {
-                  chooseImageFromGallery();
-                },
-                child: const Text(
-                  "Choose Image",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+              const SizedBox(height: 20),
+              
+              // Header
+              const Text(
+                'Create account',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
+                  letterSpacing: -0.5,
                 ),
               ),
-
-              //text fields + button
-              Padding(
-                padding: const EdgeInsets.all(22),
+              const SizedBox(height: 8),
+              Text(
+                'Join as a driver and start earning',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              
+              const SizedBox(height: 32),
+              
+              // Profile photo section
+              Center(
                 child: Column(
                   children: [
-                    TextField(
-                      controller: userNameTextEditingController,
-                      keyboardType: TextInputType.text,
-                      decoration: const InputDecoration(
-                        labelText: "Your Name",
-                        labelStyle: TextStyle(
-                          fontSize: 14,
+                    GestureDetector(
+                      onTap: chooseImageFromGallery,
+                      child: Container(
+                        height: 100,
+                        width: 100,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.grey[100],
+                          border: Border.all(
+                            color: Colors.grey[300]!,
+                            width: 2,
+                          ),
+                          image: imageFile != null
+                              ? DecorationImage(
+                                  image: FileImage(File(imageFile!.path)),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
                         ),
-                      ),
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 15,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 22,
-                    ),
-                    TextField(
-                      controller: userPhoneTextEditingController,
-                      keyboardType: TextInputType.text,
-                      decoration: const InputDecoration(
-                        labelText: "Your Phone",
-                        labelStyle: TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 15,
+                        child: imageFile == null
+                            ? Icon(
+                                Icons.camera_alt_outlined,
+                                size: 40,
+                                color: Colors.grey[600],
+                              )
+                            : null,
                       ),
                     ),
-                    const SizedBox(
-                      height: 22,
-                    ),
-                    TextField(
-                      controller: emailTextEditingController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        labelText: "Your Email",
-                        labelStyle: TextStyle(
-                          fontSize: 14,
-                        ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Add profile photo',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
                       ),
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 15,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 22,
-                    ),
-                    TextField(
-                      controller: passwordTextEditingController,
-                      obscureText: true,
-                      keyboardType: TextInputType.text,
-                      decoration: const InputDecoration(
-                        labelText: "Your Password",
-                        labelStyle: TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 15,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 22,
-                    ),
-                    TextField(
-                      controller: vehicleModelTextEditingController,
-                      keyboardType: TextInputType.text,
-                      decoration: const InputDecoration(
-                        labelText: "Your Car Model",
-                        labelStyle: TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 15,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 22,
-                    ),
-                    TextField(
-                      controller: vehicleColorTextEditingController,
-                      keyboardType: TextInputType.text,
-                      decoration: const InputDecoration(
-                        labelText: "Your Car Color",
-                        labelStyle: TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 15,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 22,
-                    ),
-                    TextField(
-                      controller: vehicleNumberTextEditingController,
-                      keyboardType: TextInputType.text,
-                      decoration: const InputDecoration(
-                        labelText: "Your Car Number",
-                        labelStyle: TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 15,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 22,
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        checkIfNetworkIsAvailable();
-                      },
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.purple,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 80, vertical: 10)),
-                      child: const Text("Sign Up"),
                     ),
                   ],
                 ),
               ),
-
-              const SizedBox(
-                height: 12,
+              
+              const SizedBox(height: 32),
+              
+              // Form fields
+              _buildTextField(
+                'Full Name',
+                'Enter your full name',
+                userNameTextEditingController,
+                Icons.person_outline,
               ),
-
-              //textbutton
-              TextButton(
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (c) => const LoginScreen()));
-                },
-                child: const Text(
-                  "Already have an Account? Login Here",
-                  style: TextStyle(
-                    color: Colors.grey,
+              
+              const SizedBox(height: 20),
+              
+              _buildTextField(
+                'Phone Number',
+                'Enter your phone number',
+                userPhoneTextEditingController,
+                Icons.phone_outlined,
+                keyboardType: TextInputType.phone,
+              ),
+              
+              const SizedBox(height: 20),
+              
+              _buildTextField(
+                'Email',
+                'Enter your email',
+                emailTextEditingController,
+                Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
+              ),
+              
+              const SizedBox(height: 20),
+              
+              _buildTextField(
+                'Password',
+                'Create a password',
+                passwordTextEditingController,
+                Icons.lock_outline,
+                isPassword: true,
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Vehicle information section
+              const Text(
+                'Vehicle Information',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              _buildTextField(
+                'Vehicle Model',
+                'e.g., Toyota Corolla',
+                vehicleModelTextEditingController,
+                Icons.directions_car_outlined,
+              ),
+              
+              const SizedBox(height: 20),
+              
+              _buildTextField(
+                'Vehicle Color',
+                'e.g., White',
+                vehicleColorTextEditingController,
+                Icons.palette_outlined,
+              ),
+              
+              const SizedBox(height: 20),
+              
+              _buildTextField(
+                'License Plate',
+                'Enter license plate number',
+                vehicleNumberTextEditingController,
+                Icons.confirmation_number_outlined,
+              ),
+              
+              const SizedBox(height: 32),
+              
+              // Sign up button
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: checkIfNetworkIsAvailable,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Create Account',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
+              
+              const SizedBox(height: 24),
+              
+              // Sign in link
+              Center(
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginScreen(),
+                      ),
+                    );
+                  },
+                  child: RichText(
+                    text: TextSpan(
+                      text: "Already have an account? ",
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      children: const [
+                        TextSpan(
+                          text: 'Sign in',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 32),
             ],
           ),
         ),
       ),
+    );
+  }
+  
+  Widget _buildTextField(
+    String label,
+    String hint,
+    TextEditingController controller,
+    IconData icon, {
+    bool isPassword = false,
+    TextInputType? keyboardType,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[50],
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey[200]!),
+          ),
+          child: TextField(
+            controller: controller,
+            obscureText: isPassword,
+            keyboardType: keyboardType,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.black,
+            ),
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: const TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.w400,
+              ),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
+              ),
+              prefixIcon: Icon(
+                icon,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

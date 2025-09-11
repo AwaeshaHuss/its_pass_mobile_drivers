@@ -7,8 +7,9 @@ class RatingStars extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Convert the 'ratting' string to an integer
-    int ratingValue = int.tryParse(ratting) ?? 0;
+    // Convert the 'ratting' string to a double, then to integer for star display
+    double ratingDouble = double.tryParse(ratting) ?? 0.0;
+    int ratingValue = ratingDouble.round();
 
     // Ensure the rating is between 0 and 5
     if (ratingValue > 5) ratingValue = 5;
