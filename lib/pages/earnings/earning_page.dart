@@ -120,7 +120,7 @@ class _EarningsPageState extends State<EarningsPage> {
                           );
                         } else {
                           return Text(
-                            'Rs ${provider.driverEarnings ?? 0}',
+                            'JOD ${provider.driverEarnings ?? 0}',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 36.sp,
@@ -230,21 +230,21 @@ class _EarningsPageState extends State<EarningsPage> {
               // Activity List
               _buildActivityItem(
                 date: 'Today',
-                amount: 'Rs 1,250',
+                amount: 'JOD 1,250',
                 trips: '5 trips',
                 time: '6 hours',
               ),
               
               _buildActivityItem(
                 date: 'Yesterday',
-                amount: 'Rs 980',
+                amount: 'JOD 980',
                 trips: '4 trips',
                 time: '4.5 hours',
               ),
               
               _buildActivityItem(
                 date: 'Dec 9',
-                amount: 'Rs 1,450',
+                amount: 'JOD 1,450',
                 trips: '6 trips',
                 time: '7 hours',
               ),
