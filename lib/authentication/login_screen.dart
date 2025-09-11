@@ -15,44 +15,80 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen>
-{
-  TextEditingController emailTextEditingController = TextEditingController();
-  TextEditingController passwordTextEditingController = TextEditingController();
-  CommonMethods cMethods = CommonMethods();
+class _LoginScreenState extends State<LoginScreen> {
+  late final TextEditingController emailTextEditingController;
+  late final TextEditingController passwordTextEditingController;
+  final CommonMethods cMethods = CommonMethods();
+  final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
+  bool _isPasswordVisible = false;
+  bool _isLoading = false;
 
-
-
-  checkIfNetworkIsAvailable()
-  {
-    //cMethods.checkConnectivity(context);
-
-    signInFormValidation();
+  @override
+  void initState() {
+    super.initState();
+    emailTextEditingController = TextEditingController();
+    passwordTextEditingController = TextEditingController();
   }
 
-  signInFormValidation()
-  {
-
-    if(!emailTextEditingController.text.contains("@"))
-    {
-      cMethods.displaySnackBar("please write valid email.", context);
-    }
-    else if(passwordTextEditingController.text.trim().length < 5)
-    {
-      cMethods.displaySnackBar("your password must be atleast 6 or more characters.", context);
-    }
-    else
-    {
-      signInUser();
-    }
+  @override
+  void dispose() {
+    emailTextEditingController.dispose();
+    passwordTextEditingController.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    super.dispose();
   }
 
-  signInUser() async
-  {
+
+
+  void _checkIfNetworkIsAvailable() {
+    if (_isLoading) return;
+    _signInFormValidation();
+  }
+
+  void _signInFormValidation() {
+    final email = emailTextEditingController.text.trim();
+    final password = passwordTextEditingController.text.trim();
+
+    if (email.isEmpty) {
+      cMethods.displaySnackBar("Please enter your email address.", context);
+      _emailFocusNode.requestFocus();
+      return;
+    }
+    
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
+      cMethods.displaySnackBar("Please enter a valid email address.", context);
+      _emailFocusNode.requestFocus();
+      return;
+    }
+    
+    if (password.isEmpty) {
+      cMethods.displaySnackBar("Please enter your password.", context);
+      _passwordFocusNode.requestFocus();
+      return;
+    }
+    
+    if (password.length < 6) {
+      cMethods.displaySnackBar("Password must be at least 6 characters long.", context);
+      _passwordFocusNode.requestFocus();
+      return;
+    }
+    
+    _signInUser();
+  }
+
+  Future<void> _signInUser() async {
+    if (_isLoading) return;
+    
+    setState(() {
+      _isLoading = true;
+    });
+
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) => const LoadingDialog(messageText: "Allowing you to Login..."),
+      builder: (BuildContext context) => const LoadingDialog(messageText: "Signing you in..."),
     );
 
     try {
@@ -63,17 +99,26 @@ class _LoginScreenState extends State<LoginScreen>
         context: context,
       );
 
-      if(!context.mounted) return;
+      if (!mounted) return;
       Navigator.pop(context);
 
       // Check if login was successful
       if (authProvider.isLoggedIn) {
-        Navigator.push(context, MaterialPageRoute(builder: (c)=> Dashboard()));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Dashboard()),
+        );
       }
     } catch (errorMsg) {
-      if(!context.mounted) return;
+      if (!mounted) return;
       Navigator.pop(context);
       cMethods.displaySnackBar(errorMsg.toString(), context);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -104,6 +149,13 @@ class _LoginScreenState extends State<LoginScreen>
                       decoration: BoxDecoration(
                         color: Colors.black,
                         borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
                       child: const Icon(
                         Icons.local_taxi,
@@ -157,7 +209,10 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                     child: TextField(
                       controller: emailTextEditingController,
+                      focusNode: _emailFocusNode,
                       keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
+                      onSubmitted: (_) => _passwordFocusNode.requestFocus(),
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -207,26 +262,42 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                     child: TextField(
                       controller: passwordTextEditingController,
-                      obscureText: true,
+                      focusNode: _passwordFocusNode,
+                      obscureText: !_isPasswordVisible,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (_) => _checkIfNetworkIsAvailable(),
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                         color: Colors.black,
                       ),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Enter your password',
-                        hintStyle: TextStyle(
+                        hintStyle: const TextStyle(
                           color: Colors.grey,
                           fontWeight: FontWeight.w400,
                         ),
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(
+                        contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 16,
                         ),
-                        prefixIcon: Icon(
+                        prefixIcon: const Icon(
                           Icons.lock_outline,
                           color: Colors.grey,
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isPasswordVisible
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isPasswordVisible = !_isPasswordVisible;
+                            });
+                          },
                         ),
                       ),
                     ),
@@ -241,22 +312,32 @@ class _LoginScreenState extends State<LoginScreen>
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: checkIfNetworkIsAvailable,
+                  onPressed: _isLoading ? null : _checkIfNetworkIsAvailable,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
+                    backgroundColor: _isLoading ? Colors.grey[400] : Colors.black,
                     foregroundColor: Colors.white,
                     elevation: 0,
+                    disabledBackgroundColor: Colors.grey[400],
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'Sign In',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Text(
+                          'Sign In',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
               
