@@ -9,6 +9,7 @@ import 'package:itspass_driver/pages/dashboard.dart';
 import 'package:itspass_driver/pages/driverRegistration/driver_registration.dart';
 import 'package:itspass_driver/providers/auth_provider.dart';
 import 'package:itspass_driver/widgets/blocked_screen.dart';
+import 'package:itspass_driver/l10n/app_localizations.dart';
 
 class OTPScreen extends StatefulWidget {
   final String verificationId;
@@ -109,7 +110,7 @@ class _OTPScreenState extends State<OTPScreen> {
                     ),
                     SizedBox(height: 24.h),
                     Text(
-                      'Verify your number',
+                      AppLocalizations.of(context)?.otpVerification ?? 'Verify your number',
                       style: TextStyle(
                         fontSize: 28.sp,
                         fontWeight: FontWeight.w700,
@@ -120,8 +121,8 @@ class _OTPScreenState extends State<OTPScreen> {
                     SizedBox(height: 8.h),
                     Text(
                       widget.phoneNumber != null 
-                          ? 'Enter the 6-digit code sent to\n${widget.phoneNumber}'
-                          : 'Enter the 6-digit code sent to your phone',
+                          ? '${AppLocalizations.of(context)?.enterOtpCode ?? 'Enter the OTP code sent to your mobile number'}\n${widget.phoneNumber}'
+                          : AppLocalizations.of(context)?.enterOtpCode ?? 'Enter the OTP code sent to your mobile number',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
@@ -244,7 +245,7 @@ class _OTPScreenState extends State<OTPScreen> {
                           ),
                         )
                       : Text(
-                          'Verify Code',
+                          AppLocalizations.of(context)?.verify ?? 'Verify Code',
                           style: TextStyle(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w600,
@@ -280,7 +281,7 @@ class _OTPScreenState extends State<OTPScreen> {
                 child: Column(
                   children: [
                     Text(
-                      "Didn't receive the code?",
+                      AppLocalizations.of(context)?.didntReceiveCode ?? "Didn't receive the code?",
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.grey[600],
@@ -298,7 +299,7 @@ class _OTPScreenState extends State<OTPScreen> {
                       ),
                       child: Text(
                         _canResend 
-                            ? 'Resend Code'
+                            ? (AppLocalizations.of(context)?.resendOtp ?? 'Resend Code')
                             : 'Resend in ${_resendCountdown}s',
                         style: TextStyle(
                           fontSize: 16.sp,

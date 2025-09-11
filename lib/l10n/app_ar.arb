@@ -71,5 +71,57 @@
   "pleaseEnterValidMobileNumber": "يرجى إدخال رقم هاتف محمول صحيح",
   "@pleaseEnterValidMobileNumber": {
     "description": "Validation message for mobile number"
+  },
+  "or": "أو",
+  "@or": {
+    "description": "Or divider text"
+  },
+  "byProceeding": "بالمتابعة، أنت توافق على تلقي مكالمات أو رسائل واتساب أو رسائل نصية، بما في ذلك بوسائل آلية، من أوبر وشركاتها التابعة إلى الرقم المقدم.",
+  "@byProceeding": {
+    "description": "Terms and conditions text"
+  },
+  "otpVerification": "التحقق من رمز OTP",
+  "@otpVerification": {
+    "description": "OTP verification screen title"
+  },
+  "enterOtpCode": "أدخل رمز OTP المرسل إلى رقم هاتفك المحمول",
+  "@enterOtpCode": {
+    "description": "OTP instruction text"
+  },
+  "verify": "تحقق",
+  "@verify": {
+    "description": "Verify button text"
+  },
+  "resendOtp": "إعادة إرسال OTP",
+  "@resendOtp": {
+    "description": "Resend OTP button text"
+  },
+  "didntReceiveCode": "لم تتلق الرمز؟",
+  "@didntReceiveCode": {
+    "description": "Text asking if user didn't receive code"
+  },
+  "invalidOtp": "رمز OTP غير صحيح",
+  "@invalidOtp": {
+    "description": "Invalid OTP error message"
+  },
+  "otpSentSuccessfully": "تم إرسال OTP بنجاح",
+  "@otpSentSuccessfully": {
+    "description": "OTP sent success message"
+  },
+  "selectYourPreferences": "اختر تفضيلاتك",
+  "@selectYourPreferences": {
+    "description": "Header text for preferences selection"
+  },
+  "chooseCountryLanguage": "اختر بلدك ولغتك لتخصيص تجربتك",
+  "@chooseCountryLanguage": {
+    "description": "Subtitle for country and language selection"
+  },
+  "saveSettings": "حفظ الإعدادات",
+  "@saveSettings": {
+    "description": "Save settings button text"
+  },
+  "currency": "العملة",
+  "@currency": {
+    "description": "Currency label"
   }
 }

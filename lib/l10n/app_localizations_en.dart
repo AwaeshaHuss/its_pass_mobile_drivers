@@ -63,4 +63,41 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get pleaseEnterValidMobileNumber =>
       'Please enter a valid mobile number';
+
+  @override
+  String get or => 'Or';
+
+  @override
+  String get otpVerification => 'OTP Verification';
+
+  @override
+  String get enterOtpCode => 'Enter the OTP code sent to your mobile number';
+
+  @override
+  String get verify => 'Verify';
+
+  @override
+  String get resendOtp => 'Resend OTP';
+
+  @override
+  String get didntReceiveCode => 'Didn\'t receive the code?';
+
+  @override
+  String get invalidOtp => 'Invalid OTP code';
+
+  @override
+  String get otpSentSuccessfully => 'OTP sent successfully';
+
+  @override
+  String get selectYourPreferences => 'Select Your Preferences';
+
+  @override
+  String get chooseCountryLanguage =>
+      'Choose your country and language to customize your experience';
+
+  @override
+  String get saveSettings => 'Save Settings';
+
+  @override
+  String get currency => 'Currency';
 }

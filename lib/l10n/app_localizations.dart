@@ -205,6 +205,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please enter a valid mobile number'**
   String get pleaseEnterValidMobileNumber;
+
+  /// Or divider text
+  ///
+  /// In en, this message translates to:
+  /// **'Or'**
+  String get or;
+
+  /// OTP verification screen title
+  ///
+  /// In en, this message translates to:
+  /// **'OTP Verification'**
+  String get otpVerification;
+
+  /// OTP instruction text
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the OTP code sent to your mobile number'**
+  String get enterOtpCode;
+
+  /// Verify button text
+  ///
+  /// In en, this message translates to:
+  /// **'Verify'**
+  String get verify;
+
+  /// Resend OTP button text
+  ///
+  /// In en, this message translates to:
+  /// **'Resend OTP'**
+  String get resendOtp;
+
+  /// Text asking if user didn't receive code
+  ///
+  /// In en, this message translates to:
+  /// **'Didn\'t receive the code?'**
+  String get didntReceiveCode;
+
+  /// Invalid OTP error message
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid OTP code'**
+  String get invalidOtp;
+
+  /// OTP sent success message
+  ///
+  /// In en, this message translates to:
+  /// **'OTP sent successfully'**
+  String get otpSentSuccessfully;
+
+  /// Header text for preferences selection
+  ///
+  /// In en, this message translates to:
+  /// **'Select Your Preferences'**
+  String get selectYourPreferences;
+
+  /// Subtitle for country and language selection
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your country and language to customize your experience'**
+  String get chooseCountryLanguage;
+
+  /// Save settings button text
+  ///
+  /// In en, this message translates to:
+  /// **'Save Settings'**
+  String get saveSettings;
+
+  /// Currency label
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get currency;
 }
 
 class _AppLocalizationsDelegate

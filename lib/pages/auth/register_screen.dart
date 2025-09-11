@@ -55,9 +55,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Enter Your Mobile Number",
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context)?.enterMobileNumber ?? "Enter Your Mobile Number",
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: Colors.black,
@@ -170,9 +170,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             strokeWidth: 2,
                             color: Colors.white,
                           )
-                        : const Text(
-                            "Continue",
-                            style: TextStyle(
+                        : Text(
+                            AppLocalizations.of(context)?.continueButton ?? "Continue",
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,
                             ),
@@ -194,7 +194,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: Text(
-                        "Or",
+                        AppLocalizations.of(context)?.or ?? "Or",
                         style: TextStyle(
                           color: Colors.grey.shade400,
                         ),
@@ -290,12 +290,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   AlwaysStoppedAnimation<Color>(Colors.black),
                             ),
                           )
-                        : const Row(
+                        : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text(
-                                "Continue with Google",
-                                style: TextStyle(
+                              Text(
+                                AppLocalizations.of(context)?.continueWithGoogle ?? "Continue with Google",
+                                style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 14,
                                 ),
@@ -334,10 +334,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(
                   height: 15,
                 ),
-                const Text(
-                  "By proceeding, you consent to get calls, whatsApp or SMS messages,including by automated means, from Uber and its affiliates to the number provided.",
+                Text(
+                  AppLocalizations.of(context)?.byProceeding ?? "By proceeding, you consent to get calls, whatsApp or SMS messages,including by automated means, from Uber and its affiliates to the number provided.",
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.grey,
                   ),
                 ),

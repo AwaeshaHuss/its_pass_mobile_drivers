@@ -114,6 +114,16 @@ class _MyAppState extends State<MyApp> {
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             locale: _locale,
+            localeResolutionCallback: (locale, supportedLocales) {
+              // Check if the current device locale is supported
+              for (var supportedLocale in supportedLocales) {
+                if (supportedLocale.languageCode == locale?.languageCode) {
+                  return supportedLocale;
+                }
+              }
+              // If not supported, return the first supported locale (English)
+              return supportedLocales.first;
+            },
             theme: ThemeData(
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
               useMaterial3: true,

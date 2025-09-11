@@ -71,5 +71,57 @@
   "pleaseEnterValidMobileNumber": "Please enter a valid mobile number",
   "@pleaseEnterValidMobileNumber": {
     "description": "Validation message for mobile number"
+  },
+  "or": "Or",
+  "@or": {
+    "description": "Or divider text"
+  },
+  "byProceeding": "By proceeding, you consent to get calls, WhatsApp or SMS messages, including by automated means, from Uber and its affiliates to the number provided.",
+  "@byProceeding": {
+    "description": "Terms and conditions text"
+  },
+  "otpVerification": "OTP Verification",
+  "@otpVerification": {
+    "description": "OTP verification screen title"
+  },
+  "enterOtpCode": "Enter the OTP code sent to your mobile number",
+  "@enterOtpCode": {
+    "description": "OTP instruction text"
+  },
+  "verify": "Verify",
+  "@verify": {
+    "description": "Verify button text"
+  },
+  "resendOtp": "Resend OTP",
+  "@resendOtp": {
+    "description": "Resend OTP button text"
+  },
+  "didntReceiveCode": "Didn't receive the code?",
+  "@didntReceiveCode": {
+    "description": "Text asking if user didn't receive code"
+  },
+  "invalidOtp": "Invalid OTP code",
+  "@invalidOtp": {
+    "description": "Invalid OTP error message"
+  },
+  "otpSentSuccessfully": "OTP sent successfully",
+  "@otpSentSuccessfully": {
+    "description": "OTP sent success message"
+  },
+  "selectYourPreferences": "Select Your Preferences",
+  "@selectYourPreferences": {
+    "description": "Header text for preferences selection"
+  },
+  "chooseCountryLanguage": "Choose your country and language to customize your experience",
+  "@chooseCountryLanguage": {
+    "description": "Subtitle for country and language selection"
+  },
+  "saveSettings": "Save Settings",
+  "@saveSettings": {
+    "description": "Save settings button text"
+  },
+  "currency": "Currency",
+  "@currency": {
+    "description": "Currency label"
   }
 }

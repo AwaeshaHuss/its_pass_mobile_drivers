@@ -62,4 +62,40 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get pleaseEnterValidMobileNumber => 'يرجى إدخال رقم هاتف محمول صحيح';
+
+  @override
+  String get or => 'أو';
+
+  @override
+  String get otpVerification => 'التحقق من رمز OTP';
+
+  @override
+  String get enterOtpCode => 'أدخل رمز OTP المرسل إلى رقم هاتفك المحمول';
+
+  @override
+  String get verify => 'تحقق';
+
+  @override
+  String get resendOtp => 'إعادة إرسال OTP';
+
+  @override
+  String get didntReceiveCode => 'لم تتلق الرمز؟';
+
+  @override
+  String get invalidOtp => 'رمز OTP غير صحيح';
+
+  @override
+  String get otpSentSuccessfully => 'تم إرسال OTP بنجاح';
+
+  @override
+  String get selectYourPreferences => 'اختر تفضيلاتك';
+
+  @override
+  String get chooseCountryLanguage => 'اختر بلدك ولغتك لتخصيص تجربتك';
+
+  @override
+  String get saveSettings => 'حفظ الإعدادات';
+
+  @override
+  String get currency => 'العملة';
 }

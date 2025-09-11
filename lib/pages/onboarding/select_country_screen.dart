@@ -303,7 +303,7 @@ class _SelectCountryScreenState extends State<SelectCountryScreen> {
               const SizedBox(height: 16),
               
               Text(
-                'Choose your country and language to customize your experience',
+                AppLocalizations.of(context)?.chooseCountryLanguage ?? 'Choose your country and language to customize your experience',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey[600],
