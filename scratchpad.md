@@ -302,3 +302,5 @@ Major Firebase removal completed, but compilation issues need resolution before 
 - Design size should match target device dimensions for consistent scaling
 - Replace all hardcoded pixel values with responsive units
 - Import issues can prevent extensions from working properly - need to ensure proper package integration
+- Email validation should use proper regex patterns instead of hardcoded domain restrictions
+- Fixed email validation to accept all valid domains (mail.com, yahoo.com, etc.) instead of only gmail.com

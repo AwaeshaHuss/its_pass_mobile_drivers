@@ -223,71 +223,91 @@ class RegistrationProvider extends ChangeNotifier {
   }
 
   Future<void> pickAndCropCnincImage(bool isFrontImage) async {
-    final ImagePickerService imagePickerService = ImagePickerService();
+    try {
+      final ImagePickerService imagePickerService = ImagePickerService();
 
-    final pickedFile = await imagePickerService.pickCropImage(
-      cropAspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
-      imageSource: ImageSource.camera,
-    );
+      final pickedFile = await imagePickerService.pickCropImage(
+        cropAspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
+        imageSource: ImageSource.camera,
+      );
 
-    if (pickedFile != null) {
-      if (isFrontImage) {
-        _cnicFrontImage = pickedFile;
-      } else {
-        _cnicBackImage = pickedFile;
+      if (pickedFile != null) {
+        if (isFrontImage) {
+          _cnicFrontImage = pickedFile;
+        } else {
+          _cnicBackImage = pickedFile;
+        }
+        checkCNICFormValidity();
+        notifyListeners();
       }
-      checkCNICFormValidity();
+    } catch (e) {
+      print('Error picking and cropping CNIC image: $e');
+      // Handle error gracefully - could show a snackbar or dialog to user
     }
   }
 
   Future<void> pickAndCropVehicleRegistrationImages(bool isFrontImage) async {
-    final ImagePickerService imagePickerService = ImagePickerService();
+    try {
+      final ImagePickerService imagePickerService = ImagePickerService();
 
-    final pickedFile = await imagePickerService.pickCropImage(
-      cropAspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 12),
-      imageSource: ImageSource.camera,
-    );
+      final pickedFile = await imagePickerService.pickCropImage(
+        cropAspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 12),
+        imageSource: ImageSource.camera,
+      );
 
-    if (pickedFile != null) {
-      if (isFrontImage) {
-        _vehicleRegistrationFrontImage = pickedFile;
-      } else {
-        _vehicleRegistrationBackImage = pickedFile;
+      if (pickedFile != null) {
+        if (isFrontImage) {
+          _vehicleRegistrationFrontImage = pickedFile;
+        } else {
+          _vehicleRegistrationBackImage = pickedFile;
+        }
+        notifyListeners();
       }
+    } catch (e) {
+      print('Error picking and cropping vehicle registration image: $e');
     }
-    notifyListeners();
   }
 
   Future<void> pickAndCropDrivingLicenseImage(bool isFrontImage) async {
-    final ImagePickerService imagePickerService = ImagePickerService();
+    try {
+      final ImagePickerService imagePickerService = ImagePickerService();
 
-    final pickedFile = await imagePickerService.pickCropImage(
-      cropAspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
-      imageSource: ImageSource.camera,
-    );
+      final pickedFile = await imagePickerService.pickCropImage(
+        cropAspectRatio: const CropAspectRatio(ratioX: 16, ratioY: 9),
+        imageSource: ImageSource.camera,
+      );
 
-    if (pickedFile != null) {
-      if (isFrontImage) {
-        _drivingLicenseFrontImage = pickedFile;
-      } else {
-        _drivingLicenseBackImage = pickedFile;
+      if (pickedFile != null) {
+        if (isFrontImage) {
+          _drivingLicenseFrontImage = pickedFile;
+        } else {
+          _drivingLicenseBackImage = pickedFile;
+        }
+        checkCNICFormValidity();
+        notifyListeners();
       }
-      checkCNICFormValidity();
+    } catch (e) {
+      print('Error picking and cropping driving license image: $e');
     }
   }
 
   Future<void> pickCnincImageWithSelfie() async {
-    final ImagePickerService imagePickerService = ImagePickerService();
+    try {
+      final ImagePickerService imagePickerService = ImagePickerService();
 
-    final pickedFile = await imagePickerService.pickCropImage(
-      cropAspectRatio: const CropAspectRatio(ratioX: 20, ratioY: 20),
-      imageSource: ImageSource.camera,
-    );
+      final pickedFile = await imagePickerService.pickCropImage(
+        cropAspectRatio: const CropAspectRatio(ratioX: 20, ratioY: 20),
+        imageSource: ImageSource.camera,
+      );
 
-    if (pickedFile != null) {
-      _cnicWithSelfieImage = pickedFile;
+      if (pickedFile != null) {
+        _cnicWithSelfieImage = pickedFile;
+        checkCNICFormValidity();
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Error picking and cropping selfie with CNIC image: $e');
     }
-    checkCNICFormValidity();
   }
 
   Future<String> uploadImageToAPI(XFile? photo, String? imagePath) async {
