@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:uber_drivers_app/methods/common_method.dart';
+import 'package:itspass_driver/methods/common_method.dart';
 
 class PaymentDialog extends StatefulWidget {
   String fareAmount;

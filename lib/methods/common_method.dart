@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 // import 'package:flutter_geofire/flutter_geofire.dart'; // Commented out due to compatibility issues with AGP 8.1.0+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
-// import 'package:uber_drivers_app/const.dart'; // Removed due to unused import
+// import 'package:itspass_driver/const.dart'; // Removed due to unused import
 import '../global/global.dart';
 import '../models/direction_details.dart';
 

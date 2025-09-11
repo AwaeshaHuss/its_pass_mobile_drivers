@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:uber_drivers_app/pages/dashboard.dart';
-import 'package:uber_drivers_app/pages/driverRegistration/basic_info_screen.dart';
-import 'package:uber_drivers_app/pages/driverRegistration/cninc_screen.dart';
-import 'package:uber_drivers_app/pages/driverRegistration/driving_license_screen.dart';
-import 'package:uber_drivers_app/pages/driverRegistration/selfie_screen.dart';
-import 'package:uber_drivers_app/providers/registration_provider.dart';
+import 'package:itspass_driver/pages/dashboard.dart';
+import 'package:itspass_driver/pages/driverRegistration/basic_info_screen.dart';
+import 'package:itspass_driver/pages/driverRegistration/cninc_screen.dart';
+import 'package:itspass_driver/pages/driverRegistration/driving_license_screen.dart';
+import 'package:itspass_driver/pages/driverRegistration/selfie_screen.dart';
+import 'package:itspass_driver/providers/registration_provider.dart';
 import 'vehicle_info_screen.dart';
 
 class DriverRegistration extends StatefulWidget {

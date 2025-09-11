@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:uber_drivers_app/methods/common_method.dart';
-import 'package:uber_drivers_app/pages/dashboard.dart';
+import 'package:itspass_driver/methods/common_method.dart';
+import 'package:itspass_driver/pages/dashboard.dart';
 import '../widgets/loading_dialog.dart';
 import 'login_screen.dart';
 

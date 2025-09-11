@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:uber_drivers_app/methods/common_method.dart';
+import 'package:itspass_driver/methods/common_method.dart';
 
 import '../../providers/registration_provider.dart';
 

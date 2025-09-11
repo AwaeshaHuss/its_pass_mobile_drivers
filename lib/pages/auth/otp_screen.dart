@@ -4,11 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
-import 'package:uber_drivers_app/methods/common_method.dart';
-import 'package:uber_drivers_app/pages/dashboard.dart';
-import 'package:uber_drivers_app/pages/driverRegistration/driver_registration.dart';
-import 'package:uber_drivers_app/providers/auth_provider.dart';
-import 'package:uber_drivers_app/widgets/blocked_screen.dart';
+import 'package:itspass_driver/methods/common_method.dart';
+import 'package:itspass_driver/pages/dashboard.dart';
+import 'package:itspass_driver/pages/driverRegistration/driver_registration.dart';
+import 'package:itspass_driver/providers/auth_provider.dart';
+import 'package:itspass_driver/widgets/blocked_screen.dart';
 
 class OTPScreen extends StatefulWidget {
   final String verificationId;

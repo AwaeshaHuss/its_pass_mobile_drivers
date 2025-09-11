@@ -10,8 +10,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uber_drivers_app/global/global.dart';
-import 'package:uber_drivers_app/providers/registration_provider.dart';
+import 'package:itspass_driver/global/global.dart';
+import 'package:itspass_driver/providers/registration_provider.dart';
 
 import '../../methods/map_theme_methods.dart';
 import '../../pushNotifications/push_notification.dart';

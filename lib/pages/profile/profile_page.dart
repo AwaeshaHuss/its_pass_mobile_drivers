@@ -2,9 +2,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:uber_drivers_app/pages/profileUpdation/driver_main_info.dart';
-import 'package:uber_drivers_app/providers/auth_provider.dart';
-import 'package:uber_drivers_app/providers/registration_provider.dart';
+import 'package:itspass_driver/pages/profileUpdation/driver_main_info.dart';
+import 'package:itspass_driver/providers/auth_provider.dart';
+import 'package:itspass_driver/providers/registration_provider.dart';
 
 import '../../global/global.dart';
 import '../../widgets/ratting_stars.dart';

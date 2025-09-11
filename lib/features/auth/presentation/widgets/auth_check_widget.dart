@@ -1,15 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../pages/auth/register_screen.dart';
 import '../../../../pages/dashboard.dart';
+import '../../../../pages/onboarding/select_country_screen.dart';
 import '../../../../widgets/blocked_screen.dart';
 import '../bloc/auth_bloc.dart';
 
-class AuthCheckWidget extends StatelessWidget {
+class AuthCheckWidget extends StatefulWidget {
   const AuthCheckWidget({super.key});
 
   @override
+  State<AuthCheckWidget> createState() => _AuthCheckWidgetState();
+}
+
+class _AuthCheckWidgetState extends State<AuthCheckWidget> {
+  bool _hasSelectedCountry = false;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkCountrySelection();
+  }
+
+  _checkCountrySelection() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? savedCountry = prefs.getString('selectedCountry');
+    bool hasSelectedCountry = savedCountry != null;
+    
+    // Debug logging
+    print('DEBUG: Saved country: $savedCountry');
+    print('DEBUG: Has selected country: $hasSelectedCountry');
+    
+    setState(() {
+      _hasSelectedCountry = hasSelectedCountry;
+      _isLoading = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    print('DEBUG: Building AuthCheckWidget - isLoading: $_isLoading, hasSelectedCountry: $_hasSelectedCountry');
+    
+    if (_isLoading) {
+      print('DEBUG: Showing loading screen');
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(
+            color: Colors.black,
+          ),
+        ),
+      );
+    }
+
+    if (!_hasSelectedCountry) {
+      print('DEBUG: Showing SelectCountryScreen');
+      return const SelectCountryScreen();
+    }
+
+    print('DEBUG: Showing BlocBuilder for auth');
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         if (state is AuthLoading || state is AuthInitial) {

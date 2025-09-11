@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:uber_drivers_app/pages/earnings/earning_page.dart';
-import 'package:uber_drivers_app/pages/home/home_page.dart';
-import 'package:uber_drivers_app/pages/profile/profile_page.dart';
-import 'package:uber_drivers_app/pages/trips/trips_page.dart';
+import 'package:itspass_driver/pages/earnings/earning_page.dart';
+import 'package:itspass_driver/pages/home/home_page.dart';
+import 'package:itspass_driver/pages/profile/profile_page.dart';
+import 'package:itspass_driver/pages/trips/trips_page.dart';
 import '../providers/dashboard_provider.dart';
 
 class Dashboard extends StatefulWidget {

@@ -1,0 +1,75 @@
+{
+  "@@locale": "ar",
+  "appTitle": "سائق إتس باس",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "selectCountryAndLanguage": "اختر البلد واللغة",
+  "@selectCountryAndLanguage": {
+    "description": "Title for country and language selection screen"
+  },
+  "country": "البلد",
+  "@country": {
+    "description": "Label for country selection"
+  },
+  "language": "اللغة",
+  "@language": {
+    "description": "Label for language selection"
+  },
+  "saveAndContinue": "حفظ ومتابعة",
+  "@saveAndContinue": {
+    "description": "Button text to save settings and continue"
+  },
+  "jordan": "الأردن",
+  "@jordan": {
+    "description": "Country name Jordan"
+  },
+  "syria": "سوريا",
+  "@syria": {
+    "description": "Country name Syria"
+  },
+  "english": "English",
+  "@english": {
+    "description": "Language name English"
+  },
+  "arabic": "العربية",
+  "@arabic": {
+    "description": "Language name Arabic"
+  },
+  "enterMobileNumber": "أدخل رقم هاتفك المحمول",
+  "@enterMobileNumber": {
+    "description": "Title for mobile number entry screen"
+  },
+  "mobileNumber": "رقم الهاتف المحمول",
+  "@mobileNumber": {
+    "description": "Label for mobile number input"
+  },
+  "continueButton": "متابعة",
+  "@continueButton": {
+    "description": "Continue button text"
+  },
+  "continueWithGoogle": "متابعة مع جوجل",
+  "@continueWithGoogle": {
+    "description": "Continue with Google button text"
+  },
+  "byProceeding": "بالمتابعة، أنت توافق على تلقي مكالمات أو رسائل واتساب أو رسائل نصية، بما في ذلك بوسائل آلية، من أوبر وشركاتها التابعة إلى الرقم المقدم.",
+  "@byProceeding": {
+    "description": "Terms and conditions text"
+  },
+  "signUp": "إنشاء حساب",
+  "@signUp": {
+    "description": "Sign up button text"
+  },
+  "alreadyHaveAccount": "هل لديك حساب بالفعل؟",
+  "@alreadyHaveAccount": {
+    "description": "Text asking if user already has account"
+  },
+  "signIn": "تسجيل الدخول",
+  "@signIn": {
+    "description": "Sign in button text"
+  },
+  "pleaseEnterValidMobileNumber": "يرجى إدخال رقم هاتف محمول صحيح",
+  "@pleaseEnterValidMobileNumber": {
+    "description": "Validation message for mobile number"
+  }
+}

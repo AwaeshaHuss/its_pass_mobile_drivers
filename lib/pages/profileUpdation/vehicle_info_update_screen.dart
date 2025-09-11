@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:uber_drivers_app/pages/profileUpdation/vehicleUpdation/driver_car_image_update_screen.dart';
-import 'package:uber_drivers_app/pages/profileUpdation/vehicleUpdation/vehicle_baisc_info_update_screen.dart';
-import 'package:uber_drivers_app/pages/profileUpdation/vehicleUpdation/vehicle_registration_update_screen.dart';
-import 'package:uber_drivers_app/providers/registration_provider.dart';
+import 'package:itspass_driver/pages/profileUpdation/vehicleUpdation/driver_car_image_update_screen.dart';
+import 'package:itspass_driver/pages/profileUpdation/vehicleUpdation/vehicle_baisc_info_update_screen.dart';
+import 'package:itspass_driver/pages/profileUpdation/vehicleUpdation/vehicle_registration_update_screen.dart';
+import 'package:itspass_driver/providers/registration_provider.dart';
 
 class VehicleInfoUpdateScreen extends StatefulWidget {
   const VehicleInfoUpdateScreen({super.key});

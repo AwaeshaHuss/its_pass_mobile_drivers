@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:uber_drivers_app/methods/common_method.dart';
-import 'package:uber_drivers_app/methods/map_theme_methods.dart';
-import 'package:uber_drivers_app/models/trip_details.dart';
-import 'package:uber_drivers_app/widgets/loading_dialog.dart';
-import 'package:uber_drivers_app/widgets/payment_dialog.dart';
+import 'package:itspass_driver/methods/common_method.dart';
+import 'package:itspass_driver/methods/map_theme_methods.dart';
+import 'package:itspass_driver/models/trip_details.dart';
+import 'package:itspass_driver/widgets/loading_dialog.dart';
+import 'package:itspass_driver/widgets/payment_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../global/global.dart';

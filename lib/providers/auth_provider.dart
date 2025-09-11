@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uber_drivers_app/models/driver.dart';
-import 'package:uber_drivers_app/pages/auth/register_screen.dart';
+import 'package:itspass_driver/models/driver.dart';
+import 'package:itspass_driver/pages/auth/register_screen.dart';
 import '../methods/common_method.dart';
 import '../pages/auth/otp_screen.dart';
 

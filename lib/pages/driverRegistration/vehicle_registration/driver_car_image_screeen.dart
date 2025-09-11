@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:uber_drivers_app/providers/registration_provider.dart';
+import 'package:itspass_driver/providers/registration_provider.dart';
 
 class DriverCarImageScreeen extends StatefulWidget {
   const DriverCarImageScreeen({super.key});

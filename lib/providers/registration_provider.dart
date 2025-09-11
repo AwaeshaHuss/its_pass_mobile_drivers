@@ -8,11 +8,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:uber_drivers_app/global/global.dart';
-import 'package:uber_drivers_app/methods/common_method.dart';
-import 'package:uber_drivers_app/methods/image_picker_service.dart';
+import 'package:itspass_driver/global/global.dart';
+import 'package:itspass_driver/methods/common_method.dart';
+import 'package:itspass_driver/methods/image_picker_service.dart';
 // Removed unused imports: driver.dart, vehicleInfo.dart, profile_page.dart
-import 'package:uber_drivers_app/providers/auth_provider.dart';
+import 'package:itspass_driver/providers/auth_provider.dart';
 import 'package:http/http.dart' as http;
 
 class RegistrationProvider extends ChangeNotifier {

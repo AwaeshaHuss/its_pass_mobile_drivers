@@ -5,14 +5,15 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uber_drivers_app/pages/auth/register_screen.dart';
-import 'package:uber_drivers_app/providers/auth_provider.dart';
-import 'package:uber_drivers_app/providers/dashboard_provider.dart';
-import 'package:uber_drivers_app/providers/registration_provider.dart';
-import 'package:uber_drivers_app/providers/trips_provider.dart';
-import 'package:uber_drivers_app/injection/injection_container.dart' as di;
-import 'package:uber_drivers_app/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:uber_drivers_app/features/auth/presentation/widgets/auth_check_widget.dart';
+import 'package:itspass_driver/pages/auth/register_screen.dart';
+import 'package:itspass_driver/providers/auth_provider.dart';
+import 'package:itspass_driver/providers/dashboard_provider.dart';
+import 'package:itspass_driver/providers/registration_provider.dart';
+import 'package:itspass_driver/providers/trips_provider.dart';
+import 'package:itspass_driver/injection/injection_container.dart' as di;
+import 'package:itspass_driver/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:itspass_driver/features/auth/presentation/widgets/auth_check_widget.dart';
+import 'package:itspass_driver/l10n/app_localizations.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
@@ -31,8 +32,42 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  static void restartApp(BuildContext context) {
+    context.findAncestorStateOfType<_MyAppState>()?.restartApp();
+  }
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Locale? _locale;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLocale();
+  }
+
+  _loadLocale() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? languageCode = prefs.getString('selectedLanguageCode');
+    if (languageCode != null) {
+      setState(() {
+        _locale = Locale(languageCode);
+      });
+    }
+  }
+
+  void restartApp() {
+    setState(() {
+      _locale = null;
+    });
+    _loadLocale();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,13 +109,19 @@ class MyApp extends StatelessWidget {
         builder: (context, child) {
           return MaterialApp(
             navigatorKey: navigatorKey,
-            title: 'Uber Drivers App',
+            title: 'itspass_driver',
             debugShowCheckedModeBanner: false,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: _locale,
             theme: ThemeData(
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
               useMaterial3: true,
             ),
             home: const AuthCheckWidget(),
+            routes: {
+              '/register': (context) => const RegisterScreen(),
+            },
           );
         },
       ),

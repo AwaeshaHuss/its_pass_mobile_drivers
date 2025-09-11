@@ -1,0 +1,75 @@
+{
+  "@@locale": "en",
+  "appTitle": "ItsPass Driver",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "selectCountryAndLanguage": "Select Country & Language",
+  "@selectCountryAndLanguage": {
+    "description": "Title for country and language selection screen"
+  },
+  "country": "Country",
+  "@country": {
+    "description": "Label for country selection"
+  },
+  "language": "Language",
+  "@language": {
+    "description": "Label for language selection"
+  },
+  "saveAndContinue": "Save & Continue",
+  "@saveAndContinue": {
+    "description": "Button text to save settings and continue"
+  },
+  "jordan": "Jordan",
+  "@jordan": {
+    "description": "Country name Jordan"
+  },
+  "syria": "Syria",
+  "@syria": {
+    "description": "Country name Syria"
+  },
+  "english": "English",
+  "@english": {
+    "description": "Language name English"
+  },
+  "arabic": "العربية",
+  "@arabic": {
+    "description": "Language name Arabic"
+  },
+  "enterMobileNumber": "Enter Your Mobile Number",
+  "@enterMobileNumber": {
+    "description": "Title for mobile number entry screen"
+  },
+  "mobileNumber": "Mobile Number",
+  "@mobileNumber": {
+    "description": "Label for mobile number input"
+  },
+  "continueButton": "Continue",
+  "@continueButton": {
+    "description": "Continue button text"
+  },
+  "continueWithGoogle": "Continue with Google",
+  "@continueWithGoogle": {
+    "description": "Continue with Google button text"
+  },
+  "byProceeding": "By proceeding, you consent to get calls, WhatsApp or SMS messages, including by automated means, from Uber and its affiliates to the number provided.",
+  "@byProceeding": {
+    "description": "Terms and conditions text"
+  },
+  "signUp": "Sign up",
+  "@signUp": {
+    "description": "Sign up button text"
+  },
+  "alreadyHaveAccount": "Already have an account?",
+  "@alreadyHaveAccount": {
+    "description": "Text asking if user already has account"
+  },
+  "signIn": "Sign in",
+  "@signIn": {
+    "description": "Sign in button text"
+  },
+  "pleaseEnterValidMobileNumber": "Please enter a valid mobile number",
+  "@pleaseEnterValidMobileNumber": {
+    "description": "Validation message for mobile number"
+  }
+}

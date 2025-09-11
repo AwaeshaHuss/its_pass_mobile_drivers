@@ -1,10 +1,15 @@
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:itspass_driver/methods/common_method.dart';
+import 'package:itspass_driver/pages/dashboard.dart';
 import 'package:provider/provider.dart';
-import 'package:uber_drivers_app/methods/common_method.dart';
-import 'package:uber_drivers_app/pages/dashboard.dart';
-import 'package:uber_drivers_app/pages/driverRegistration/driver_registration.dart';
-import 'package:uber_drivers_app/widgets/blocked_screen.dart';
+import 'package:itspass_driver/pages/auth/otp_screen.dart';
+import 'package:itspass_driver/providers/auth_provider.dart';
+import 'package:itspass_driver/l10n/app_localizations.dart';
+import 'package:itspass_driver/pages/driverRegistration/driver_registration.dart';
+import 'package:itspass_driver/widgets/blocked_screen.dart';
 
 import '../../providers/auth_provider.dart';
 
@@ -288,11 +293,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         : const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(
-                                Icons.airplanemode_active,
-                                color: Colors.black,
-                              ),
-                              const SizedBox(width: 5),
                               const Text(
                                 "Continue with Google",
                                 style: TextStyle(
@@ -307,30 +307,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(
                   height: 15,
                 ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  height: MediaQuery.of(context).size.height * 0.07,
-                  child: ElevatedButton.icon(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey.shade400,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                    ),
-                    label: const Text(
-                      "Continue with Apple",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 14,
-                      ),
-                    ),
-                    icon: const Icon(
-                      Icons.apple,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
+                // SizedBox(
+                //   width: MediaQuery.of(context).size.width * 0.9,
+                //   height: MediaQuery.of(context).size.height * 0.07,
+                //   child: ElevatedButton.icon(
+                //     onPressed: () {},
+                //     style: ElevatedButton.styleFrom(
+                //       backgroundColor: Colors.grey.shade400,
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(5),
+                //       ),
+                //     ),
+                //     label: const Text(
+                //       "Continue with Apple",
+                //       style: TextStyle(
+                //         color: Colors.black,
+                //         fontSize: 14,
+                //       ),
+                //     ),
+                //     icon: const Icon(
+                //       Icons.apple,
+                //       color: Colors.black,
+                //     ),
+                //   ),
+                // ),
                 const SizedBox(
                   height: 15,
                 ),

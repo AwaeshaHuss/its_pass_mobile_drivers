@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:uber_drivers_app/pages/profileUpdation/basic_driver_info_update_screen.dart';
-import 'package:uber_drivers_app/pages/profileUpdation/cninc_update_screen.dart';
-import 'package:uber_drivers_app/pages/profileUpdation/driving_license_update_screen.dart';
-import 'package:uber_drivers_app/pages/profileUpdation/selfie_with_cninc_update_screen.dart';
-import 'package:uber_drivers_app/pages/profileUpdation/vehicle_info_update_screen.dart';
-import 'package:uber_drivers_app/providers/registration_provider.dart';
+import 'package:itspass_driver/pages/profileUpdation/basic_driver_info_update_screen.dart';
+import 'package:itspass_driver/pages/profileUpdation/cninc_update_screen.dart';
+import 'package:itspass_driver/pages/profileUpdation/driving_license_update_screen.dart';
+import 'package:itspass_driver/pages/profileUpdation/selfie_with_cninc_update_screen.dart';
+import 'package:itspass_driver/pages/profileUpdation/vehicle_info_update_screen.dart';
+import 'package:itspass_driver/providers/registration_provider.dart';
 
 class DriverMainInfo extends StatefulWidget {
   @override

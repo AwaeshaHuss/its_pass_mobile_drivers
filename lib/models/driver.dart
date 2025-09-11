@@ -1,4 +1,4 @@
-import 'package:uber_drivers_app/models/vehicleInfo.dart';
+import 'package:itspass_driver/models/vehicleInfo.dart';
 
 class Driver {
   final String id;

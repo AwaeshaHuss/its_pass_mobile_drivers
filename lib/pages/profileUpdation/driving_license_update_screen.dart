@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:uber_drivers_app/pages/profileUpdation/cninc_update_screen.dart';
+import 'package:itspass_driver/pages/profileUpdation/cninc_update_screen.dart';
 
 import '../../providers/registration_provider.dart';
 
