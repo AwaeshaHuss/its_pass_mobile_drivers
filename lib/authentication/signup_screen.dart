@@ -15,97 +15,304 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  TextEditingController userNameTextEditingController = TextEditingController();
-  TextEditingController userPhoneTextEditingController =
-      TextEditingController();
-  TextEditingController emailTextEditingController = TextEditingController();
-  TextEditingController passwordTextEditingController = TextEditingController();
-  TextEditingController vehicleModelTextEditingController =
-      TextEditingController();
-  TextEditingController vehicleColorTextEditingController =
-      TextEditingController();
-  TextEditingController vehicleNumberTextEditingController =
-      TextEditingController();
-  CommonMethods cMethods = CommonMethods();
+  late final TextEditingController userNameTextEditingController;
+  late final TextEditingController userPhoneTextEditingController;
+  late final TextEditingController emailTextEditingController;
+  late final TextEditingController passwordTextEditingController;
+  late final TextEditingController vehicleModelTextEditingController;
+  late final TextEditingController vehicleColorTextEditingController;
+  late final TextEditingController vehicleNumberTextEditingController;
+  
+  final CommonMethods cMethods = CommonMethods();
+  final List<FocusNode> _focusNodes = [];
+  
   XFile? imageFile;
   String urlOfUploadedImage = "";
+  bool _isPasswordVisible = false;
+  bool _isLoading = false;
 
-  checkIfNetworkIsAvailable() {
-    //cMethods.checkConnectivity(context);
-
-    if (imageFile != null) //image validation
-    {
-      signUpFormValidation();
-    } else {
-      cMethods.displaySnackBar("Please choose image first.", context);
+  @override
+  void initState() {
+    super.initState();
+    userNameTextEditingController = TextEditingController();
+    userPhoneTextEditingController = TextEditingController();
+    emailTextEditingController = TextEditingController();
+    passwordTextEditingController = TextEditingController();
+    vehicleModelTextEditingController = TextEditingController();
+    vehicleColorTextEditingController = TextEditingController();
+    vehicleNumberTextEditingController = TextEditingController();
+    
+    // Create focus nodes for all fields
+    for (int i = 0; i < 7; i++) {
+      _focusNodes.add(FocusNode());
     }
   }
 
-  signUpFormValidation() {
-    if (userNameTextEditingController.text.trim().length < 3) {
-      cMethods.displaySnackBar(
-          "your name must be atleast 4 or more characters.", context);
-    } else if (userPhoneTextEditingController.text.trim().length < 7) {
-      cMethods.displaySnackBar(
-          "your phone number must be atleast 8 or more characters.", context);
-    } else if (!emailTextEditingController.text.contains("@")) {
-      cMethods.displaySnackBar("please write valid email.", context);
-    } else if (passwordTextEditingController.text.trim().length < 5) {
-      cMethods.displaySnackBar(
-          "your password must be atleast 6 or more characters.", context);
-    } else if (vehicleModelTextEditingController.text.trim().isEmpty) {
-      cMethods.displaySnackBar("please write your car model", context);
-    } else if (vehicleColorTextEditingController.text.trim().isEmpty) {
-      cMethods.displaySnackBar("please write your car color.", context);
-    } else if (vehicleNumberTextEditingController.text.isEmpty) {
-      cMethods.displaySnackBar("please write your car number.", context);
+  @override
+  void dispose() {
+    userNameTextEditingController.dispose();
+    userPhoneTextEditingController.dispose();
+    emailTextEditingController.dispose();
+    passwordTextEditingController.dispose();
+    vehicleModelTextEditingController.dispose();
+    vehicleColorTextEditingController.dispose();
+    vehicleNumberTextEditingController.dispose();
+    
+    for (final focusNode in _focusNodes) {
+      focusNode.dispose();
+    }
+    super.dispose();
+  }
+
+  void _checkIfNetworkIsAvailable() {
+    if (_isLoading) return;
+    
+    if (imageFile != null) {
+      _signUpFormValidation();
     } else {
-      uploadImageToStorage();
+      cMethods.displaySnackBar("Please add a profile photo first.", context);
     }
   }
 
-  uploadImageToStorage() async {
+  void _signUpFormValidation() {
+    final name = userNameTextEditingController.text.trim();
+    final phone = userPhoneTextEditingController.text.trim();
+    final email = emailTextEditingController.text.trim();
+    final password = passwordTextEditingController.text.trim();
+    final vehicleModel = vehicleModelTextEditingController.text.trim();
+    final vehicleColor = vehicleColorTextEditingController.text.trim();
+    final vehicleNumber = vehicleNumberTextEditingController.text.trim();
+
+    if (name.isEmpty) {
+      cMethods.displaySnackBar("Please enter your full name.", context);
+      _focusNodes[0].requestFocus();
+      return;
+    }
+    
+    if (name.length < 3) {
+      cMethods.displaySnackBar("Name must be at least 3 characters long.", context);
+      _focusNodes[0].requestFocus();
+      return;
+    }
+    
+    if (phone.isEmpty) {
+      cMethods.displaySnackBar("Please enter your phone number.", context);
+      _focusNodes[1].requestFocus();
+      return;
+    }
+    
+    if (!RegExp(r'^[+]?[0-9]{10,15}$').hasMatch(phone.replaceAll(RegExp(r'[\s\-\(\)]'), ''))) {
+      cMethods.displaySnackBar("Please enter a valid phone number.", context);
+      _focusNodes[1].requestFocus();
+      return;
+    }
+    
+    if (email.isEmpty) {
+      cMethods.displaySnackBar("Please enter your email address.", context);
+      _focusNodes[2].requestFocus();
+      return;
+    }
+    
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
+      cMethods.displaySnackBar("Please enter a valid email address.", context);
+      _focusNodes[2].requestFocus();
+      return;
+    }
+    
+    if (password.isEmpty) {
+      cMethods.displaySnackBar("Please create a password.", context);
+      _focusNodes[3].requestFocus();
+      return;
+    }
+    
+    if (password.length < 6) {
+      cMethods.displaySnackBar("Password must be at least 6 characters long.", context);
+      _focusNodes[3].requestFocus();
+      return;
+    }
+    
+    if (vehicleModel.isEmpty) {
+      cMethods.displaySnackBar("Please enter your vehicle model.", context);
+      _focusNodes[4].requestFocus();
+      return;
+    }
+    
+    if (vehicleColor.isEmpty) {
+      cMethods.displaySnackBar("Please enter your vehicle color.", context);
+      _focusNodes[5].requestFocus();
+      return;
+    }
+    
+    if (vehicleNumber.isEmpty) {
+      cMethods.displaySnackBar("Please enter your license plate number.", context);
+      _focusNodes[6].requestFocus();
+      return;
+    }
+    
+    _uploadImageToStorage();
+  }
+
+  Future<void> _uploadImageToStorage() async {
     // Image will be uploaded via API in registerNewDriver method
-    registerNewDriver();
+    await _registerNewDriver();
   }
 
-  registerNewDriver() async {
+  Future<void> _registerNewDriver() async {
+    if (_isLoading) return;
+    
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
       showDialog(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) =>
-            const LoadingDialog(messageText: "Registering your account..."),
+            const LoadingDialog(messageText: "Creating your account..."),
       );
 
       // TODO: Replace with API call to register new driver
       // This is a placeholder implementation
       await Future.delayed(const Duration(seconds: 2));
 
-      if (!context.mounted) return;
+      if (!mounted) return;
       Navigator.pop(context);
 
       // For now, just show success message
       cMethods.displaySnackBar("Registration successful! Please complete your profile.", context);
       
-      Navigator.push(
-          context, MaterialPageRoute(builder: (c) => const Dashboard()));
+      Navigator.pushReplacement(
+        context, 
+        MaterialPageRoute(builder: (context) => const Dashboard()),
+      );
     } catch (errorMsg) {
-      if (!context.mounted) return;
+      if (!mounted) return;
       Navigator.pop(context);
       cMethods.displaySnackBar(errorMsg.toString(), context);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
-  chooseImageFromGallery() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+  Future<void> _chooseImageFromGallery() async {
+    try {
+      final pickedFile = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
 
-    if (pickedFile != null) {
-      setState(() {
-        imageFile = pickedFile;
-      });
+      if (pickedFile != null) {
+        setState(() {
+          imageFile = pickedFile;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        cMethods.displaySnackBar("Failed to pick image. Please try again.", context);
+      }
     }
+  }
+
+  Future<void> _showImageSourceDialog() async {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Select Photo',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildImageSourceOption(
+                  Icons.camera_alt_outlined,
+                  'Camera',
+                  () async {
+                    Navigator.pop(context);
+                    await _chooseImageFromCamera();
+                  },
+                ),
+                _buildImageSourceOption(
+                  Icons.photo_library_outlined,
+                  'Gallery',
+                  () async {
+                    Navigator.pop(context);
+                    await _chooseImageFromGallery();
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _chooseImageFromCamera() async {
+    try {
+      final pickedFile = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+
+      if (pickedFile != null) {
+        setState(() {
+          imageFile = pickedFile;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        cMethods.displaySnackBar("Failed to take photo. Please try again.", context);
+      }
+    }
+  }
+
+  Widget _buildImageSourceOption(IconData icon, String label, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 32, color: Colors.grey[700]),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[700],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -156,7 +363,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 child: Column(
                   children: [
                     GestureDetector(
-                      onTap: chooseImageFromGallery,
+                      onTap: _showImageSourceDialog,
                       child: Container(
                         height: 100,
                         width: 100,
@@ -204,6 +411,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 'Enter your full name',
                 userNameTextEditingController,
                 Icons.person_outline,
+                focusNode: _focusNodes[0],
+                nextFocusNode: _focusNodes[1],
+                textInputAction: TextInputAction.next,
               ),
               
               const SizedBox(height: 20),
@@ -214,6 +424,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 userPhoneTextEditingController,
                 Icons.phone_outlined,
                 keyboardType: TextInputType.phone,
+                focusNode: _focusNodes[1],
+                nextFocusNode: _focusNodes[2],
+                textInputAction: TextInputAction.next,
               ),
               
               const SizedBox(height: 20),
@@ -224,6 +437,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 emailTextEditingController,
                 Icons.email_outlined,
                 keyboardType: TextInputType.emailAddress,
+                focusNode: _focusNodes[2],
+                nextFocusNode: _focusNodes[3],
+                textInputAction: TextInputAction.next,
               ),
               
               const SizedBox(height: 20),
@@ -234,6 +450,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 passwordTextEditingController,
                 Icons.lock_outline,
                 isPassword: true,
+                focusNode: _focusNodes[3],
+                nextFocusNode: _focusNodes[4],
+                textInputAction: TextInputAction.next,
               ),
               
               const SizedBox(height: 24),
@@ -255,6 +474,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 'e.g., Toyota Corolla',
                 vehicleModelTextEditingController,
                 Icons.directions_car_outlined,
+                focusNode: _focusNodes[4],
+                nextFocusNode: _focusNodes[5],
+                textInputAction: TextInputAction.next,
               ),
               
               const SizedBox(height: 20),
@@ -264,6 +486,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 'e.g., White',
                 vehicleColorTextEditingController,
                 Icons.palette_outlined,
+                focusNode: _focusNodes[5],
+                nextFocusNode: _focusNodes[6],
+                textInputAction: TextInputAction.next,
               ),
               
               const SizedBox(height: 20),
@@ -273,6 +498,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 'Enter license plate number',
                 vehicleNumberTextEditingController,
                 Icons.confirmation_number_outlined,
+                focusNode: _focusNodes[6],
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => _checkIfNetworkIsAvailable(),
               ),
               
               const SizedBox(height: 32),
@@ -282,22 +510,32 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: checkIfNetworkIsAvailable,
+                  onPressed: _isLoading ? null : _checkIfNetworkIsAvailable,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
+                    backgroundColor: _isLoading ? Colors.grey[400] : Colors.black,
                     foregroundColor: Colors.white,
                     elevation: 0,
+                    disabledBackgroundColor: Colors.grey[400],
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'Create Account',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Text(
+                          'Create Account',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
               
@@ -351,6 +589,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
     IconData icon, {
     bool isPassword = false,
     TextInputType? keyboardType,
+    FocusNode? focusNode,
+    FocusNode? nextFocusNode,
+    TextInputAction? textInputAction,
+    Function(String)? onSubmitted,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -372,8 +614,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
           child: TextField(
             controller: controller,
-            obscureText: isPassword,
+            focusNode: focusNode,
+            obscureText: isPassword && !_isPasswordVisible,
             keyboardType: keyboardType,
+            textInputAction: textInputAction ?? TextInputAction.next,
+            onSubmitted: onSubmitted ?? (nextFocusNode != null ? (_) => nextFocusNode.requestFocus() : null),
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
@@ -394,6 +639,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 icon,
                 color: Colors.grey,
               ),
+              suffixIcon: isPassword
+                  ? IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    )
+                  : null,
             ),
           ),
         ),
