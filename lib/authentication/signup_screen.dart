@@ -1,7 +1,4 @@
 import 'dart:io';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uber_drivers_app/methods/common_method.dart';
@@ -67,18 +64,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   uploadImageToStorage() async {
-    String imageIDName = DateTime.now().millisecondsSinceEpoch.toString();
-    Reference referenceImage =
-        FirebaseStorage.instance.ref().child("Images").child(imageIDName);
-
-    UploadTask uploadTask = referenceImage.putFile(File(imageFile!.path));
-    TaskSnapshot snapshot = await uploadTask;
-    urlOfUploadedImage = await snapshot.ref.getDownloadURL();
-
-    setState(() {
-      urlOfUploadedImage;
-    });
-
+    // Image will be uploaded via API in registerNewDriver method
     registerNewDriver();
   }
 
@@ -91,41 +77,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
             const LoadingDialog(messageText: "Registering your account..."),
       );
 
-      final User? userFirebase =
-          (await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailTextEditingController.text.trim(),
-        password: passwordTextEditingController.text.trim(),
-      ))
-              .user;
+      // TODO: Replace with API call to register new driver
+      // This is a placeholder implementation
+      await Future.delayed(const Duration(seconds: 2));
 
       if (!context.mounted) return;
       Navigator.pop(context);
 
-      DatabaseReference usersRef = FirebaseDatabase.instance
-          .ref()
-          .child("drivers")
-          .child(userFirebase!.uid);
-
-      Map driverCarInfo = {
-        "carColor": vehicleColorTextEditingController.text.trim(),
-        "carModel": vehicleModelTextEditingController.text.trim(),
-        "carNumber": vehicleNumberTextEditingController.text.trim(),
-      };
-
-      Map driverDataMap = {
-        "photo": urlOfUploadedImage,
-        "car_details": driverCarInfo,
-        "name": userNameTextEditingController.text.trim(),
-        "email": emailTextEditingController.text.trim(),
-        "phone": userPhoneTextEditingController.text.trim(),
-        "id": userFirebase.uid,
-        "blockStatus": "no",
-      };
-      usersRef.set(driverDataMap);
-
+      // For now, just show success message
+      cMethods.displaySnackBar("Registration successful! Please complete your profile.", context);
+      
       Navigator.push(
           context, MaterialPageRoute(builder: (c) => const Dashboard()));
     } catch (errorMsg) {
+      if (!context.mounted) return;
       Navigator.pop(context);
       cMethods.displaySnackBar(errorMsg.toString(), context);
     }

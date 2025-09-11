@@ -265,7 +265,7 @@ class _ProfilePageState extends State<ProfilePage> {
         floatingActionButton: FloatingActionButton.extended(
             backgroundColor: Colors.red,
             onPressed: () async {
-              await authProvider.signOut(context);
+              await authProvider.signOut();
             },
             label: const Text(
               "Logout",

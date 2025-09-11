@@ -1,9 +1,4 @@
 import 'dart:async';
-
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
@@ -230,16 +225,13 @@ class _NewTripPageState extends State<NewTripPage> {
       updateTripDetailsInformation();
 
       //update driver location to tripRequest
-      Map updatedLocationOfDriver = {
-        "latitude": driverCurrentPosition!.latitude,
-        "longitude": driverCurrentPosition!.longitude,
-      };
-      FirebaseDatabase.instance
-          .ref()
-          .child("tripRequest")
-          .child(widget.newTripDetailsInfo!.tripID!)
-          .child("driverLocation")
-          .set(updatedLocationOfDriver);
+      // TODO: Replace with API call to update driver location
+      // Map updatedLocationOfDriver = {
+      //   "latitude": driverCurrentPosition!.latitude,
+      //   "longitude": driverCurrentPosition!.longitude,
+      // };
+      // await dio.put('$baseUrl/trips/${widget.newTripDetailsInfo!.tripID}/driver-location', 
+      //   data: updatedLocationOfDriver);
     });
   }
 
@@ -304,19 +296,9 @@ class _NewTripPageState extends State<NewTripPage> {
       finalFareAmount = fareAmount.toString();
     }
 
-    FirebaseDatabase.instance
-        .ref()
-        .child("tripRequest")
-        .child(widget.newTripDetailsInfo!.tripID!)
-        .child("fareAmount")
-        .set(finalFareAmount);
-
-    FirebaseDatabase.instance
-        .ref()
-        .child("tripRequest")
-        .child(widget.newTripDetailsInfo!.tripID!)
-        .child("status")
-        .set("ended");
+    // TODO: Replace with API calls to update trip fare and status
+    // await dio.put('$baseUrl/trips/${widget.newTripDetailsInfo!.tripID}', 
+    //   data: {'fareAmount': finalFareAmount, 'status': 'ended'});
 
     positionStreamNewTripPage!.cancel();
 
@@ -334,51 +316,25 @@ class _NewTripPageState extends State<NewTripPage> {
   }
 
   saveFareAmountToDriverTotalEearning(String fareAmount) async {
-    DatabaseReference driverEarningRef = FirebaseDatabase.instance
-        .ref()
-        .child("drivers")
-        .child(FirebaseAuth.instance.currentUser!.uid)
-        .child("earnings");
-    await driverEarningRef.once().then((snap) {
-      if (snap.snapshot.value != null) {
-        double previousTotalEarning = double.parse(
-          snap.snapshot.value.toString(),
-        );
-        double fareAmountForThisAmount = double.parse(fareAmount);
-        double newTotalEarning = previousTotalEarning + fareAmountForThisAmount;
-        driverEarningRef.set(newTotalEarning);
-      } else {
-        driverEarningRef.set(fareAmount);
-      }
-    });
+    // TODO: Replace with API call to update driver earnings
+    // final driverId = await SharedPreferences.getInstance().then((prefs) => prefs.getString('driver_id'));
+    // await dio.put('$baseUrl/drivers/$driverId/earnings', 
+    //   data: {'additionalEarning': fareAmount});
   }
 
   saveDriverDataToTripInfo() async {
-    Map<String, dynamic> driverDataMap = {
-      "status": "accepted",
-      "driverId": FirebaseAuth.instance.currentUser!.uid,
-      "driverName": "$driverName $driverSecondName",
-      "driverPhone": driverPhone,
-      "driverPhoto": driverPhoto,
-      "carDetails": "$carModel - $carNumber - $carColor",
-    };
-
-    Map<String, dynamic> driverCurrentLocation = {
-      'latitude': driverCurrentPosition!.latitude.toString(),
-      'longitude': driverCurrentPosition!.longitude.toString(),
-    };
-
-    await FirebaseDatabase.instance
-        .ref()
-        .child("tripRequest")
-        .child(widget.newTripDetailsInfo!.tripID!)
-        .update(driverDataMap);
-    await FirebaseDatabase.instance
-        .ref()
-        .child("tripRequest")
-        .child(widget.newTripDetailsInfo!.tripID!)
-        .child("driverLocation")
-        .update(driverCurrentLocation);
+    // TODO: Replace with API call to update trip with driver data
+    // Map<String, dynamic> driverDataMap = {
+    //   "status": "accepted",
+    //   "driverName": "$driverName $driverSecondName",
+    //   "driverPhone": driverPhone,
+    //   "driverPhoto": driverPhoto,
+    //   "carDetails": "$carColor $carModel",
+    //   "carNumber": carNumber,
+    //   'latitude': driverCurrentPosition!.latitude.toString(),
+    //   'longitude': driverCurrentPosition!.longitude.toString(),
+    // };
+    // await dio.put('$baseUrl/trips/${widget.newTripDetailsInfo!.tripID}', data: driverDataMap);
   }
 
   @override
@@ -548,12 +504,9 @@ class _NewTripPageState extends State<NewTripPage> {
                                 buttonColor = Colors.green;
                               });
                               statusOfTrip = "arrived";
-                              FirebaseDatabase.instance
-                                  .ref()
-                                  .child("tripRequest")
-                                  .child(widget.newTripDetailsInfo!.tripID!)
-                                  .child("status")
-                                  .set("arrived");
+                              // TODO: Replace with API call to update trip status
+                              // await dio.put('$baseUrl/trips/${widget.newTripDetailsInfo!.tripID}/status', 
+                              //   data: {'status': 'arrived'});
 
                               showDialog(
                                 barrierDismissible: false,
@@ -574,12 +527,9 @@ class _NewTripPageState extends State<NewTripPage> {
                                 buttonTitleText = "END TRIP";
                                 buttonColor = Colors.amber;
                                 statusOfTrip = "ontrip";
-                                FirebaseDatabase.instance
-                                    .ref()
-                                    .child("tripRequest")
-                                    .child(widget.newTripDetailsInfo!.tripID!)
-                                    .child("status")
-                                    .set("ontrip");
+                                // TODO: Replace with API call to update trip status
+                                // await dio.put('$baseUrl/trips/${widget.newTripDetailsInfo!.tripID}/status', 
+                                //   data: {'status': 'ontrip'});
                               });
                             } else if (statusOfTrip == "ontrip") {
                               endTripNow();

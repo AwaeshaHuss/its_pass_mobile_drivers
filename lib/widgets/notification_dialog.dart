@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 import '../global/global.dart';
@@ -75,42 +73,31 @@ class _NotificationDialogState extends State<NotificationDialog> {
       ),
     );
 
-    DatabaseReference driverTripStatusRef = FirebaseDatabase.instance
-        .ref()
-        .child("drivers")
-        .child(FirebaseAuth.instance.currentUser!.uid)
-        .child("newTripStatus");
-
-    await driverTripStatusRef.once().then((snap) async {
+    // TODO: Replace with API call to update driver trip status
+    // For now, just proceed with accepting the trip
+    try {
       if (mounted) {
         Navigator.pop(context); // Close loading dialog
         Navigator.pop(context); // Close notification dialog
       }
 
-      String newTripStatusValue = snap.snapshot.value?.toString() ?? "";
+      // TODO: Make API call to accept trip
+      // For now, just navigate to the new trip page
+      cMethods.turnOffLocationUpdatesForHomePage();
 
-      if (newTripStatusValue == widget.tripDetailsInfo?.tripID) {
-        driverTripStatusRef.set("accepted");
-
-        // Disable homepage location updates
-        cMethods.turnOffLocationUpdatesForHomePage();
-
-        await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (c) =>
-                NewTripPage(newTripDetailsInfo: widget.tripDetailsInfo),
-          ),
-        );
-      } else {
-        String message = newTripStatusValue == "cancelled"
-            ? "Trip Request has been Cancelled by user."
-            : newTripStatusValue == "timeout"
-                ? "Trip Request timed out."
-                : "Trip Request removed. Not Found.";
-        cMethods.displaySnackBar(message, context);
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (c) =>
+              NewTripPage(newTripDetailsInfo: widget.tripDetailsInfo),
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // Close loading dialog
+        cMethods.displaySnackBar("Error accepting trip: ${e.toString()}", context);
       }
-    });
+    }
   }
 
   @override

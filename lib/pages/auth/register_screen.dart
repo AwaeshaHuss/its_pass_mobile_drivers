@@ -206,9 +206,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       await authProvider.checkUserExistById();
                                   bool userExistsInDatabase =
                                       await authProvider.checkUserExistByEmail(
-                                    authProvider
-                                        .firebaseAuth.currentUser!.email!
-                                        .toString(),
+                                    authProvider.driverEmail,
                                   );
                                   print("User Exists: $userExists");
                                   print(

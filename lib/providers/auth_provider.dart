@@ -1,8 +1,3 @@
-// Firebase imports commented out - replaced with API-based authentication
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_database/firebase_database.dart';
-// import 'package:firebase_storage/firebase_storage.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:dio/dio.dart';
@@ -10,39 +5,56 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uber_drivers_app/models/driver.dart';
 import 'package:uber_drivers_app/pages/auth/register_screen.dart';
 import '../methods/common_method.dart';
-import '../models/vehicleInfo.dart';
 import '../pages/auth/otp_screen.dart';
 
 class AuthenticationProvider extends ChangeNotifier {
+  final Dio dio;
+  final SharedPreferences sharedPreferences;
+  final String baseUrl;
+  
   CommonMethods commonMethods = CommonMethods();
   bool _isLoading = false;
   bool _isSuccessful = false;
   bool _isGoogleSignedIn = false;
   bool _isGoogleSignInLoading = false;
+  bool _isLoggedIn = false;
   String? _uid;
   String? _phoneNumber;
+  String? _verificationId;
+  String _driverAvailabilityStatus = "Offline";
 
   Driver? _driverModel;
+  
+  // Google Sign-In instance
+  final GoogleSignIn googleSignIn = GoogleSignIn();
+
+  // Driver info variables
+  String driverName = "";
+  String driverPhone = "";
+  String driverEmail = "";
+  String driverPhoto = "";
+  String carModel = "";
+  String carColor = "";
+  String carNumber = "";
+
+  AuthenticationProvider({
+    required this.dio,
+    required this.sharedPreferences,
+    required this.baseUrl,
+  }) {
+    _initializeProvider();
+  }
 
   Driver get driverModel => _driverModel!;
 
   String? get uid => _uid;
-  String get phoneNumber => _phoneNumber!;
+  String get phoneNumber => _phoneNumber ?? '';
+  bool get isLoggedIn => _isLoggedIn;
+  String get driverAvailabilityStatus => _driverAvailabilityStatus;
   bool get isSuccessful => _isSuccessful;
   bool get isLoading => _isLoading;
   bool get isGoogleSignedIn => _isGoogleSignedIn;
   bool get isGoogleSigInLoading => _isGoogleSignInLoading;
-
-  // Firebase instances commented out - replaced with API-based services
-  // final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-  // final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-  // final FirebaseStorage firebaseStorage = FirebaseStorage.instance;
-  // final FirebaseDatabase firebaseDatabase = FirebaseDatabase.instance;
-  
-  final GoogleSignIn googleSignIn = GoogleSignIn(); // Google Sign-In instance
-  final Dio dio = Dio(); // HTTP client for API calls
-  late SharedPreferences sharedPreferences;
-  final String baseUrl = 'https://your-api-base-url.com/api'; // TODO: Replace with actual API URL
 
   void startLoading() {
     _isLoading = true;
@@ -69,280 +81,212 @@ class AuthenticationProvider extends ChangeNotifier {
     required BuildContext context,
     required String phoneNumber,
   }) async {
-    startLoading(); // Start loading and notify listeners
-
-    try {
-      await firebaseAuth.verifyPhoneNumber(
-        phoneNumber: phoneNumber,
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          // Sign in the user automatically when the code is retrieved
-          await firebaseAuth.signInWithCredential(credential);
-          stopLoading(); // Stop loading and notify listeners
-        },
-        verificationFailed: (FirebaseAuthException e) {
-          stopLoading(); // Stop loading if verification failed
-          commonMethods.displaySnackBar(e.toString(), context);
-          throw Exception(e.toString());
-        },
-        codeSent: (String verificationId, int? resendToken) {
-          stopLoading(); // Stop loading when the code is sent
-          _phoneNumber = phoneNumber;
-          notifyListeners();
-          // Navigate to the OTP screen
-          Future.delayed(const Duration(seconds: 1)).whenComplete(() {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => OTPScreen(
-                  verificationId: verificationId,
-                ),
-              ),
-            );
-          });
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {
-          stopLoading(); // Stop loading when code auto-retrieval times out
-        },
-      );
-    } on FirebaseException catch (e) {
-      stopLoading(); // Stop loading on Firebase exception
-      commonMethods.displaySnackBar(e.toString(), context);
-    }
-  }
-
-  void verifyOTP({
-    required BuildContext context,
-    required String verificationId,
-    required String smsCode,
-    required Function onSuccess,
-  }) async {
-    _isLoading = true;
-    notifyListeners();
-
-    try {
-      PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
-        verificationId: verificationId,
-        smsCode: smsCode,
-      );
-
-      User? user =
-          (await firebaseAuth.signInWithCredential(phoneAuthCredential)).user;
-
-      if (user != null) {
-        _uid = user.uid;
-        notifyListeners();
-        onSuccess();
-      }
-
-      _isLoading = false;
-      _isSuccessful = true;
-      notifyListeners();
-    } on FirebaseException catch (e) {
-      _isLoading = false;
-      notifyListeners();
-      commonMethods.displaySnackBar(e.toString(), context);
-    }
-  }
-
-// Method to register a new user
-  void saveUserDataToFirebase({
-    required BuildContext context,
-    required Driver driverModel,
-    required VoidCallback onSuccess,
-  }) async {
     startLoading();
-    notifyListeners();
 
     try {
-      //Save user data to Realtime Database
-      DatabaseReference usersRef =
-          firebaseDatabase.ref().child("drivers").child(driverModel.id);
-      await usersRef.set(driverModel.toMap()).then((value) {
+      // TODO: Replace with API call to send OTP
+      final response = await dio.post(
+        '$baseUrl/auth/send-otp',
+        data: {'phoneNumber': phoneNumber},
+      );
+      
+      if (response.statusCode == 200) {
+        _phoneNumber = phoneNumber;
+        _verificationId = response.data['verificationId'] ?? 'temp-verification-id';
         stopLoading();
         notifyListeners();
-
-        onSuccess();
-      });
-
-      // Navigate to the home page or another appropriate screen
-      // Navigator.push(context, MaterialPageRoute(builder: (c) => HomePage()));
-    } on FirebaseException catch (e) {
+        
+        // Navigate to the OTP screen
+        Future.delayed(const Duration(seconds: 1)).whenComplete(() {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OTPScreen(
+                verificationId: _verificationId ?? '',
+              ),
+            ),
+          );
+        });
+      } else {
+        throw Exception('Failed to send OTP');
+      }
+    } catch (e) {
       stopLoading();
-      notifyListeners();
       commonMethods.displaySnackBar(e.toString(), context);
     }
   }
 
-  // Method to check if user exists in Firebase Realtime Database
-  Future<bool> checkUserExistByEmail(String email) async {
-    DatabaseReference usersRef = firebaseDatabase.ref().child("drivers");
-    DatabaseEvent snapshot =
-        await usersRef.orderByChild("email").equalTo(email).once();
-
-    if (snapshot.snapshot.exists) {
-      return true;
-    } else {
-      return false;
+  Future<void> verifyOTP({
+    required String otp,
+    required BuildContext context,
+  }) async {
+    startLoading();
+    try {
+      final response = await dio.post(
+        '$baseUrl/auth/verify-otp',
+        data: {
+          'verificationId': _verificationId,
+          'otp': otp,
+        },
+      );
+      
+      if (response.statusCode == 200) {
+        final data = response.data;
+        await sharedPreferences.setString('auth_token', data['token']);
+        await sharedPreferences.setString('driver_id', data['driver']['id']);
+        await sharedPreferences.setString('driver_phone', _phoneNumber ?? '');
+        _isLoggedIn = true;
+        _uid = data['driver']['id'];
+      } else {
+        throw Exception('OTP verification failed');
+      }
+      
+      stopLoading();
+      notifyListeners();
+    } catch (e) {
+      stopLoading();
+      commonMethods.displaySnackBar(e.toString(), context);
+      throw Exception(e.toString());
     }
   }
 
-  Future<bool> checkUserExistById() async {
-    DatabaseReference usersRef = firebaseDatabase.ref().child("drivers");
-    DatabaseEvent snapshot = await usersRef
-        .orderByChild(
-            "id") // Assuming "id" is the field where Firebase Auth ID is stored
-        .equalTo(FirebaseAuth.instance.currentUser!.uid)
-        .once();
-
-    return snapshot.snapshot.exists;
+  Future<void> signInWithEmailAndPassword({
+    required String email,
+    required String password,
+    required BuildContext context,
+  }) async {
+    startLoading();
+    try {
+      final response = await dio.post(
+        '$baseUrl/auth/login',
+        data: {
+          'email': email,
+          'password': password,
+        },
+      );
+      
+      if (response.statusCode == 200) {
+        final data = response.data;
+        
+        // Check if driver is blocked
+        if (data['driver']['blockStatus'] == 'yes') {
+          throw Exception('You are blocked. Contact admin: alizeb875@gmail.com');
+        }
+        
+        await sharedPreferences.setString('auth_token', data['token']);
+        await sharedPreferences.setString('driver_id', data['driver']['id']);
+        await sharedPreferences.setString('driver_email', email);
+        
+        _isLoggedIn = true;
+        _uid = data['driver']['id'];
+        driverEmail = email;
+        
+        // Load driver data
+        await retrieveCurrentDriverInfo();
+      } else {
+        throw Exception('Login failed');
+      }
+      
+      stopLoading();
+      notifyListeners();
+    } catch (e) {
+      stopLoading();
+      throw Exception(e.toString());
+    }
   }
 
-  Future<void> getUserDataFromFirebaseDatabase() async {
+  Future<void> checkIfUserIsLoggedIn() async {
     try {
-      // Get a reference to the user's data in the Realtime Database
-      DatabaseReference driverRef = firebaseDatabase
-          .ref()
-          .child("drivers")
-          .child(firebaseAuth.currentUser!.uid);
+      final token = sharedPreferences.getString('auth_token');
+      if (token != null && token.isNotEmpty) {
+        _isLoggedIn = true;
+        _phoneNumber = sharedPreferences.getString('driver_phone') ?? '';
+        _uid = sharedPreferences.getString('driver_id');
+        notifyListeners();
+      } else {
+        _isLoggedIn = false;
+        notifyListeners();
+      }
+    } catch (e) {
+      _isLoggedIn = false;
+      notifyListeners();
+    }
+  }
 
-      // Fetch user data from the database
-      DataSnapshot snapshot = await driverRef.get();
-
-      if (snapshot.exists && snapshot.value != null) {
-        // Cast the snapshot value to a Map
-        Map driverData = snapshot.value as Map;
-
-        // Retrieve individual values from the map and create the Driver object
-        _driverModel = Driver(
-          id: driverData["id"] ?? '',
-          firstName: driverData["firstName"] ?? '',
-          secondName: driverData["secondName"] ?? '',
-          phoneNumber: driverData["phoneNumber"] ?? '',
-          address: driverData["address"] ?? '',
-          profilePicture: driverData["profilePicture"] ?? '',
-          dob: driverData["dob"] ?? '',
-          email: driverData["email"] ?? '',
-          cnicNumber: driverData["cnicNumber"] ?? '',
-          cnicFrontImage: driverData["cnicFrontImage"] ?? '',
-          cnicBackImage: driverData["cnicBackImage"] ?? '',
-          driverFaceWithCnic: driverData["driverFaceWithCnic"] ?? '',
-          drivingLicenseNumber: driverData["drivingLicenseNumber"] ?? '',
-          drivingLicenseFrontImage:
-              driverData["drivingLicenseFrontImage"] ?? '',
-          drivingLicenseBackImage: driverData["drivingLicenseBackImage"] ?? '',
-          blockStatus: driverData["blockStatus"] ?? '',
-          deviceToken: driverData["deviceToken"] ?? '',
-          driverRattings: driverData["driverRattings"] ?? '',
-          earnings: driverData["earnings"] ?? '',
-          vehicleInfo: VehicleInfo(
-            brand: driverData["vehicleInfo"]?["brand"] ?? '',
-            color: driverData["vehicleInfo"]?["color"] ?? '',
-            productionYear: driverData["vehicleInfo"]?["productionYear"] ?? '',
-            vehiclePicture: driverData["vehicleInfo"]?["vehiclePicture"] ?? '',
-            type: driverData["vehicleInfo"]?["type"] ?? '',
-            registrationPlateNumber:
-                driverData["vehicleInfo"]?["registrationPlateNumber"] ?? '',
-            registrationCertificateFrontImage: driverData["vehicleInfo"]
-                    ?["registrationCertificateFrontImage"] ??
-                '',
-            registrationCertificateBackImage: driverData["vehicleInfo"]
-                    ?["registrationCertificateBackImage"] ??
-                '',
+  Future<void> checkDriverAvailabilityStatus() async {
+    try {
+      final driverId = sharedPreferences.getString('driver_id');
+      if (driverId != null) {
+        final token = sharedPreferences.getString('auth_token');
+        final response = await dio.get(
+          '$baseUrl/drivers/$driverId/status',
+          options: Options(
+            headers: {'Authorization': 'Bearer $token'},
           ),
         );
-
-        // Print or use the driver model as needed
-        print(_driverModel);
-        _uid = _driverModel!.id;
-        notifyListeners(); // Notify listeners to update the UI
-      } else {
-        print("User data not found or not in the expected format.");
+        
+        if (response.statusCode == 200) {
+          final data = response.data;
+          _driverAvailabilityStatus = data['isOnline'] ? "Online" : "Offline";
+          notifyListeners();
+        }
       }
     } catch (e) {
-      print("An error occurred while fetching user data: $e");
+      print("Error checking driver availability: $e");
     }
   }
 
-  Future<bool> checkDriverFieldsFilled() async {
+  Future<void> updateDriverAvailabilityStatus(String status) async {
     try {
-      // Get a reference to the driver's data in the Realtime Database
-      DatabaseReference driverRef = firebaseDatabase
-          .ref()
-          .child("drivers")
-          .child(firebaseAuth.currentUser!.uid);
-
-      // Fetch user data from the database
-      DataSnapshot snapshot = await driverRef.get();
-      print(snapshot.value);
-
-      if (snapshot.exists && snapshot.value != null) {
-        // Cast the snapshot value to a Map
-        Map driverData = snapshot.value as Map;
-
-        // Retrieve individual fields and perform null checks
-        String profilePicture = driverData["profilePicture"] ?? '';
-        String firstName = driverData["firstName"] ?? '';
-        String secondName = driverData["secondName"] ?? '';
-        String phoneNumber = driverData["phoneNumber"] ?? '';
-        String dob = driverData["dob"] ?? '';
-        String email = driverData["email"] ?? '';
-        String cnicNumber = driverData["cnicNumber"] ?? '';
-        String cnicFrontImage = driverData["cnicFrontImage"] ?? '';
-        String cnicBackImage = driverData["cnicBackImage"] ?? '';
-        String driverFaceWithCnic = driverData["driverFaceWithCnic"] ?? '';
-        String drivingLicenseNumber = driverData["drivingLicenseNumber"] ?? '';
-        String drivingLicenseFrontImage =
-            driverData["drivingLicenseFrontImage"] ?? '';
-        String drivingLicenseBackImage =
-            driverData["drivingLicenseBackImage"] ?? '';
-
-        // Extract and check nested vehicle info fields
-        Map vehicleInfo = driverData["vehicleInfo"] ?? {};
-        String carBrand = vehicleInfo["brand"] ?? '';
-        String carColor = vehicleInfo["color"] ?? '';
-        String productionYear = vehicleInfo["productionYear"] ?? '';
-        String vehiclePicture = vehicleInfo["vehiclePicture"] ?? '';
-        String vehicleType = vehicleInfo["type"] ?? '';
-        String registrationPlateNumber =
-            vehicleInfo["registrationPlateNumber"] ?? '';
-        String registrationCertificateFrontImage =
-            vehicleInfo["registrationCertificateFrontImage"] ?? '';
-        String registrationCertificateBackImage =
-            vehicleInfo["registrationCertificateBackImage"] ?? '';
-
-        // Check if any of the required fields are missing or empty
-        if (profilePicture.isEmpty ||
-            firstName.isEmpty ||
-            secondName.isEmpty ||
-            phoneNumber.isEmpty ||
-            dob.isEmpty ||
-            email.isEmpty ||
-            cnicNumber.isEmpty ||
-            cnicFrontImage.isEmpty ||
-            cnicBackImage.isEmpty ||
-            driverFaceWithCnic.isEmpty ||
-            drivingLicenseNumber.isEmpty ||
-            drivingLicenseFrontImage.isEmpty ||
-            drivingLicenseBackImage.isEmpty ||
-            carBrand.isEmpty ||
-            carColor.isEmpty ||
-            productionYear.isEmpty ||
-            vehiclePicture.isEmpty ||
-            vehicleType.isEmpty ||
-            registrationPlateNumber.isEmpty ||
-            registrationCertificateFrontImage.isEmpty ||
-            registrationCertificateBackImage.isEmpty) {
-          return false; // Some fields are missing or empty
-        } else {
-          return true; // All fields are filled
+      final driverId = sharedPreferences.getString('driver_id');
+      if (driverId != null) {
+        final token = sharedPreferences.getString('auth_token');
+        final response = await dio.put(
+          '$baseUrl/drivers/$driverId/status',
+          data: {'status': status, 'isOnline': status == 'waiting'},
+          options: Options(
+            headers: {'Authorization': 'Bearer $token'},
+          ),
+        );
+        
+        if (response.statusCode == 200) {
+          _driverAvailabilityStatus = status == "waiting" ? "Online" : "Offline";
+          notifyListeners();
         }
-      } else {
-        print("Driver data not found or not in the expected format.");
-        return false;
       }
     } catch (e) {
-      print("An error occurred while checking driver fields: $e");
-      return false;
+      print("Error updating driver availability: $e");
+    }
+  }
+
+  Future<void> retrieveCurrentDriverInfo() async {
+    try {
+      final driverId = sharedPreferences.getString('driver_id');
+      if (driverId != null) {
+        final token = sharedPreferences.getString('auth_token');
+        final response = await dio.get(
+          '$baseUrl/drivers/$driverId',
+          options: Options(
+            headers: {'Authorization': 'Bearer $token'},
+          ),
+        );
+        
+        if (response.statusCode == 200) {
+          final data = response.data;
+          final nameParts = (data['name'] ?? '').split(' ');
+          driverName = nameParts.isNotEmpty ? nameParts[0] : '';
+          driverPhone = data['phone'] ?? '';
+          driverEmail = data['email'] ?? '';
+          driverPhoto = data['profileImageUrl'] ?? '';
+          carModel = data['vehicle']?['make'] ?? '';
+          carColor = data['vehicle']?['color'] ?? '';
+          carNumber = data['vehicle']?['licensePlate'] ?? '';
+          
+          notifyListeners();
+        }
+      }
+    } catch (e) {
+      print("Error retrieving driver info: $e");
     }
   }
 
@@ -361,96 +305,167 @@ class AuthenticationProvider extends ChangeNotifier {
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+      // TODO: Send Google credentials to API for authentication
+      final response = await dio.post(
+        '$baseUrl/auth/google-signin',
+        data: {
+          'idToken': googleAuth.idToken,
+          'accessToken': googleAuth.accessToken,
+        },
       );
 
-      final UserCredential userCredential =
-          await firebaseAuth.signInWithCredential(credential);
-      final User? user = userCredential.user;
-
-      if (user != null) {
-        _uid = user.uid;
+      if (response.statusCode == 200) {
+        final data = response.data;
+        await sharedPreferences.setString('auth_token', data['token']);
+        await sharedPreferences.setString('driver_id', data['driver']['id']);
+        await sharedPreferences.setString('driver_email', googleUser.email);
+        
         _isGoogleSignedIn = true;
+        _isLoggedIn = true;
+        _uid = data['driver']['id'];
+        driverEmail = googleUser.email;
+        driverName = googleUser.displayName ?? '';
+        driverPhoto = googleUser.photoUrl ?? '';
+        
         notifyListeners();
-        final AuthenticationProvider _authProvider = AuthenticationProvider();
-        await _authProvider._initializeProvider();
+        onSuccess();
       }
-      onSuccess();
 
       stopGoogleLoading();
-    } on FirebaseAuthException catch (e) {
+    } catch (e) {
       stopGoogleLoading();
       commonMethods.displaySnackBar(
-          e.message ?? "Failed to sign in with Google", context);
+          "Failed to sign in with Google: ${e.toString()}", context);
+    }
+  }
+
+  Future<void> signOut() async {
+    try {
+      await sharedPreferences.remove('auth_token');
+      await sharedPreferences.remove('driver_id');
+      await sharedPreferences.remove('driver_phone');
+      await sharedPreferences.remove('driver_email');
+      
+      _isLoggedIn = false;
+      _isGoogleSignedIn = false;
+      _phoneNumber = '';
+      _verificationId = null;
+      _uid = null;
+      notifyListeners();
+    } catch (e) {
+      print("Error signing out: $e");
+    }
+  }
+
+  // Sign out method with navigation
+  Future<void> signOutWithNavigation(BuildContext context) async {
+    startLoading();
+    try {
+      await signOut();
+      await googleSignIn.signOut();
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+            builder: (context) => const RegisterScreen()),
+        (route) => false,
+      );
+
+      stopLoading();
+    } catch (e) {
+      stopLoading();
+      commonMethods.displaySnackBar("Failed to sign out: ${e.toString()}", context);
     }
   }
 
   Future<bool> checkIfDriverIsBlocked() async {
     try {
-      // Get a reference to the user's data in the Realtime Database
-      DatabaseReference driverRef = firebaseDatabase
-          .ref()
-          .child("drivers")
-          .child(firebaseAuth.currentUser!.uid);
-
-      // Fetch user data from the database
-      DataSnapshot snapshot = await driverRef.get();
-
-      if (snapshot.exists && snapshot.value != null) {
-        // Cast the snapshot value to a Map
-        Map driverData = snapshot.value as Map;
-
-        // Check the block status
-        String blockStatus = driverData["blockStatus"] ?? 'no';
-
-        // If blockStatus is 'yes', return true (blocked)
-        if (blockStatus == 'yes') {
-          await firebaseAuth.signOut();
-          await googleSignIn.signOut();
-
-          _uid = null;
-          _isGoogleSignedIn = false;
-          notifyListeners();
-          return true;
-        } else {
-          // If blockStatus is 'no', return false (not blocked)
-          return false;
+      final driverId = sharedPreferences.getString('driver_id');
+      if (driverId != null) {
+        final token = sharedPreferences.getString('auth_token');
+        final response = await dio.get(
+          '$baseUrl/drivers/$driverId/status',
+          options: Options(
+            headers: {'Authorization': 'Bearer $token'},
+          ),
+        );
+        
+        if (response.statusCode == 200) {
+          final data = response.data;
+          return data['isBlocked'] ?? false;
         }
-      } else {
-        print("Driver data not found or not in the expected format.");
-        return false; // Default to not blocked if data isn't found
       }
+      return false;
     } catch (e) {
       print("An error occurred while checking block status: $e");
-      return false; // Default to not blocked in case of an error
+      return false;
     }
   }
 
-  // Sign out method
-  Future<void> signOut(BuildContext context) async {
-    startLoading();
+  Future<bool> checkIfDriverFieldsAreComplete() async {
     try {
-      await firebaseAuth.signOut();
-      await googleSignIn.signOut();
-
-      _uid = null;
-      _isGoogleSignedIn = false;
-      notifyListeners();
-
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                const RegisterScreen()), // Change to your login page
-        (route) => false,
-      );
-
-      stopLoading();
-    } on FirebaseAuthException catch (e) {
-      stopLoading();
-      commonMethods.displaySnackBar(e.message ?? "Failed to sign out", context);
+      final driverId = sharedPreferences.getString('driver_id');
+      if (driverId != null) {
+        final token = sharedPreferences.getString('auth_token');
+        final response = await dio.get(
+          '$baseUrl/drivers/$driverId',
+          options: Options(
+            headers: {'Authorization': 'Bearer $token'},
+          ),
+        );
+        
+        if (response.statusCode == 200) {
+          final data = response.data;
+          // Check if all required fields are present and not empty
+          return data['name'] != null && 
+                 data['phone'] != null && 
+                 data['email'] != null &&
+                 data['vehicle'] != null &&
+                 data['vehicle']['make'] != null &&
+                 data['vehicle']['licensePlate'] != null;
+        }
+      }
+      return false;
+    } catch (e) {
+      print("An error occurred while checking driver fields: $e");
+      return false;
     }
+  }
+
+  // Legacy method names for compatibility with existing UI screens
+  Future<bool> checkUserExistById() async {
+    return await checkIfDriverFieldsAreComplete();
+  }
+
+  Future<bool> checkUserExistByEmail(String email) async {
+    try {
+      final response = await dio.get(
+        '$baseUrl/drivers/check-email',
+        queryParameters: {'email': email},
+        options: Options(
+          headers: {'Authorization': 'Bearer ${sharedPreferences.getString('auth_token')}'},
+        ),
+      );
+      
+      if (response.statusCode == 200) {
+        return response.data['exists'] ?? false;
+      }
+      return false;
+    } catch (e) {
+      print("Error checking user by email: $e");
+      return false;
+    }
+  }
+
+  Future<void> getUserDataFromFirebaseDatabase() async {
+    await retrieveCurrentDriverInfo();
+  }
+
+  Future<bool> checkDriverFieldsFilled() async {
+    return await checkIfDriverFieldsAreComplete();
+  }
+
+  Future<void> _initializeProvider() async {
+    await checkIfUserIsLoggedIn();
   }
 }

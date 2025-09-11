@@ -153,10 +153,9 @@ class _OTPScreenState extends State<OTPScreen> {
         Provider.of<AuthenticationProvider>(context, listen: false);
 
     authProvider.verifyOTP(
+      otp: smsCode,
       context: context,
-      verificationId: widget.verificationId,
-      smsCode: smsCode,
-      onSuccess: () async {
+    ).then((_) async {
         // 1. Check if the driver exists
         bool driverExists = await authProvider.checkUserExistById();
 

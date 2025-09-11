@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+// import 'package:firebase_auth/firebase_auth.dart'; // Removed Firebase Auth
+// import 'package:firebase_database/firebase_database.dart'; // Removed Firebase Database
+// import 'package:firebase_storage/firebase_storage.dart'; // Removed Firebase Storage
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -10,16 +12,24 @@ import 'package:path_provider/path_provider.dart';
 import 'package:uber_drivers_app/global/global.dart';
 import 'package:uber_drivers_app/methods/common_method.dart';
 import 'package:uber_drivers_app/methods/image_picker_service.dart';
-import 'package:uber_drivers_app/models/driver.dart';
-import 'package:uber_drivers_app/models/vehicleInfo.dart';
-import 'package:uber_drivers_app/pages/profile/profile_page.dart';
+// Removed unused imports: driver.dart, vehicleInfo.dart, profile_page.dart
 import 'package:uber_drivers_app/providers/auth_provider.dart';
 import 'package:http/http.dart' as http;
 
 class RegistrationProvider extends ChangeNotifier {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseDatabase _database = FirebaseDatabase.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  // final FirebaseAuth _auth = FirebaseAuth.instance; // Removed Firebase Auth
+  // final FirebaseDatabase _database = FirebaseDatabase.instance; // Removed Firebase Database
+  // final FirebaseStorage _storage = FirebaseStorage.instance; // Removed Firebase Storage
+  
+  final Dio dio;
+  final SharedPreferences sharedPreferences;
+  final String baseUrl;
+  
+  RegistrationProvider({
+    required this.dio,
+    required this.sharedPreferences,
+    required this.baseUrl,
+  });
 
   bool _isLoading = false;
   bool _isFetchLoading = false;
@@ -111,8 +121,8 @@ class RegistrationProvider extends ChangeNotifier {
       phoneController.text = authProvider.phoneNumber;
     }
     if (authProvider.isGoogleSignedIn) {
-      emailController.text =
-          authProvider.firebaseAuth.currentUser!.email.toString();
+      // TODO: Get email from SharedPreferences or API instead of Firebase
+      emailController.text = sharedPreferences.getString('driver_email') ?? '';
       phoneController.text = '';
     }
     checkBasicFormValidity();
@@ -280,22 +290,40 @@ class RegistrationProvider extends ChangeNotifier {
     checkCNICFormValidity();
   }
 
-  Future<String> uploadImageToFirebaseStorage(
-      XFile? photo, String? path) async {
+  Future<String> uploadImageToAPI(XFile? photo, String? imagePath) async {
     if (photo == null) {
       throw Exception("No image selected");
     }
-    String imageIDName = DateTime.now().millisecondsSinceEpoch.toString();
-    final file = File(_profilePhoto!.path);
-    final reference = _storage
-        .ref()
-        .child(_auth.currentUser!.uid)
-        .child(path!)
-        .child(imageIDName);
-    final uploadTask = reference.putFile(file);
-    final snapshot = await uploadTask.whenComplete(() => {});
-    final downloadUrl = await snapshot.ref.getDownloadURL();
-    return downloadUrl;
+    
+    try {
+      final file = File(photo.path);
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}_${imagePath ?? 'image'}.jpg';
+      
+      FormData formData = FormData.fromMap({
+        'image': await MultipartFile.fromFile(file.path, filename: fileName),
+        'path': imagePath ?? 'general',
+      });
+      
+      final token = sharedPreferences.getString('auth_token');
+      final response = await dio.post(
+        '$baseUrl/upload/profile-image',
+        data: formData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'multipart/form-data',
+          },
+        ),
+      );
+      
+      if (response.statusCode == 200) {
+        return response.data['imageUrl'];
+      } else {
+        throw Exception('Failed to upload image: ${response.statusMessage}');
+      }
+    } catch (e) {
+      throw Exception('Error uploading image: $e');
+    }
   }
 
   Future<void> saveUserData(BuildContext context) async {
@@ -308,66 +336,73 @@ class RegistrationProvider extends ChangeNotifier {
     }
     try {
       startLoading();
-      final profilePictureUrl =
-          await uploadImageToFirebaseStorage(_profilePhoto, "ProfilePicture");
+      
+      // Upload all images to API
+      final profilePictureUrl = await uploadImageToAPI(_profilePhoto, "ProfilePicture");
+      final frontCnincImageUrl = await uploadImageToAPI(_cnicFrontImage, "Cninc");
+      final backCnincImageUrl = await uploadImageToAPI(_cnicBackImage, "Cninc");
+      final faceWithCnincImageUrl = await uploadImageToAPI(_cnicWithSelfieImage, "SelfieWithCninc");
+      final drivingLicenseFrontImageUrl = await uploadImageToAPI(_drivingLicenseFrontImage, "DrivingLicenseImages");
+      final drivingLicenseBackImageUrl = await uploadImageToAPI(_drivingLicenseBackImage, "DrivingLicenseImages");
+      final vehicleImageUrl = await uploadImageToAPI(_vehicleImage, "VehicleImage");
+      final vehicleRegistrationFrontImageUrl = await uploadImageToAPI(_vehicleRegistrationFrontImage, "VehicleRegistrationImages");
+      final vehicleRegistrationBackImageUrl = await uploadImageToAPI(_vehicleRegistrationBackImage, "VehicleRegistrationImages");
 
-      final frontCnincImageUrl =
-          await uploadImageToFirebaseStorage(_cnicFrontImage, "Cninc");
-      final backCnincImageUrl =
-          await uploadImageToFirebaseStorage(_cnicBackImage, "Cninc");
-      final faceWithCnincImageUrl = await uploadImageToFirebaseStorage(
-          _cnicWithSelfieImage, "SelfieWithCninc");
-      final drivingLicenseFrontImageUrl = await uploadImageToFirebaseStorage(
-          _drivingLicenseFrontImage, "DrivingLicenseImages");
-      final drivingLicenseBackImageUrl = await uploadImageToFirebaseStorage(
-          _drivingLicenseBackImage, "DrivingLicenseImages");
-      final vehicleImageUrl =
-          await uploadImageToFirebaseStorage(_vehicleImage, "VehicleImage");
-      final vehicleRegistrationFrontImageUrl =
-          await uploadImageToFirebaseStorage(
-              _vehicleRegistrationFrontImage, "VehicleRegistrationImages");
-      final vehicleRegistrationBackImageUrl =
-          await uploadImageToFirebaseStorage(
-              _vehicleRegistrationBackImage, "VehicleRegistrationImages");
+      final driverId = sharedPreferences.getString('driver_id') ?? '';
+      
+      final driverData = {
+        'name': '${firstNameController.text} ${lastNameController.text}',
+        'email': emailController.text,
+        'profileImageUrl': profilePictureUrl,
+        'vehicle': {
+          'type': selectedVehicle.toString(),
+          'make': brandController.text,
+          'model': brandController.text,
+          'year': int.tryParse(productionYearController.text) ?? 2020,
+          'licensePlate': numberPlateController.text,
+          'color': colorController.text,
+        },
+        'documents': {
+          'cnicNumber': cnicController.text,
+          'cnicFrontImage': frontCnincImageUrl,
+          'cnicBackImage': backCnincImageUrl,
+          'driverFaceWithCnic': faceWithCnincImageUrl,
+          'drivingLicenseNumber': drivingLicenseController.text,
+          'drivingLicenseFrontImage': drivingLicenseFrontImageUrl,
+          'drivingLicenseBackImage': drivingLicenseBackImageUrl,
+          'vehicleImage': vehicleImageUrl,
+          'vehicleRegistrationFrontImage': vehicleRegistrationFrontImageUrl,
+          'vehicleRegistrationBackImage': vehicleRegistrationBackImageUrl,
+        },
+        'personalInfo': {
+          'address': addressController.text,
+          'dateOfBirth': dobController.text,
+          'phoneNumber': phoneController.text,
+        }
+      };
 
-      final driver = Driver(
-        id: _auth.currentUser!.uid,
-        profilePicture: profilePictureUrl,
-        firstName: firstNameController.text,
-        secondName: lastNameController.text,
-        phoneNumber: phoneController.text,
-        address: addressController.text,
-        dob: dobController.text,
-        email: emailController.text,
-        cnicNumber: cnicController.text, // Add these fields if required
-        cnicFrontImage: frontCnincImageUrl,
-        cnicBackImage: backCnincImageUrl,
-        driverFaceWithCnic: faceWithCnincImageUrl,
-        drivingLicenseNumber: drivingLicenseController.text,
-        drivingLicenseFrontImage: drivingLicenseFrontImageUrl,
-        drivingLicenseBackImage: drivingLicenseBackImageUrl,
-        blockStatus: "no",
-        deviceToken: '',
-        earnings: '0',
-        driverRattings: '0',
-        vehicleInfo: VehicleInfo(
-          type: selectedVehicle.toString(),
-          brand: brandController.text,
-          color: colorController.text,
-          vehiclePicture: vehicleImageUrl,
-          productionYear: productionYearController.text,
-          registrationPlateNumber: numberPlateController.text,
-          registrationCertificateBackImage: vehicleRegistrationFrontImageUrl,
-          registrationCertificateFrontImage: vehicleRegistrationBackImageUrl,
-        ), // Initialize properly if needed
+      final token = sharedPreferences.getString('auth_token');
+      final response = await dio.put(
+        '$baseUrl/drivers/$driverId',
+        data: driverData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
       );
-
-      final userRef =
-          _database.ref().child("drivers").child(_auth.currentUser!.uid);
-      await userRef.set(driver.toMap());
+      
+      if (response.statusCode == 200) {
+        commonMethods.displaySnackBar("Profile updated successfully!", context);
+      } else {
+        throw Exception('Failed to save driver data: ${response.statusMessage}');
+      }
+      
       stopLoading();
     } catch (e) {
       stopLoading();
+      commonMethods.displaySnackBar("An error occurred while saving user data: $e", context);
       print("An error occurred while saving user data: $e");
     }
   }
@@ -379,56 +414,76 @@ class RegistrationProvider extends ChangeNotifier {
     }
     try {
       startFetchLoading();
-      // Reference to the user's data in the database
-      final userRef =
-          _database.ref().child("drivers").child(_auth.currentUser!.uid);
+      
+      // Get driver data from API instead of Firebase
+      final driverId = sharedPreferences.getString('driver_id');
+      if (driverId == null) {
+        throw Exception('Driver ID not found in SharedPreferences');
+      }
+      
+      final token = sharedPreferences.getString('auth_token');
+      final response = await dio.get(
+        '$baseUrl/drivers/$driverId',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      
+      if (response.statusCode == 200) {
+        final data = response.data;
 
-      // Fetch the data from Firebase
-      final snapshot = await userRef.get();
-
-      if (snapshot.exists) {
-        final data = snapshot.value as Map<dynamic, dynamic>;
-
-        // Update fields based on the data fetched
-        firstNameController.text = data['firstName'] ?? '';
-        lastNameController.text = data['secondName'] ?? '';
-        phoneController.text = data['phoneNumber'] ?? '';
-        addressController.text = data['address'] ?? '';
-        dobController.text = data['dob'] ?? '';
+        // Update fields based on the API response data
+        final nameParts = (data['name'] ?? '').split(' ');
+        firstNameController.text = nameParts.isNotEmpty ? nameParts[0] : '';
+        lastNameController.text = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
         emailController.text = data['email'] ?? '';
-        cnicController.text = data['cnicNumber'] ?? '';
-        drivingLicenseController.text = data['drivingLicenseNumber'] ?? '';
-        _selectedVehicle = data['vehicleInfo']['type'] ?? '';
-        brandController.text = data['vehicleInfo']['brand'] ?? '';
-        colorController.text = data['vehicleInfo']['color'] ?? '';
-        numberPlateController.text =
-            data['vehicleInfo']['registrationPlateNumber'] ?? '';
-        productionYearController.text =
-            data['vehicleInfo']['productionYear'] ?? '';
+        phoneController.text = data['phone'] ?? '';
+        addressController.text = data['personalInfo']?['address'] ?? '';
+        dobController.text = data['personalInfo']?['dateOfBirth'] ?? '';
+        cnicController.text = data['documents']?['cnicNumber'] ?? '';
+        drivingLicenseController.text = data['documents']?['drivingLicenseNumber'] ?? '';
+        _selectedVehicle = data['vehicle']?['type'] ?? '';
+        brandController.text = data['vehicle']?['make'] ?? '';
+        colorController.text = data['vehicle']?['color'] ?? '';
+        numberPlateController.text = data['vehicle']?['licensePlate'] ?? '';
+        productionYearController.text = data['vehicle']?['year']?.toString() ?? '';
 
-        // Update XFile instances if URLs exist (assuming download and save locally)
-        _profilePhoto = await _fetchImageFromUrl(data['profilePicture']);
-        _cnicFrontImage = await _fetchImageFromUrl(data['cnicFrontImage']);
-        _cnicBackImage = await _fetchImageFromUrl(data['cnicBackImage']);
-        _cnicWithSelfieImage =
-            await _fetchImageFromUrl(data['driverFaceWithCnic']);
-        _drivingLicenseFrontImage =
-            await _fetchImageFromUrl(data['drivingLicenseFrontImage']);
-        _drivingLicenseBackImage =
-            await _fetchImageFromUrl(data['drivingLicenseBackImage']);
-        _vehicleImage =
-            await _fetchImageFromUrl(data['vehicleInfo']['vehiclePicture']);
-        _vehicleRegistrationFrontImage = await _fetchImageFromUrl(
-            data['vehicleInfo']['registrationCertificateFrontImage']);
-        _vehicleRegistrationBackImage = await _fetchImageFromUrl(
-            data['vehicleInfo']['registrationCertificateBackImage']);
+        // Update XFile instances if URLs exist (download and save locally)
+        if (data['profileImageUrl'] != null) {
+          _profilePhoto = await _fetchImageFromUrl(data['profileImageUrl']);
+        }
+        if (data['documents']?['cnicFrontImage'] != null) {
+          _cnicFrontImage = await _fetchImageFromUrl(data['documents']['cnicFrontImage']);
+        }
+        if (data['documents']?['cnicBackImage'] != null) {
+          _cnicBackImage = await _fetchImageFromUrl(data['documents']['cnicBackImage']);
+        }
+        if (data['documents']?['driverFaceWithCnic'] != null) {
+          _cnicWithSelfieImage = await _fetchImageFromUrl(data['documents']['driverFaceWithCnic']);
+        }
+        if (data['documents']?['drivingLicenseFrontImage'] != null) {
+          _drivingLicenseFrontImage = await _fetchImageFromUrl(data['documents']['drivingLicenseFrontImage']);
+        }
+        if (data['documents']?['drivingLicenseBackImage'] != null) {
+          _drivingLicenseBackImage = await _fetchImageFromUrl(data['documents']['drivingLicenseBackImage']);
+        }
+        if (data['documents']?['vehicleImage'] != null) {
+          _vehicleImage = await _fetchImageFromUrl(data['documents']['vehicleImage']);
+        }
+        if (data['documents']?['vehicleRegistrationFrontImage'] != null) {
+          _vehicleRegistrationFrontImage = await _fetchImageFromUrl(data['documents']['vehicleRegistrationFrontImage']);
+        }
+        if (data['documents']?['vehicleRegistrationBackImage'] != null) {
+          _vehicleRegistrationBackImage = await _fetchImageFromUrl(data['documents']['vehicleRegistrationBackImage']);
+        }
+        
         _isDataFetched = true;
-        // Notify listeners to update UI
         stopFetchLoading();
         notifyListeners();
       } else {
-        print("No data available for this user.");
-        stopFetchLoading();
+        throw Exception('Failed to fetch driver data: ${response.statusMessage}');
       }
     } catch (e) {
       print("An error occurred while fetching user data: $e");
@@ -463,60 +518,76 @@ class RegistrationProvider extends ChangeNotifier {
     }
   }
 
-// Fetch the driver's earnings from Firebase Database
+// Fetch the driver's earnings from API
   Future<void> fetchDriverEarnings() async {
     try {
-      final userId = _auth.currentUser!.uid;
-      DatabaseReference driverRef =
-          _database.ref().child("drivers").child(userId);
-
-      // Retrieve the earnings value from Firebase
-      final snapshot = await driverRef.child("earnings").get();
-      if (snapshot.exists) {
-        // Parse the earnings as a double
-        double earnings = double.tryParse(snapshot.value.toString()) ?? 0.0;
-
-        // Store the earnings as double
-        _driverEarnings = double.parse(
-            earnings.toStringAsFixed(2)); // Round to 2 decimal places
-
-        notifyListeners(); // Notify listeners to update the UI
+      final driverId = sharedPreferences.getString('driver_id');
+      if (driverId == null) {
+        throw Exception('Driver ID not found');
+      }
+      
+      final token = sharedPreferences.getString('auth_token');
+      final response = await dio.get(
+        '$baseUrl/drivers/$driverId',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      
+      if (response.statusCode == 200) {
+        final data = response.data;
+        double earnings = double.tryParse(data['earnings']?.toString() ?? '0.0') ?? 0.0;
+        _driverEarnings = double.parse(earnings.toStringAsFixed(2));
+        notifyListeners();
       } else {
         _driverEarnings = 0.0;
         notifyListeners();
       }
     } catch (e) {
       print("Error fetching driver's earnings: $e");
+      _driverEarnings = 0.0;
+      notifyListeners();
     }
   }
 
   Future<void> retrieveCurrentDriverInfo() async {
     try {
-      final driverId = _auth.currentUser!.uid;
-      DatabaseReference driverRef =
-          _database.ref().child("drivers").child(driverId);
-      // Fetch the data from Firebase
-      final snapshot = await driverRef.get();
-
-      if (snapshot.exists) {
-        final data = snapshot.value as Map<dynamic, dynamic>;
-
-        // Update fields based on the data fetched
-        driverName = data['firstName'] ?? '';
-        driverSecondName = data['secondName'] ?? '';
-        driverPhone = data['phoneNumber'] ?? '';
+      final driverId = sharedPreferences.getString('driver_id');
+      if (driverId == null) {
+        throw Exception('Driver ID not found');
+      }
+      
+      final token = sharedPreferences.getString('auth_token');
+      final response = await dio.get(
+        '$baseUrl/drivers/$driverId',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      
+      if (response.statusCode == 200) {
+        final data = response.data;
+        
+        // Update global variables based on the API response
+        final nameParts = (data['name'] ?? '').split(' ');
+        driverName = nameParts.isNotEmpty ? nameParts[0] : '';
+        driverSecondName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+        driverPhone = data['phone'] ?? '';
         driverEmail = data['email'] ?? '';
-        address = data['address'] ?? '';
-        ratting = data['driverRattings'] ?? '';
-        driverPhoto = data['profilePicture'] ?? '';
-        carModel = data['vehicleInfo']['brand'] ?? '';
-        carColor = data['vehicleInfo']['color'] ?? '';
-        carNumber = data['vehicleInfo']['registrationPlateNumber'] ?? '';
+        address = data['personalInfo']?['address'] ?? '';
+        ratting = data['rating']?.toString() ?? '0';
+        driverPhoto = data['profileImageUrl'] ?? '';
+        carModel = data['vehicle']?['make'] ?? '';
+        carColor = data['vehicle']?['color'] ?? '';
+        carNumber = data['vehicle']?['licensePlate'] ?? '';
 
-        // Notify listeners to update UI
         notifyListeners();
       } else {
-        print("No data available for this user.");
+        throw Exception('Failed to fetch driver info: ${response.statusMessage}');
       }
     } catch (e) {
       print("An error occurred while fetching user data: $e");
@@ -527,27 +598,56 @@ class RegistrationProvider extends ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
-      final newProfilePicture =
-          await uploadImageToFirebaseStorage(_profilePhoto, "ProfilePicture");
-      // Basic driver data
+      
+      String? newProfilePicture;
+      if (_profilePhoto != null) {
+        newProfilePicture = await uploadImageToAPI(_profilePhoto, "ProfilePicture");
+      }
+      
+      final driverId = sharedPreferences.getString('driver_id');
+      if (driverId == null) {
+        throw Exception('Driver ID not found');
+      }
+      
       final driverData = {
-        'firstName': firstNameController.text,
-        'secondName': lastNameController.text,
+        'name': '${firstNameController.text} ${lastNameController.text}',
         'email': emailController.text,
-        'address': addressController.text,
-        'phoneNumber': phoneController.text,
-        'dob': dobController.text,
-        'profilePicture': newProfilePicture,
-        // URL of uploaded profile photo (if exists)
+        'personalInfo': {
+          'address': addressController.text,
+          'dateOfBirth': dobController.text,
+          'phoneNumber': phoneController.text,
+        },
       };
-      final userRef =
-          _database.ref().child("drivers").child(_auth.currentUser!.uid);
-      await userRef.update(driverData);
+      
+      if (newProfilePicture != null) {
+        driverData['profileImageUrl'] = newProfilePicture;
+      }
+      
+      final token = sharedPreferences.getString('auth_token');
+      final response = await dio.put(
+        '$baseUrl/drivers/$driverId',
+        data: driverData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      
+      if (response.statusCode == 200) {
+        commonMethods.displaySnackBar("Basic info updated successfully!", context);
+      } else {
+        throw Exception('Failed to update basic info: ${response.statusMessage}');
+      }
+      
       _isLoading = false;
       notifyListeners();
     } catch (e) {
       print("An error occurred while updating basic driver info: $e");
+      commonMethods.displaySnackBar("Error updating basic info: $e", context);
       _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -555,25 +655,48 @@ class RegistrationProvider extends ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
-      final frontCnincImageUrl =
-          await uploadImageToFirebaseStorage(_cnicFrontImage, "Cninc");
-      final backCnincImageUrl =
-          await uploadImageToFirebaseStorage(_cnicBackImage, "Cninc");
-      // Basic driver data
+      
+      final frontCnincImageUrl = await uploadImageToAPI(_cnicFrontImage, "Cninc");
+      final backCnincImageUrl = await uploadImageToAPI(_cnicBackImage, "Cninc");
+      
+      final driverId = sharedPreferences.getString('driver_id');
+      if (driverId == null) {
+        throw Exception('Driver ID not found');
+      }
+      
       final driverData = {
-        'cnicFrontImage': frontCnincImageUrl,
-        'cnicBackImage': backCnincImageUrl,
-        'cnicNumber': cnicController.text,
-        // URL of uploaded profile photo (if exists)
+        'documents': {
+          'cnicFrontImage': frontCnincImageUrl,
+          'cnicBackImage': backCnincImageUrl,
+          'cnicNumber': cnicController.text,
+        }
       };
-      final userRef =
-          _database.ref().child("drivers").child(_auth.currentUser!.uid);
-      await userRef.update(driverData);
+      
+      final token = sharedPreferences.getString('auth_token');
+      final response = await dio.put(
+        '$baseUrl/drivers/$driverId',
+        data: driverData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      
+      if (response.statusCode == 200) {
+        commonMethods.displaySnackBar("CNIC info updated successfully!", context);
+      } else {
+        throw Exception('Failed to update CNIC info: ${response.statusMessage}');
+      }
+      
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      print("An error occurred while updating basic driver info: $e");
+      print("An error occurred while updating CNIC info: $e");
+      commonMethods.displaySnackBar("Error updating CNIC info: $e", context);
       _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -581,21 +704,45 @@ class RegistrationProvider extends ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
-      final faceWithCnincImageUrl = await uploadImageToFirebaseStorage(
-          _cnicWithSelfieImage, "SelfieWithCninc");
-      // Basic driver data
+      
+      final faceWithCnincImageUrl = await uploadImageToAPI(_cnicWithSelfieImage, "SelfieWithCninc");
+      
+      final driverId = sharedPreferences.getString('driver_id');
+      if (driverId == null) {
+        throw Exception('Driver ID not found');
+      }
+      
       final driverData = {
-        'driverFaceWithCnic': faceWithCnincImageUrl,
-        // URL of uploaded profile photo (if exists)
+        'documents': {
+          'driverFaceWithCnic': faceWithCnincImageUrl,
+        }
       };
-      final userRef =
-          _database.ref().child("drivers").child(_auth.currentUser!.uid);
-      await userRef.update(driverData);
+      
+      final token = sharedPreferences.getString('auth_token');
+      final response = await dio.put(
+        '$baseUrl/drivers/$driverId',
+        data: driverData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      
+      if (response.statusCode == 200) {
+        commonMethods.displaySnackBar("Selfie with CNIC updated successfully!", context);
+      } else {
+        throw Exception('Failed to update selfie: ${response.statusMessage}');
+      }
+      
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      print("An error occurred while updating basic driver info: $e");
+      print("An error occurred while updating selfie info: $e");
+      commonMethods.displaySnackBar("Error updating selfie: $e", context);
       _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -603,25 +750,48 @@ class RegistrationProvider extends ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
-      final drivingLicenseFrontImageUrl = await uploadImageToFirebaseStorage(
-          _drivingLicenseFrontImage, "DrivingLicenseImages");
-      final drivingLicenseBackImageUrl = await uploadImageToFirebaseStorage(
-          _drivingLicenseBackImage, "DrivingLicenseImages");
-      // Basic driver data
+      
+      final drivingLicenseFrontImageUrl = await uploadImageToAPI(_drivingLicenseFrontImage, "DrivingLicenseImages");
+      final drivingLicenseBackImageUrl = await uploadImageToAPI(_drivingLicenseBackImage, "DrivingLicenseImages");
+      
+      final driverId = sharedPreferences.getString('driver_id');
+      if (driverId == null) {
+        throw Exception('Driver ID not found');
+      }
+      
       final driverData = {
-        'driverLicenseFrontImage': drivingLicenseFrontImageUrl,
-        'driverLicenseBackImage': drivingLicenseBackImageUrl,
-        'driverLicenseNumber': drivingLicenseController.text,
-        // URL of uploaded profile photo (if exists)
+        'documents': {
+          'drivingLicenseFrontImage': drivingLicenseFrontImageUrl,
+          'drivingLicenseBackImage': drivingLicenseBackImageUrl,
+          'drivingLicenseNumber': drivingLicenseController.text,
+        }
       };
-      final userRef =
-          _database.ref().child("drivers").child(_auth.currentUser!.uid);
-      await userRef.update(driverData);
+      
+      final token = sharedPreferences.getString('auth_token');
+      final response = await dio.put(
+        '$baseUrl/drivers/$driverId',
+        data: driverData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      
+      if (response.statusCode == 200) {
+        commonMethods.displaySnackBar("Driving license updated successfully!", context);
+      } else {
+        throw Exception('Failed to update license: ${response.statusMessage}');
+      }
+      
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      print("An error occurred while updating basic driver info: $e");
+      print("An error occurred while updating license info: $e");
+      commonMethods.displaySnackBar("Error updating license: $e", context);
       _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -629,25 +799,47 @@ class RegistrationProvider extends ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
-      // Basic driver data
+      
+      final driverId = sharedPreferences.getString('driver_id');
+      if (driverId == null) {
+        throw Exception('Driver ID not found');
+      }
+      
       final vehicleData = {
-        'type': selectedVehicle,
-        'brand': brandController.text,
-        'color': colorController.text,
-        'productionYear': productionYearController.text,
-        'registrationPlateNumber': numberPlateController.text,
+        'vehicle': {
+          'type': selectedVehicle,
+          'make': brandController.text,
+          'color': colorController.text,
+          'year': int.tryParse(productionYearController.text) ?? 2020,
+          'licensePlate': numberPlateController.text,
+        }
       };
-      final userRef = _database
-          .ref()
-          .child("drivers")
-          .child(_auth.currentUser!.uid)
-          .child("vehicleInfo");
-      await userRef.update(vehicleData);
+      
+      final token = sharedPreferences.getString('auth_token');
+      final response = await dio.put(
+        '$baseUrl/drivers/$driverId',
+        data: vehicleData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      
+      if (response.statusCode == 200) {
+        commonMethods.displaySnackBar("Vehicle info updated successfully!", context);
+      } else {
+        throw Exception('Failed to update vehicle info: ${response.statusMessage}');
+      }
+      
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      print("An error occurred while updating basic driver info: $e");
+      print("An error occurred while updating vehicle info: $e");
+      commonMethods.displaySnackBar("Error updating vehicle info: $e", context);
       _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -655,23 +847,45 @@ class RegistrationProvider extends ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
-      final vehicleImageUrl =
-          await uploadImageToFirebaseStorage(_vehicleImage, "VehicleImage");
-      // Basic driver data
+      
+      final vehicleImageUrl = await uploadImageToAPI(_vehicleImage, "VehicleImage");
+      
+      final driverId = sharedPreferences.getString('driver_id');
+      if (driverId == null) {
+        throw Exception('Driver ID not found');
+      }
+      
       final vehicleData = {
-        'vehiclePicture': vehicleImageUrl,
+        'documents': {
+          'vehicleImage': vehicleImageUrl,
+        }
       };
-      final userRef = _database
-          .ref()
-          .child("drivers")
-          .child(_auth.currentUser!.uid)
-          .child("vehicleInfo");
-      await userRef.update(vehicleData);
+      
+      final token = sharedPreferences.getString('auth_token');
+      final response = await dio.put(
+        '$baseUrl/drivers/$driverId',
+        data: vehicleData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      
+      if (response.statusCode == 200) {
+        commonMethods.displaySnackBar("Vehicle image updated successfully!", context);
+      } else {
+        throw Exception('Failed to update vehicle image: ${response.statusMessage}');
+      }
+      
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      print("An error occurred while updating basic driver info: $e");
+      print("An error occurred while updating vehicle image: $e");
+      commonMethods.displaySnackBar("Error updating vehicle image: $e", context);
       _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -679,27 +893,47 @@ class RegistrationProvider extends ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
-      final vehicleRegistrationFrontImageUrl =
-          await uploadImageToFirebaseStorage(
-              _vehicleRegistrationFrontImage, "VehicleRegistrationImages");
-      final vehicleRegistrationBackImageUrl =
-          await uploadImageToFirebaseStorage(
-              _vehicleRegistrationBackImage, "VehicleRegistrationImages");
+      
+      final vehicleRegistrationFrontImageUrl = await uploadImageToAPI(_vehicleRegistrationFrontImage, "VehicleRegistrationImages");
+      final vehicleRegistrationBackImageUrl = await uploadImageToAPI(_vehicleRegistrationBackImage, "VehicleRegistrationImages");
+      
+      final driverId = sharedPreferences.getString('driver_id');
+      if (driverId == null) {
+        throw Exception('Driver ID not found');
+      }
+      
       final vehicleData = {
-        'registrationCertificateFrontImage': vehicleRegistrationFrontImageUrl,
-        'registrationCertificateBackImage': vehicleRegistrationBackImageUrl,
+        'documents': {
+          'vehicleRegistrationFrontImage': vehicleRegistrationFrontImageUrl,
+          'vehicleRegistrationBackImage': vehicleRegistrationBackImageUrl,
+        }
       };
-      final userRef = _database
-          .ref()
-          .child("drivers")
-          .child(_auth.currentUser!.uid)
-          .child("vehicleInfo");
-      await userRef.update(vehicleData);
+      
+      final token = sharedPreferences.getString('auth_token');
+      final response = await dio.put(
+        '$baseUrl/drivers/$driverId',
+        data: vehicleData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+      
+      if (response.statusCode == 200) {
+        commonMethods.displaySnackBar("Vehicle registration images updated successfully!", context);
+      } else {
+        throw Exception('Failed to update registration images: ${response.statusMessage}');
+      }
+      
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      print("An error occurred while updating basic driver info: $e");
+      print("An error occurred while updating registration images: $e");
+      commonMethods.displaySnackBar("Error updating registration images: $e", context);
       _isLoading = false;
+      notifyListeners();
     }
   }
 }

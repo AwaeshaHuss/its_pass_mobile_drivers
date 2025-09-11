@@ -1,7 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:uber_drivers_app/pages/dashboard.dart';
+import 'package:uber_drivers_app/providers/auth_provider.dart';
 import '../methods/common_method.dart';
 import '../widgets/loading_dialog.dart';
 import 'signup_screen.dart';
@@ -54,44 +54,25 @@ class _LoginScreenState extends State<LoginScreen>
       builder: (BuildContext context) => const LoadingDialog(messageText: "Allowing you to Login..."),
     );
 
-    final User? userFirebase = (
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: emailTextEditingController.text.trim(),
-          password: passwordTextEditingController.text.trim(),
-        ).catchError((errorMsg)
-        {
-          Navigator.pop(context);
-          cMethods.displaySnackBar(errorMsg.toString(), context);
-        })
-    ).user;
+    try {
+      final authProvider = Provider.of<AuthenticationProvider>(context, listen: false);
+      await authProvider.signInWithEmailAndPassword(
+        email: emailTextEditingController.text.trim(),
+        password: passwordTextEditingController.text.trim(),
+        context: context,
+      );
 
-    if(!context.mounted) return;
-    Navigator.pop(context);
+      if(!context.mounted) return;
+      Navigator.pop(context);
 
-    if(userFirebase != null)
-    {
-      DatabaseReference usersRef = FirebaseDatabase.instance.ref().child("drivers").child(userFirebase.uid);
-      usersRef.once().then((snap)
-      {
-        if(snap.snapshot.value != null)
-        {
-          if((snap.snapshot.value as Map)["blockStatus"] == "no")
-          {
-            //userName = (snap.snapshot.value as Map)["name"];
-            Navigator.push(context, MaterialPageRoute(builder: (c)=> Dashboard()));
-          }
-          else
-          {
-            FirebaseAuth.instance.signOut();
-            cMethods.displaySnackBar("you are blocked. Contact admin: alizeb875@gmail.com", context);
-          }
-        }
-        else
-        {
-          FirebaseAuth.instance.signOut();
-          cMethods.displaySnackBar("your record do not exists as a Driver.", context);
-        }
-      });
+      // Check if login was successful
+      if (authProvider.isLoggedIn) {
+        Navigator.push(context, MaterialPageRoute(builder: (c)=> Dashboard()));
+      }
+    } catch (errorMsg) {
+      if(!context.mounted) return;
+      Navigator.pop(context);
+      cMethods.displaySnackBar(errorMsg.toString(), context);
     }
   }
 

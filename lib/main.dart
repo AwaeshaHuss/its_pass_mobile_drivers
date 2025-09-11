@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uber_drivers_app/pages/auth/register_screen.dart';
 import 'package:uber_drivers_app/providers/auth_provider.dart';
 import 'package:uber_drivers_app/providers/dashboard_provider.dart';
@@ -43,13 +45,25 @@ class MyApp extends StatelessWidget {
           create: (_) => DashboardProvider(),
         ),
         ChangeNotifierProvider(
-          create: (_) => AuthenticationProvider(),
+          create: (_) => AuthenticationProvider(
+            dio: di.sl<Dio>(),
+            sharedPreferences: di.sl<SharedPreferences>(),
+            baseUrl: 'https://your-api-base-url.com/api',
+          ),
         ),
         ChangeNotifierProvider(
-          create: (_) => RegistrationProvider(),
+          create: (_) => RegistrationProvider(
+            dio: di.sl<Dio>(),
+            sharedPreferences: di.sl<SharedPreferences>(),
+            baseUrl: 'https://your-api-base-url.com/api',
+          ),
         ),
         ChangeNotifierProvider(
-          create: (_) => TripProvider(),
+          create: (_) => TripProvider(
+            dio: di.sl<Dio>(),
+            sharedPreferences: di.sl<SharedPreferences>(),
+            baseUrl: 'https://your-api-base-url.com/api',
+          ),
         ),
       ],
       child: MaterialApp(
