@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uber_drivers_app/methods/common_method.dart';
 import 'package:uber_drivers_app/pages/dashboard.dart';
@@ -223,18 +224,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Future<void> _showImageSourceDialog() async {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20.w),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+            Text(
               'Select Photo',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 18.sp,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -294,18 +295,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16.w),
             decoration: BoxDecoration(
               color: Colors.grey[100],
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 32, color: Colors.grey[700]),
+            child: Icon(icon, size: 32.sp, color: Colors.grey[700]),
           ),
           const SizedBox(height: 8),
           Text(
             label,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 14.sp,
               color: Colors.grey[700],
               fontWeight: FontWeight.w500,
             ),
@@ -324,39 +325,39 @@ class _SignUpScreenState extends State<SignUpScreen> {
         elevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: Colors.black, size: 24.sp),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          padding: EdgeInsets.symmetric(horizontal: 24.w),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
               
               // Header
-              const Text(
+              Text(
                 'Create account',
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 28.sp,
                   fontWeight: FontWeight.w700,
                   color: Colors.black,
                   letterSpacing: -0.5,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8.h),
               Text(
                 'Join as a driver and start earning',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 16.sp,
                   color: Colors.grey[600],
                   fontWeight: FontWeight.w400,
                 ),
               ),
               
-              const SizedBox(height: 32),
+              SizedBox(height: 32.h),
               
               // Profile photo section
               Center(
@@ -365,14 +366,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     GestureDetector(
                       onTap: _showImageSourceDialog,
                       child: Container(
-                        height: 100,
-                        width: 100,
+                        height: 100.w,
+                        width: 100.w,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.grey[100],
                           border: Border.all(
                             color: Colors.grey[300]!,
-                            width: 2,
+                            width: 2.w,
                           ),
                           image: imageFile != null
                               ? DecorationImage(
@@ -384,17 +385,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         child: imageFile == null
                             ? Icon(
                                 Icons.camera_alt_outlined,
-                                size: 40,
+                                size: 40.sp,
                                 color: Colors.grey[600],
                               )
                             : null,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12.h),
                     Text(
                       'Add profile photo',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         color: Colors.grey[600],
                         fontWeight: FontWeight.w500,
                       ),

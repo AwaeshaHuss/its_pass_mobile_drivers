@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
 import 'package:uber_drivers_app/methods/common_method.dart';
@@ -70,53 +71,53 @@ class _OTPScreenState extends State<OTPScreen> {
         elevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: Colors.black, size: 24.sp),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          padding: EdgeInsets.symmetric(horizontal: 24.w),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 40),
+              SizedBox(height: 40.h),
               
               // Header section
               Center(
                 child: Column(
                   children: [
                     Container(
-                      height: 80,
-                      width: 80,
+                      height: 80.w,
+                      width: 80.w,
                       decoration: BoxDecoration(
                         color: Colors.black,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(16.r),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
+                            blurRadius: 8.r,
+                            offset: Offset(0, 4.h),
                           ),
                         ],
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.sms_outlined,
                         color: Colors.white,
-                        size: 40,
+                        size: 40.sp,
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    const Text(
+                    SizedBox(height: 24.h),
+                    Text(
                       'Verify your number',
                       style: TextStyle(
-                        fontSize: 28,
+                        fontSize: 28.sp,
                         fontWeight: FontWeight.w700,
                         color: Colors.black,
                         letterSpacing: -0.5,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8.h),
                     Text(
                       widget.phoneNumber != null 
                           ? 'Enter the 6-digit code sent to\n${widget.phoneNumber}'
@@ -132,7 +133,7 @@ class _OTPScreenState extends State<OTPScreen> {
                 ),
               ),
               
-              const SizedBox(height: 48),
+              SizedBox(height: 48.h),
 
               // OTP Input
               Center(
@@ -142,10 +143,10 @@ class _OTPScreenState extends State<OTPScreen> {
                   showCursor: true,
                   enabled: !_isLoading,
                   defaultPinTheme: PinTheme(
-                    width: 50,
-                    height: 56,
+                    width: 50.w,
+                    height: 56.h,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                       color: Colors.grey[50],
                       border: Border.all(color: Colors.grey[300]!),
                     ),
@@ -156,12 +157,12 @@ class _OTPScreenState extends State<OTPScreen> {
                     ),
                   ),
                   focusedPinTheme: PinTheme(
-                    width: 50,
-                    height: 56,
+                    width: 50.w,
+                    height: 56.h,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                       color: Colors.grey[50],
-                      border: Border.all(color: Colors.black, width: 2),
+                      border: Border.all(color: Colors.black, width: 2.w),
                     ),
                     textStyle: const TextStyle(
                       fontSize: 20, 
@@ -170,10 +171,10 @@ class _OTPScreenState extends State<OTPScreen> {
                     ),
                   ),
                   submittedPinTheme: PinTheme(
-                    width: 50,
-                    height: 56,
+                    width: 50.w,
+                    height: 56.h,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                       color: Colors.black.withValues(alpha: 0.05),
                       border: Border.all(color: Colors.black),
                     ),
@@ -184,10 +185,10 @@ class _OTPScreenState extends State<OTPScreen> {
                     ),
                   ),
                   errorPinTheme: PinTheme(
-                    width: 50,
-                    height: 56,
+                    width: 50.w,
+                    height: 56.h,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                       color: Colors.red[50],
                       border: Border.all(color: Colors.red),
                     ),
@@ -217,7 +218,7 @@ class _OTPScreenState extends State<OTPScreen> {
               // Verify button
               SizedBox(
                 width: double.infinity,
-                height: 56,
+                height: 56.h,
                 child: ElevatedButton(
                   onPressed: (_isLoading || (smsCode?.length ?? 0) < 6) 
                       ? null 
@@ -230,22 +231,22 @@ class _OTPScreenState extends State<OTPScreen> {
                     elevation: 0,
                     disabledBackgroundColor: Colors.grey[400],
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                     ),
                   ),
                   child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
+                      ? SizedBox(
+                          height: 20.w,
+                          width: 20.w,
                           child: CircularProgressIndicator(
-                            strokeWidth: 2,
+                            strokeWidth: 2.w,
                             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
-                      : const Text(
+                      : Text(
                           'Verify Code',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 16.sp,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -258,16 +259,16 @@ class _OTPScreenState extends State<OTPScreen> {
               if (authRepo.isSuccessful)
                 Center(
                   child: Container(
-                    height: 60,
-                    width: 60,
+                    height: 60.w,
+                    width: 60.w,
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       color: Colors.green,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.check,
                       color: Colors.white,
-                      size: 32,
+                      size: 32.sp,
                     ),
                   ),
                 ),
@@ -286,13 +287,13 @@ class _OTPScreenState extends State<OTPScreen> {
                         fontWeight: FontWeight.w400,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16.h),
                     TextButton(
                       onPressed: _canResend ? _resendOTP : null,
                       style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 24.w,
+                          vertical: 12.h,
                         ),
                       ),
                       child: Text(
@@ -300,7 +301,7 @@ class _OTPScreenState extends State<OTPScreen> {
                             ? 'Resend Code'
                             : 'Resend in ${_resendCountdown}s',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.w600,
                           color: _canResend ? Colors.black : Colors.grey[500],
                         ),

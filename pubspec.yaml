@@ -74,6 +74,9 @@ dependencies:
   # Network and API
   dio: ^5.3.2
   retrofit: ^4.0.3
+  
+  # Screen Responsiveness
+  flutter_screenutil: ^5.9.0
 
 dev_dependencies:
   flutter_test:

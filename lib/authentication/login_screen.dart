@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:uber_drivers_app/pages/dashboard.dart';
 import 'package:uber_drivers_app/providers/auth_provider.dart';
@@ -133,51 +134,51 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          padding: EdgeInsets.symmetric(horizontal: 24.w),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 40),
+              SizedBox(height: 40.h),
               
               // Logo and branding
               Center(
                 child: Column(
                   children: [
                     Container(
-                      height: 80,
-                      width: 80,
+                      height: 80.w,
+                      width: 80.w,
                       decoration: BoxDecoration(
                         color: Colors.black,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(16.r),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
+                            blurRadius: 8.r,
+                            offset: Offset(0, 4.h),
                           ),
                         ],
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.local_taxi,
                         color: Colors.white,
-                        size: 40,
+                        size: 40.sp,
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    const Text(
+                    SizedBox(height: 24.h),
+                    Text(
                       'Welcome back',
                       style: TextStyle(
-                        fontSize: 28,
+                        fontSize: 28.sp,
                         fontWeight: FontWeight.w700,
                         color: Colors.black,
                         letterSpacing: -0.5,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8.h),
                     Text(
                       'Sign in to your driver account',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 16.sp,
                         color: Colors.grey[600],
                         fontWeight: FontWeight.w400,
                       ),
@@ -186,25 +187,25 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               
-              const SizedBox(height: 48),
+              SizedBox(height: 48.h),
               
               // Email field
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Email',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
                       color: Colors.black,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                       border: Border.all(color: Colors.grey[200]!),
                     ),
                     child: TextField(
@@ -213,12 +214,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
                       onSubmitted: (_) => _passwordFocusNode.requestFocus(),
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: TextStyle(
+                        fontSize: 16.sp,
                         fontWeight: FontWeight.w500,
                         color: Colors.black,
                       ),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Enter your email',
                         hintStyle: TextStyle(
                           color: Colors.grey,
@@ -226,8 +227,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
+                          horizontal: 16.w,
+                          vertical: 16.h,
                         ),
                         prefixIcon: Icon(
                           Icons.email_outlined,
@@ -239,25 +240,25 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
               
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
               
               // Password field
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Password',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
                       color: Colors.black,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8.h),
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                       border: Border.all(color: Colors.grey[200]!),
                     ),
                     child: TextField(
@@ -266,23 +267,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       obscureText: !_isPasswordVisible,
                       textInputAction: TextInputAction.done,
                       onSubmitted: (_) => _checkIfNetworkIsAvailable(),
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: TextStyle(
+                        fontSize: 16.sp,
                         fontWeight: FontWeight.w500,
                         color: Colors.black,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Enter your password',
-                        hintStyle: const TextStyle(
+                        hintStyle: TextStyle(
                           color: Colors.grey,
                           fontWeight: FontWeight.w400,
                         ),
                         border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 16.h,
                         ),
-                        prefixIcon: const Icon(
+                        prefixIcon: Icon(
                           Icons.lock_outline,
                           color: Colors.grey,
                         ),
@@ -305,12 +306,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
               
-              const SizedBox(height: 32),
+              SizedBox(height: 32.h),
               
               // Login button
               SizedBox(
                 width: double.infinity,
-                height: 56,
+                height: 56.h,
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _checkIfNetworkIsAvailable,
                   style: ElevatedButton.styleFrom(
@@ -319,41 +320,41 @@ class _LoginScreenState extends State<LoginScreen> {
                     elevation: 0,
                     disabledBackgroundColor: Colors.grey[400],
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                     ),
                   ),
                   child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
+                      ? SizedBox(
+                          height: 20.w,
+                          width: 20.w,
                           child: CircularProgressIndicator(
-                            strokeWidth: 2,
+                            strokeWidth: 2.w,
                             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
-                      : const Text(
+                      : Text(
                           'Sign In',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 16.sp,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                 ),
               ),
               
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
               
               // Divider
               Row(
                 children: [
                   Expanded(
                     child: Container(
-                      height: 1,
+                      height: 1.h,
                       color: Colors.grey[300],
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
                     child: Text(
                       'or',
                       style: TextStyle(
@@ -364,14 +365,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   Expanded(
                     child: Container(
-                      height: 1,
+                      height: 1.h,
                       color: Colors.grey[300],
                     ),
                   ),
                 ],
               ),
               
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
               
               // Sign up link
               Center(
@@ -389,10 +390,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       text: "Don't have an account? ",
                       style: TextStyle(
                         color: Colors.grey[600],
-                        fontSize: 16,
+                        fontSize: 16.sp,
                         fontWeight: FontWeight.w400,
                       ),
-                      children: const [
+                      children: [
                         TextSpan(
                           text: 'Sign up',
                           style: TextStyle(

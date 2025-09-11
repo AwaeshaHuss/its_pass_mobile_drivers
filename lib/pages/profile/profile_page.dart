@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:uber_drivers_app/pages/profileUpdation/driver_main_info.dart';
 import 'package:uber_drivers_app/providers/auth_provider.dart';
@@ -32,15 +33,15 @@ class _ProfilePageState extends State<ProfilePage> {
       backgroundColor: Colors.grey[50],
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(20.w),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header
-              const Text(
+              Text(
                 'Profile',
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 28.sp,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                 ),
@@ -49,7 +50,7 @@ class _ProfilePageState extends State<ProfilePage> {
               Text(
                 'Manage your account and preferences',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 16.sp,
                   color: Colors.grey[600],
                 ),
               ),
@@ -58,15 +59,15 @@ class _ProfilePageState extends State<ProfilePage> {
               // Profile Card
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(24.w),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(16.r),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
+                      blurRadius: 10.r,
+                      offset: Offset(0, 2.h),
                     ),
                   ],
                 ),
@@ -74,11 +75,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     // Profile Image
                     Container(
-                      width: 80,
-                      height: 80,
+                      width: 80.w,
+                      height: 80.w,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.grey[300]!, width: 2),
+                        border: Border.all(color: Colors.grey[300]!, width: 2.w),
                       ),
                       child: ClipOval(
                         child: CachedNetworkImage(
@@ -103,47 +104,47 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16.h),
 
                     // Name
                     Text(
                       driverName.isEmpty && driverSecondName.isEmpty 
                           ? "Driver Name" 
                           : "$driverName $driverSecondName".trim(),
-                      style: const TextStyle(
-                        fontSize: 22,
+                      style: TextStyle(
+                        fontSize: 22.sp,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8.h),
 
                     // Rating
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         RatingStars(ratting: ratting.isEmpty ? "0.0" : ratting),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8.w),
                         Text(
                           ratting.isEmpty ? "0.0" : ratting,
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 16.sp,
                             fontWeight: FontWeight.w600,
                             color: Colors.grey[700],
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20.h),
 
                     // Contact Info
                     _buildInfoRow(Icons.phone, driverPhone.isEmpty ? "Phone not set" : driverPhone),
                     if (driverEmail.isNotEmpty) ...[
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12.h),
                       _buildInfoRow(Icons.email, driverEmail),
                     ],
                     if (address.isNotEmpty) ...[
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12.h),
                       _buildInfoRow(Icons.location_on, address),
                     ],
                   ],
@@ -153,10 +154,10 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 30),
 
               // Menu Items
-              const Text(
+              Text(
                 'Account',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 20.sp,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                 ),
@@ -205,12 +206,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
               ),
 
-              const SizedBox(height: 40),
+              SizedBox(height: 40.h),
 
               // Logout Button
               SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 50.h,
                 child: ElevatedButton(
                   onPressed: () async {
                     await _showLogoutDialog(context, authProvider);
@@ -220,13 +221,13 @@ class _ProfilePageState extends State<ProfilePage> {
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
+                      borderRadius: BorderRadius.circular(25.r),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Sign Out',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -245,15 +246,15 @@ class _ProfilePageState extends State<ProfilePage> {
       children: [
         Icon(
           icon,
-          size: 16,
+          size: 16.sp,
           color: Colors.grey[600],
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8.w),
         Flexible(
           child: Text(
             text,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 14.sp,
               color: Colors.grey[700],
             ),
             textAlign: TextAlign.center,
@@ -273,61 +274,61 @@ class _ProfilePageState extends State<ProfilePage> {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20.w),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
+              blurRadius: 10.r,
+              offset: Offset(0, 2.h),
             ),
           ],
         ),
         child: Row(
           children: [
             Container(
-              width: 50,
-              height: 50,
+              width: 50.w,
+              height: 50.w,
               decoration: BoxDecoration(
                 color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
               ),
               child: Icon(
                 icon,
                 color: Colors.black,
-                size: 24,
+                size: 24.sp,
               ),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      fontSize: 16,
+                    style: TextStyle(
+                      fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
                       color: Colors.black,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4.h),
                   Text(
                     subtitle,
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       color: Colors.grey[600],
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(
+            Icon(
               Icons.arrow_forward_ios,
               color: Colors.grey,
-              size: 16,
+              size: 16.sp,
             ),
           ],
         ),
@@ -342,18 +343,18 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
           ),
-          title: const Text(
+          title: Text(
             'Sign Out',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 20.sp,
               fontWeight: FontWeight.bold,
             ),
           ),
-          content: const Text(
+          content: Text(
             'Are you sure you want to sign out of your account?',
-            style: TextStyle(fontSize: 16),
+            style: TextStyle(fontSize: 16.sp),
           ),
           actions: <Widget>[
             TextButton(
@@ -362,7 +363,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 'Cancel',
                 style: TextStyle(
                   color: Colors.grey[600],
-                  fontSize: 16,
+                  fontSize: 16.sp,
                 ),
               ),
             ),
@@ -376,12 +377,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 'Sign Out',
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: 16.sp),
               ),
             ),
           ],
