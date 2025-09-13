@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:itspass_driver/pages/driverRegistration/cninc_screen.dart';
-import 'package:itspass_driver/pages/driverRegistration/selfie_screen.dart';
 import 'package:itspass_driver/pages/driverRegistration/vehicle_registration/driver_car_image_screeen.dart';
 import 'package:itspass_driver/pages/driverRegistration/vehicle_registration/vehicle_baisc_info.dart';
 import 'package:itspass_driver/pages/driverRegistration/vehicle_registration/vehicle_registration_screen.dart';

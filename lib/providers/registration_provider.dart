@@ -132,7 +132,6 @@ class RegistrationProvider extends ChangeNotifier {
     _debounce = Timer(const Duration(milliseconds: 300), () {
       _isFormValidBasic = firstNameController.text.isNotEmpty &&
           lastNameController.text.isNotEmpty &&
-          emailController.text.isNotEmpty &&
           phoneController.text.isNotEmpty &&
           addressController.text.isNotEmpty &&
           dobController.text.isNotEmpty &&
@@ -158,8 +157,8 @@ class RegistrationProvider extends ChangeNotifier {
     _debounce = Timer(const Duration(milliseconds: 300), () {
       _isFormValidDrivingLicense = _drivingLicenseFrontImage != null &&
           _drivingLicenseBackImage != null &&
-          drivingLicenseController.text.isNotEmpty &&
-          licenseRegExp.hasMatch(drivingLicenseController.text);
+          drivingLicenseController.text.trim().isNotEmpty &&
+          drivingLicenseController.text.trim().length >= 3;
       notifyListeners();
     });
   }

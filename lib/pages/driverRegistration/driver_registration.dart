@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:itspass_driver/pages/dashboard.dart';
 import 'package:itspass_driver/pages/driverRegistration/basic_info_screen.dart';
-import 'package:itspass_driver/pages/driverRegistration/cninc_screen.dart';
 import 'package:itspass_driver/pages/driverRegistration/driving_license_screen.dart';
+import 'package:itspass_driver/pages/driverRegistration/cninc_screen.dart';
 import 'package:itspass_driver/pages/driverRegistration/selfie_screen.dart';
 import 'package:itspass_driver/providers/registration_provider.dart';
 import 'vehicle_info_screen.dart';
@@ -125,9 +125,9 @@ class _DriverRegistrationState extends State<DriverRegistration> {
                         
                         _buildRegistrationStep(
                           stepNumber: 2,
-                          title: 'CNIC Verification',
-                          subtitle: 'Upload your CNIC photos',
-                          icon: Icons.credit_card_outlined,
+                          title: 'Non-conviction',
+                          subtitle: 'Upload your non-conviction document',
+                          icon: Icons.description_outlined,
                           isCompleted: isCnicComplete,
                           onTap: () async {
                             bool? result = await Navigator.push(

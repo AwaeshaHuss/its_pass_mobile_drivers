@@ -74,7 +74,7 @@ class _DrivingLicenseScreenState extends State<DrivingLicenseScreen> {
                       controller: registrationProvider.drivingLicenseController,
                       decoration: const InputDecoration(
                         labelText: 'License Number',
-                        helperText: 'Format: ST-24-7174',
+                        helperText: 'Enter your license number (optional)',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(
                             Radius.circular(12),
@@ -84,12 +84,11 @@ class _DrivingLicenseScreenState extends State<DrivingLicenseScreen> {
                       ),
                       keyboardType: TextInputType.text,
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'License Number is required';
-                        }
-                        if (!registrationProvider.licenseRegExp
-                            .hasMatch(value)) {
-                          return 'Please enter a valid license number in ST-24-7174 format';
+                        // License number is optional - only validate format if provided
+                        if (value != null && value.trim().isNotEmpty) {
+                          if (value.trim().length < 3) {
+                            return 'License Number must be at least 3 characters';
+                          }
                         }
                         return null;
                       },

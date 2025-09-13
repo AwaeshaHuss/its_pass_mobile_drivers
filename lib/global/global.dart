@@ -6,7 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 String userName = '';
 String userEmail = '';
-const String googleMapKey = "AIzaSyDKCK7ObKSfI445t8A4dxaVcT3YiE8DsPIAIzaSyDKCK7ObKSfI445t8A4dxaVcT3YiE8DsPI";
+const String googleMapKey = "AIzaSyDGxIhn1cDap5bfDeVKZef45ldCMZCkK1o";
 const CameraPosition  googlePlexInitialPosition = CameraPosition(
   target: LatLng(31.9454, 35.9284), // Amman, Jordan
   zoom: 14.4746,

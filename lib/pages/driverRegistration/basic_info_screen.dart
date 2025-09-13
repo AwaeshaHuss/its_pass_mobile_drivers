@@ -159,22 +159,22 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
                           TextFormField(
                             controller: registrationProvider.emailController,
                             decoration: const InputDecoration(
-                              labelText: 'Email',
+                              labelText: 'Email (Optional)',
                               border: OutlineInputBorder(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(15)),
                               ),
                             ),
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Email is required';
-                              }
-                              // Email regex pattern for proper validation
-                              final emailRegex = RegExp(
-                                r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-                              );
-                              if (!emailRegex.hasMatch(value)) {
-                                return 'Valid email address is required';
+                              // Email is optional - only validate format if provided
+                              if (value != null && value.trim().isNotEmpty) {
+                                // Email regex pattern for proper validation
+                                final emailRegex = RegExp(
+                                  r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+                                );
+                                if (!emailRegex.hasMatch(value.trim())) {
+                                  return 'Please enter a valid email address';
+                                }
                               }
                               return null;
                             },
@@ -213,9 +213,12 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
                               ),
                             ),
                             validator: (value) {
-                              if (value == null ||
-                                  value.isEmpty ||
-                                  value.length < 13) {
+                              if (value == null || value.isEmpty) {
+                                return 'Phone number is required';
+                              }
+                              // Remove any non-digit characters for validation
+                              String digitsOnly = value.replaceAll(RegExp(r'[^0-9]'), '');
+                              if (digitsOnly.length < 10) {
                                 return 'Phone number is not valid';
                               }
                               return null;

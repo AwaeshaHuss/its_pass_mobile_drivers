@@ -65,13 +65,13 @@ class _VehicleBasicInfoScreenState extends State<VehicleBasicInfoScreen> {
                                 width: 100,
                               ),
                               const SizedBox(width: 10),
-                              const Text("Car"),
+                              const Text("Gasoline car"),
                             ],
                           ),
-                          value: registrationProvider.selectedVehicle == "Car",
+                          value: registrationProvider.selectedVehicle == "Gasoline car",
                           onChanged: (bool? value) {
                             if (value == true) {
-                              registrationProvider.setSelectedVehicle("Car");
+                              registrationProvider.setSelectedVehicle("Gasoline car");
                             }
                           },
                         ),
@@ -80,18 +80,18 @@ class _VehicleBasicInfoScreenState extends State<VehicleBasicInfoScreen> {
                           title: Row(
                             children: [
                               Image.asset(
-                                "assets/vehicles/bike.png",
+                                "assets/vehicles/home_car.png",
                                 height: 50,
                                 width: 100,
                               ),
                               const SizedBox(width: 10),
-                              const Text("Bike"),
+                              const Text("Electric car"),
                             ],
                           ),
-                          value: registrationProvider.selectedVehicle == "Bike",
+                          value: registrationProvider.selectedVehicle == "Electric car",
                           onChanged: (bool? value) {
                             if (value == true) {
-                              registrationProvider.setSelectedVehicle("Bike");
+                              registrationProvider.setSelectedVehicle("Electric car");
                             }
                           },
                         ),
@@ -100,18 +100,18 @@ class _VehicleBasicInfoScreenState extends State<VehicleBasicInfoScreen> {
                           title: Row(
                             children: [
                               Image.asset(
-                                "assets/vehicles/auto.png",
+                                "assets/vehicles/home_car.png",
                                 height: 50,
                                 width: 100,
                               ),
                               const SizedBox(width: 10),
-                              const Text("Auto"),
+                              const Text("Hybrid car"),
                             ],
                           ),
-                          value: registrationProvider.selectedVehicle == "Auto",
+                          value: registrationProvider.selectedVehicle == "Hybrid car",
                           onChanged: (bool? value) {
                             if (value == true) {
-                              registrationProvider.setSelectedVehicle("Auto");
+                              registrationProvider.setSelectedVehicle("Hybrid car");
                             }
                           },
                         ),
