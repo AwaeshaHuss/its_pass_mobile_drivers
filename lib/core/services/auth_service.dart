@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import '../utils/app_logger.dart';
 import '../constants/api_constants.dart';
 import '../models/api_response.dart';
 import '../models/auth_models.dart';
@@ -125,7 +126,7 @@ class AuthService {
       await _dio.post(ApiConstants.logout);
     } catch (e) {
       // Continue with local logout even if API call fails
-      print('Logout API call failed: $e');
+      AppLogger.error('Logout API call failed: $e');
     }
     
     // Clear all stored authentication data

@@ -180,7 +180,7 @@ class _TripsPageState extends State<TripsPage> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (c) => TripsHistoryPage()),
+                          MaterialPageRoute(builder: (c) => const TripHistoryPage()),
                         );
                       },
                       child: Container(

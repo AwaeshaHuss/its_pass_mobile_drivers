@@ -203,6 +203,8 @@ class NavigationService {
     final context = currentContext;
     if (context == null) return;
     
-    Navigator.of(context, rootNavigator: true).pop();
+    if (context.mounted) {
+      Navigator.of(context, rootNavigator: true).pop();
+    }
   }
 }

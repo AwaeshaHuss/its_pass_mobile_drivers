@@ -3,7 +3,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:itspass_driver/models/driver.dart';
-import 'package:itspass_driver/pages/auth/register_screen.dart';
 import '../methods/common_method.dart';
 import '../pages/auth/otp_screen.dart';
 import '../core/services/auth_service.dart';
@@ -349,7 +348,7 @@ class AuthenticationProvider extends ChangeNotifier {
       _uid = null;
       notifyListeners();
     } catch (e) {
-      print("Error signing out: $e");
+      AppLogger.error("Error signing out: $e");
     }
   }
 
@@ -361,12 +360,10 @@ class AuthenticationProvider extends ChangeNotifier {
       await googleSignIn.signOut();
 
       if (context.mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-              builder: (context) => const RegisterScreen()),
-          (route) => false,
-        );
+        if (context.mounted) {
+          Navigator.pushNamedAndRemoveUntil(
+              context, "/dashboard", (route) => false);
+        }
       }
 
       stopLoading();
@@ -451,7 +448,7 @@ class AuthenticationProvider extends ChangeNotifier {
       }
       return false;
     } catch (e) {
-      print("Error checking user by email: $e");
+      AppLogger.error("Error checking user by email: $e");
       return false;
     }
   }

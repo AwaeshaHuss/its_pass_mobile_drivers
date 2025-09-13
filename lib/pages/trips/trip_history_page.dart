@@ -3,12 +3,13 @@ import 'package:provider/provider.dart';
 
 import '../../providers/trips_provider.dart';
 
-class TripsHistoryPage extends StatefulWidget {
+class TripHistoryPage extends StatefulWidget {
+  const TripHistoryPage({super.key});
   @override
   _TripsHistoryPageState createState() => _TripsHistoryPageState();
 }
 
-class _TripsHistoryPageState extends State<TripsHistoryPage> {
+class _TripsHistoryPageState extends State<TripHistoryPage> {
   @override
   void initState() {
     super.initState();

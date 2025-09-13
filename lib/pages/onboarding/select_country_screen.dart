@@ -339,7 +339,7 @@ class _SelectCountryScreenState extends State<SelectCountryScreen> {
                   border: Border.all(color: Colors.grey[300]!),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.white.withAlpha(90),
                       blurRadius: 10,
                       offset: const Offset(0, 2),
                     ),
@@ -414,7 +414,7 @@ class _SelectCountryScreenState extends State<SelectCountryScreen> {
                   border: Border.all(color: Colors.grey[300]!),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.white.withAlpha(90),
                       blurRadius: 10,
                       offset: const Offset(0, 2),
                     ),
