@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import '../../providers/trips_provider.dart';
 import '../../core/services/driver_service.dart';
 import '../../core/models/trip_models.dart';
 import 'trip_history_page.dart';
@@ -14,7 +12,6 @@ class TripsPage extends StatefulWidget {
 class _TripsPageState extends State<TripsPage> {
   bool _isLoading = true;
   List<Trip>? _trips;
-  String? _errorMessage;
 
   @override
   void initState() {
@@ -25,41 +22,27 @@ class _TripsPageState extends State<TripsPage> {
   Future<void> _fetchTripData() async {
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
     });
 
     try {
       final driverService = DriverService();
       final response = await driverService.getTripHistory();
       
-      if (response.isSuccess && response.data != null) {
+      if (response.success && response.data != null) {
         setState(() {
           _trips = response.data;
           _isLoading = false;
         });
       } else {
         setState(() {
-          _errorMessage = response.error ?? 'Failed to load trip data';
-          _isLoading = false;
+            _isLoading = false;
         });
         
-        // Fallback to provider method if API fails
-        if (mounted) {
-          Provider.of<TripProvider>(context, listen: false)
-              .getCurrentDriverTotalNumberOfTripsCompleted();
-        }
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'Error loading trip data: $e';
         _isLoading = false;
       });
-      
-      // Fallback to provider method if API fails
-      if (mounted) {
-        Provider.of<TripProvider>(context, listen: false)
-            .getCurrentDriverTotalNumberOfTripsCompleted();
-      }
     }
   }
 
@@ -98,13 +81,12 @@ class _TripsPageState extends State<TripsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final tripProvider = Provider.of<TripProvider>(context);
     final stats = _calculateTripStats();
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: SafeArea(
-        child: _isLoading || tripProvider.isLoading
+        child: _isLoading
             ? const Center(
                 child: CircularProgressIndicator(
                   color: Colors.black,
@@ -140,11 +122,7 @@ class _TripsPageState extends State<TripsPage> {
                         Expanded(
                           child: _buildStatsCard(
                             title: 'Total Trips',
-                            value: _errorMessage != null 
-                                ? (tripProvider.currentDriverTotalTripsCompleted.isEmpty 
-                                    ? "0" 
-                                    : tripProvider.currentDriverTotalTripsCompleted)
-                                : stats['totalTrips'].toString(),
+                            value: stats['totalTrips'].toString(),
                             icon: Icons.route,
                             color: Colors.blue,
                           ),

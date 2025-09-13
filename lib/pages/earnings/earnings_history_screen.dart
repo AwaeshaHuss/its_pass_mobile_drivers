@@ -43,15 +43,23 @@ class _EarningsHistoryScreenState extends State<EarningsHistoryScreen> {
     });
 
     try {
-      final trips = await _driverService.getTripHistory();
-      final filteredTrips = _filterTripsByPeriod(trips, _selectedPeriod);
+      final response = await _driverService.getTripHistory();
       
-      setState(() {
-        _trips = filteredTrips;
-        _totalEarnings = _calculateTotalEarnings(filteredTrips);
-        _totalTrips = filteredTrips.length;
-        _isLoading = false;
-      });
+      if (response.success && response.data != null) {
+        final filteredTrips = _filterTripsByPeriod(response.data!, _selectedPeriod);
+        
+        setState(() {
+          _trips = filteredTrips;
+          _totalEarnings = _calculateTotalEarnings(filteredTrips);
+          _totalTrips = filteredTrips.length;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _error = response.error ?? 'Failed to load trip history';
+          _isLoading = false;
+        });
+      }
     } catch (e) {
       setState(() {
         _error = ErrorHandler.getErrorMessage(e);
@@ -80,7 +88,7 @@ class _EarningsHistoryScreenState extends State<EarningsHistoryScreen> {
         startDate = lastMonth;
         final endDate = DateTime(now.year, now.month, 0);
         return trips.where((trip) {
-          final tripDate = DateTime.parse(trip.createdAt);
+          final tripDate = trip.createdAt;
           return tripDate.isAfter(startDate.subtract(const Duration(days: 1))) &&
                  tripDate.isBefore(endDate.add(const Duration(days: 1)));
         }).toList();
@@ -90,13 +98,13 @@ class _EarningsHistoryScreenState extends State<EarningsHistoryScreen> {
     }
 
     return trips.where((trip) {
-      final tripDate = DateTime.parse(trip.createdAt);
+      final tripDate = trip.createdAt;
       return tripDate.isAfter(startDate.subtract(const Duration(days: 1)));
     }).toList();
   }
 
   double _calculateTotalEarnings(List<Trip> trips) {
-    return trips.fold(0.0, (sum, trip) => sum + trip.fare);
+    return trips.fold(0.0, (sum, trip) => sum + (trip.finalFare ?? trip.estimatedFare));
   }
 
   @override
@@ -291,7 +299,7 @@ class _EarningsHistoryScreenState extends State<EarningsHistoryScreen> {
   }
 
   Widget _buildTripEarningCard(Trip trip) {
-    final tripDate = DateTime.parse(trip.createdAt);
+    final tripDate = trip.createdAt;
     final formattedDate = '${tripDate.day}/${tripDate.month}/${tripDate.year}';
     final formattedTime = '${tripDate.hour.toString().padLeft(2, '0')}:${tripDate.minute.toString().padLeft(2, '0')}';
 
@@ -304,7 +312,7 @@ class _EarningsHistoryScreenState extends State<EarningsHistoryScreen> {
         border: Border.all(color: Colors.grey[200]!),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha(13),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -377,7 +385,7 @@ class _EarningsHistoryScreenState extends State<EarningsHistoryScreen> {
                 ],
               ),
               Text(
-                '\$${trip.fare.toStringAsFixed(2)}',
+                '\$${(trip.finalFare ?? trip.estimatedFare).toStringAsFixed(2)}',
                 style: TextStyle(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.bold,

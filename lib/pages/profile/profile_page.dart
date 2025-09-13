@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:itspass_driver/pages/profileUpdation/driver_main_info.dart';
 import 'package:itspass_driver/providers/auth_provider.dart';
-import 'package:itspass_driver/providers/registration_provider.dart';
 
 import '../../global/global.dart';
 import '../../widgets/ratting_stars.dart';
@@ -43,22 +42,11 @@ class _ProfilePageState extends State<ProfilePage> {
         _isLoading = false;
       });
       
-      // Also fetch from provider for additional data
-      if (mounted) {
-        Provider.of<RegistrationProvider>(context, listen: false)
-            .retrieveCurrentDriverInfo();
-      }
     } catch (e) {
       setState(() {
         _errorMessage = 'Error loading profile: $e';
         _isLoading = false;
       });
-      
-      // Fallback to provider method if API fails
-      if (mounted) {
-        Provider.of<RegistrationProvider>(context, listen: false)
-            .retrieveCurrentDriverInfo();
-      }
     }
   }
 

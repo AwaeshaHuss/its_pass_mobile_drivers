@@ -41,6 +41,9 @@ class ApiConstants {
   static const String wallet = '/mobile/driver/wallet';
   static const String earnings = '/mobile/driver/earnings';
   static const String balance = '/mobile/driver/balance';
+  static const String transactionHistory = '/mobile/driver/transactions';
+  static const String requestWithdrawal = '/mobile/driver/withdrawal/request';
+  static const String withdrawalHistory = '/mobile/driver/withdrawals';
   
   // Utility Endpoints
   static const String health = '/mobile/health';

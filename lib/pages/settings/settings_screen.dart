@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/navigation_service.dart';
 import '../../core/utils/error_handler.dart';
-import '../../widgets/loading_widget.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -52,9 +51,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       //   'language': _language,
       // });
 
-      ErrorHandler.showSuccessMessage(context, 'Settings saved successfully');
+      ErrorHandler.showSuccessSnackBar(context, 'Settings saved successfully');
     } catch (e) {
-      ErrorHandler.showErrorMessage(context, ErrorHandler.getErrorMessage(e));
+      ErrorHandler.showErrorSnackBar(context, ErrorHandler.getErrorMessage(e));
     } finally {
       setState(() {
         _isLoading = false;
@@ -72,13 +71,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     try {
       await _authService.logout();
-      _navigationService.navigateToLogin();
+      if (mounted) {
+        _navigationService.navigateToLogin();
+      }
     } catch (e) {
-      ErrorHandler.showErrorMessage(context, ErrorHandler.getErrorMessage(e));
+      if (mounted) {
+        ErrorHandler.showErrorSnackBar(context, ErrorHandler.getErrorMessage(e));
+      }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -319,7 +324,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             SizedBox(height: 32.h),
 
             // Logout Button
-            Container(
+            SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _handleLogout,

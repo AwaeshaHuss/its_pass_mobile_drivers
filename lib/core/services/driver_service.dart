@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import '../constants/api_constants.dart';
 import '../models/api_response.dart';
 import '../models/trip_models.dart';
+import '../models/transaction_models.dart';
 import 'secure_storage_service.dart';
 
 class DriverService {
@@ -380,6 +381,71 @@ class DriverService {
         return ApiResponse.error('Failed to get balance: ${e.message}');
       }
       return ApiResponse.error('Failed to get balance: $e');
+    }
+  }
+
+  // Get Transaction History
+  Future<ApiResponse<List<Transaction>>> getTransactionHistory() async {
+    try {
+      final response = await _dio.get(ApiConstants.transactionHistory);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> transactionsJson = response.data['transactions'] ?? [];
+        final transactions = transactionsJson
+            .map((json) => Transaction.fromJson(json))
+            .toList();
+        return ApiResponse.success(transactions);
+      } else {
+        return ApiResponse.error('Failed to get transaction history: ${response.statusMessage}');
+      }
+    } catch (e) {
+      if (e is DioException) {
+        return ApiResponse.error('Failed to get transaction history: ${e.message}');
+      }
+      return ApiResponse.error('Failed to get transaction history: $e');
+    }
+  }
+
+  // Request Withdrawal
+  Future<ApiResponse<void>> requestWithdrawal(double amount) async {
+    try {
+      final response = await _dio.post(
+        ApiConstants.requestWithdrawal,
+        data: {'amount': amount},
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return ApiResponse.success(null);
+      } else {
+        return ApiResponse.error('Failed to request withdrawal: ${response.statusMessage}');
+      }
+    } catch (e) {
+      if (e is DioException) {
+        return ApiResponse.error('Failed to request withdrawal: ${e.message}');
+      }
+      return ApiResponse.error('Failed to request withdrawal: $e');
+    }
+  }
+
+  // Get Withdrawal History
+  Future<ApiResponse<List<WithdrawalRequest>>> getWithdrawalHistory() async {
+    try {
+      final response = await _dio.get(ApiConstants.withdrawalHistory);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> withdrawalsJson = response.data['withdrawals'] ?? [];
+        final withdrawals = withdrawalsJson
+            .map((json) => WithdrawalRequest.fromJson(json))
+            .toList();
+        return ApiResponse.success(withdrawals);
+      } else {
+        return ApiResponse.error('Failed to get withdrawal history: ${response.statusMessage}');
+      }
+    } catch (e) {
+      if (e is DioException) {
+        return ApiResponse.error('Failed to get withdrawal history: ${e.message}');
+      }
+      return ApiResponse.error('Failed to get withdrawal history: $e');
     }
   }
 }

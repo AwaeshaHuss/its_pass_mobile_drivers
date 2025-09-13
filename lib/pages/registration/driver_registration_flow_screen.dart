@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../core/services/driver_service.dart';
-import '../../core/services/file_upload_service.dart';
-import '../../widgets/loading_widget.dart';
-import '../../widgets/error_widget.dart';
 import '../../core/utils/error_handler.dart';
 import '../dashboard.dart';
 
@@ -17,11 +14,61 @@ class DriverRegistrationFlowScreen extends StatefulWidget {
 class _DriverRegistrationFlowScreenState extends State<DriverRegistrationFlowScreen> {
   final PageController _pageController = PageController();
   final DriverService _driverService = DriverService();
-  final FileUploadService _fileUploadService = FileUploadService();
+  final _formKey = GlobalKey<FormState>();
   
   int _currentStep = 0;
   bool _isLoading = false;
   String? _error;
+
+  // Form Controllers
+  final _fullNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _dobController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _vehicleMakeController = TextEditingController();
+  final _vehicleModelController = TextEditingController();
+  final _vehicleYearController = TextEditingController();
+  final _licensePlateController = TextEditingController();
+  final _vehicleColorController = TextEditingController();
+  final _bankNameController = TextEditingController();
+  final _accountHolderController = TextEditingController();
+  final _accountNumberController = TextEditingController();
+  final _routingNumberController = TextEditingController();
+  final _swiftCodeController = TextEditingController();
+
+  // Collect form data before proceeding to next step
+  void _collectCurrentStepData() {
+    switch (_currentStep) {
+      case 0: // Basic Info
+        _registrationData['basic_info'] = {
+          'full_name': _fullNameController.text,
+          'email': _emailController.text,
+          'phone': _phoneController.text,
+          'date_of_birth': _dobController.text,
+          'address': _addressController.text,
+        };
+        break;
+      case 2: // Vehicle Info
+        _registrationData['vehicle_info'] = {
+          'make': _vehicleMakeController.text,
+          'model': _vehicleModelController.text,
+          'year': _vehicleYearController.text,
+          'license_plate': _licensePlateController.text,
+          'color': _vehicleColorController.text,
+        };
+        break;
+      case 3: // Bank Details
+        _registrationData['bank_details'] = {
+          'bank_name': _bankNameController.text,
+          'account_holder_name': _accountHolderController.text,
+          'account_number': _accountNumberController.text,
+          'routing_number': _routingNumberController.text,
+          'swift_code': _swiftCodeController.text,
+        };
+        break;
+    }
+  }
 
   // Registration data
   final Map<String, dynamic> _registrationData = {
@@ -42,10 +89,35 @@ class _DriverRegistrationFlowScreenState extends State<DriverRegistrationFlowScr
   @override
   void dispose() {
     _pageController.dispose();
+    _fullNameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _dobController.dispose();
+    _addressController.dispose();
+    _vehicleMakeController.dispose();
+    _vehicleModelController.dispose();
+    _vehicleYearController.dispose();
+    _licensePlateController.dispose();
+    _vehicleColorController.dispose();
+    _bankNameController.dispose();
+    _accountHolderController.dispose();
+    _accountNumberController.dispose();
+    _routingNumberController.dispose();
+    _swiftCodeController.dispose();
     super.dispose();
   }
 
   Future<void> _nextStep() async {
+    // Validate current step before proceeding
+    if (_currentStep == 0 && _formKey.currentState != null) {
+      if (!_formKey.currentState!.validate()) {
+        return;
+      }
+    }
+    
+    // Collect current step data
+    _collectCurrentStepData();
+    
     if (_currentStep < _stepTitles.length - 1) {
       setState(() {
         _currentStep++;
@@ -79,24 +151,34 @@ class _DriverRegistrationFlowScreenState extends State<DriverRegistrationFlowScr
 
     try {
       // Submit registration data to API
-      await _driverService.registerDriver(_registrationData);
+      final response = await _driverService.registerDriver(_registrationData);
       
-      // Show success message
-      ErrorHandler.showSuccessMessage(context, 'Registration submitted successfully!');
-      
-      // Navigate to dashboard
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => const Dashboard()),
-        (route) => false,
-      );
+      if (response.success) {
+        // Show success message
+        if (mounted) {
+          ErrorHandler.showSuccessSnackBar(context, 'Registration submitted successfully!');
+          
+          // Navigate to dashboard
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const Dashboard()),
+            (route) => false,
+          );
+        }
+      } else {
+        setState(() {
+          _error = response.error ?? 'Registration failed';
+        });
+      }
     } catch (e) {
       setState(() {
         _error = ErrorHandler.getErrorMessage(e);
       });
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -280,26 +362,29 @@ class _DriverRegistrationFlowScreenState extends State<DriverRegistrationFlowScr
   }
 
   Widget _buildBasicInfoStep() {
-    return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Personal Information',
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+    return Form(
+      key: _formKey,
+      child: SingleChildScrollView(
+        padding: EdgeInsets.all(16.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Personal Information',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
-          ),
-          SizedBox(height: 16.h),
-          _buildTextField('Full Name', 'Enter your full name'),
-          _buildTextField('Email', 'Enter your email address'),
-          _buildTextField('Phone Number', 'Enter your phone number'),
-          _buildTextField('Date of Birth', 'DD/MM/YYYY'),
-          _buildTextField('Address', 'Enter your full address'),
-        ],
+            SizedBox(height: 16.h),
+            _buildTextField('Full Name', 'Enter your full name', _fullNameController, isRequired: true),
+            _buildTextField('Email', 'Enter your email address', _emailController, isRequired: true, keyboardType: TextInputType.emailAddress),
+            _buildTextField('Phone Number', 'Enter your phone number', _phoneController, isRequired: true, keyboardType: TextInputType.phone),
+            _buildTextField('Date of Birth', 'DD/MM/YYYY', _dobController, isRequired: true),
+            _buildTextField('Address', 'Enter your full address', _addressController, isRequired: true, maxLines: 3),
+          ],
+        ),
       ),
     );
   }
@@ -343,11 +428,11 @@ class _DriverRegistrationFlowScreenState extends State<DriverRegistrationFlowScr
             ),
           ),
           SizedBox(height: 16.h),
-          _buildTextField('Vehicle Make', 'e.g., Toyota'),
-          _buildTextField('Vehicle Model', 'e.g., Camry'),
-          _buildTextField('Vehicle Year', 'e.g., 2020'),
-          _buildTextField('License Plate', 'Enter license plate number'),
-          _buildTextField('Vehicle Color', 'e.g., White'),
+          _buildTextField('Vehicle Make', 'e.g., Toyota', _vehicleMakeController, isRequired: true),
+          _buildTextField('Vehicle Model', 'e.g., Camry', _vehicleModelController, isRequired: true),
+          _buildTextField('Vehicle Year', 'e.g., 2020', _vehicleYearController, isRequired: true, keyboardType: TextInputType.number),
+          _buildTextField('License Plate', 'Enter license plate number', _licensePlateController, isRequired: true),
+          _buildTextField('Vehicle Color', 'e.g., White', _vehicleColorController, isRequired: true),
           _buildDocumentUpload('Vehicle Registration', 'Upload vehicle registration document'),
           _buildDocumentUpload('Insurance Certificate', 'Upload valid insurance certificate'),
         ],
@@ -370,11 +455,11 @@ class _DriverRegistrationFlowScreenState extends State<DriverRegistrationFlowScr
             ),
           ),
           SizedBox(height: 16.h),
-          _buildTextField('Bank Name', 'Enter your bank name'),
-          _buildTextField('Account Holder Name', 'Enter account holder name'),
-          _buildTextField('Account Number', 'Enter account number'),
-          _buildTextField('Routing Number', 'Enter routing number'),
-          _buildTextField('SWIFT Code', 'Enter SWIFT code (if applicable)'),
+          _buildTextField('Bank Name', 'Enter your bank name', _bankNameController, isRequired: true),
+          _buildTextField('Account Holder Name', 'Enter account holder name', _accountHolderController, isRequired: true),
+          _buildTextField('Account Number', 'Enter account number', _accountNumberController, isRequired: true, keyboardType: TextInputType.number),
+          _buildTextField('Routing Number', 'Enter routing number', _routingNumberController, isRequired: true, keyboardType: TextInputType.number),
+          _buildTextField('SWIFT Code', 'Enter SWIFT code (if applicable)', _swiftCodeController),
         ],
       ),
     );
@@ -440,22 +525,51 @@ class _DriverRegistrationFlowScreenState extends State<DriverRegistrationFlowScr
     );
   }
 
-  Widget _buildTextField(String label, String hint) {
+  Widget _buildTextField(
+    String label, 
+    String hint, 
+    TextEditingController controller, {
+    bool isRequired = false,
+    TextInputType keyboardType = TextInputType.text,
+    int maxLines = 1,
+  }) {
     return Container(
       margin: EdgeInsets.only(bottom: 16.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
-            ),
+          Row(
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              if (isRequired)
+                Text(
+                  ' *',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.red,
+                  ),
+                ),
+            ],
           ),
           SizedBox(height: 8.h),
           TextFormField(
+            controller: controller,
+            keyboardType: keyboardType,
+            maxLines: maxLines,
+            validator: isRequired ? (value) {
+              if (value == null || value.isEmpty) {
+                return 'This field is required';
+              }
+              return null;
+            } : null,
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: TextStyle(
@@ -473,6 +587,10 @@ class _DriverRegistrationFlowScreenState extends State<DriverRegistrationFlowScr
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
                 borderSide: const BorderSide(color: Colors.black),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: const BorderSide(color: Colors.red),
               ),
               contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
             ),

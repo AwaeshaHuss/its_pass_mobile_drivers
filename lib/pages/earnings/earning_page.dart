@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../providers/registration_provider.dart';
 import '../../core/services/driver_service.dart';
 import '../../core/utils/error_handler.dart';
 
@@ -35,7 +33,7 @@ class _EarningsPageState extends State<EarningsPage> {
       final driverService = DriverService();
       final response = await driverService.getEarnings();
       
-      if (response.isSuccess && response.data != null) {
+      if (response.success && response.data != null) {
         setState(() {
           _earningsData = response.data;
           _isLoading = false;
@@ -46,23 +44,12 @@ class _EarningsPageState extends State<EarningsPage> {
           _isLoading = false;
         });
         
-        // Fallback to provider method if API fails
-        if (mounted) {
-          Provider.of<RegistrationProvider>(context, listen: false)
-              .fetchDriverEarnings();
-        }
       }
     } catch (e) {
       setState(() {
         _errorMessage = ErrorHandler.getErrorMessage(e);
         _isLoading = false;
       });
-      
-      // Fallback to provider method if API fails
-      if (mounted) {
-        Provider.of<RegistrationProvider>(context, listen: false)
-            .fetchDriverEarnings();
-      }
     }
   }
 
@@ -94,31 +81,27 @@ class _EarningsPageState extends State<EarningsPage> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Consumer<RegistrationProvider>(
-            builder: (context, provider, child) {
-              return Text(
-                'JOD ${provider.driverEarnings ?? 0}',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 36.sp,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -1,
-                ),
-              );
-            },
+          Text(
+            'JOD 0.00',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 36.sp,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -1,
+            ),
           ),
           SizedBox(height: 8.h),
           Row(
             children: [
               Icon(
-                Icons.warning_amber_rounded,
-                color: Colors.orange[300],
+                Icons.error_outline,
+                color: Colors.red[300],
                 size: 16.sp,
               ),
               SizedBox(width: 4.w),
               Expanded(
                 child: Text(
-                  'Using cached data',
+                  'Failed to load data',
                   style: TextStyle(
                     color: Colors.white70,
                     fontSize: 12.sp,

@@ -30,6 +30,7 @@ class _HomePageState extends State<HomePage> {
   String titleToShow = "GO ONLINE NOW";
   bool isDriverAvailable = false;
   StreamSubscription<Position>? positionStreamHomePage;
+  Timer? _locationUpdateTimer;
   // Removed Firebase Database reference - now using API calls
   MapThemeMethods themeMethods = MapThemeMethods();
 
@@ -106,30 +107,18 @@ class _HomePageState extends State<HomePage> {
       final driverService = DriverService();
       final response = await driverService.getDriverStatus();
       
-      if (response.isSuccess && response.data != null) {
+      if (response.success && response.data != null) {
         final status = response.data!['status'] ?? 'offline';
         setState(() {
           isDriverAvailable = status == 'waiting' || status == 'online';
-          if (isDriverAvailable) {
-            colorToShow = Colors.red[400]!;
-            titleToShow = "GO OFFLINE NOW";
-          } else {
-            colorToShow = Colors.black;
-            titleToShow = "GO ONLINE NOW";
-          }
+          _updateStatusUI();
         });
       } else {
         // Fallback to SharedPreferences if API fails
         SharedPreferences prefs = await SharedPreferences.getInstance();
         setState(() {
           isDriverAvailable = prefs.getBool('isDriverAvailable') ?? false;
-          if (isDriverAvailable) {
-            colorToShow = Colors.red[400]!;
-            titleToShow = "GO OFFLINE NOW";
-          } else {
-            colorToShow = Colors.black;
-            titleToShow = "GO ONLINE NOW";
-          }
+          _updateStatusUI();
         });
       }
     } catch (e) {
@@ -138,14 +127,18 @@ class _HomePageState extends State<HomePage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       setState(() {
         isDriverAvailable = prefs.getBool('isDriverAvailable') ?? false;
-        if (isDriverAvailable) {
-          colorToShow = Colors.red[400]!;
-          titleToShow = "GO OFFLINE NOW";
-        } else {
-          colorToShow = Colors.black;
-          titleToShow = "GO ONLINE NOW";
-        }
+        _updateStatusUI();
       });
+    }
+  }
+
+  void _updateStatusUI() {
+    if (isDriverAvailable) {
+      colorToShow = Colors.red[400]!;
+      titleToShow = "GO OFFLINE NOW";
+    } else {
+      colorToShow = Colors.black;
+      titleToShow = "GO ONLINE NOW";
     }
   }
 
@@ -191,15 +184,7 @@ class _HomePageState extends State<HomePage> {
     positionStreamHomePage =
         Geolocator.getPositionStream().listen((Position position) {
       currentPositionOfDriver = position;
-
-      if (isDriverAvailable == true) {
-        // Geofire.setLocation( // Commented out due to compatibility issues with AGP 8.1.0+
-        //   FirebaseAuth.instance.currentUser!.uid,
-        //   currentPositionOfDriver!.latitude,
-        //   currentPositionOfDriver!.longitude,
-        // );
-        print("Geofire location update temporarily disabled due to compatibility issues.");
-      }
+      driverCurrentPosition = currentPositionOfDriver;
 
       LatLng positionLatLng = LatLng(position.latitude, position.longitude);
       if (controllerGoogleMap != null) {
@@ -218,6 +203,31 @@ class _HomePageState extends State<HomePage> {
         }
       }
     });
+
+    // Start periodic location updates to server
+    _startPeriodicLocationUpdates();
+  }
+
+  void _startPeriodicLocationUpdates() {
+    _locationUpdateTimer = Timer.periodic(const Duration(seconds: 30), (timer) async {
+      if (isDriverAvailable && currentPositionOfDriver != null) {
+        try {
+          final driverService = DriverService();
+          await driverService.updateLocation(
+            latitude: currentPositionOfDriver!.latitude,
+            longitude: currentPositionOfDriver!.longitude,
+          );
+          print("Location updated: ${currentPositionOfDriver!.latitude}, ${currentPositionOfDriver!.longitude}");
+        } catch (e) {
+          print("Error updating location: $e");
+        }
+      }
+    });
+  }
+
+  void _stopPeriodicLocationUpdates() {
+    _locationUpdateTimer?.cancel();
+    _locationUpdateTimer = null;
   }
 
   goOfflineNow() async {
@@ -225,11 +235,10 @@ class _HomePageState extends State<HomePage> {
       final driverService = DriverService();
       final response = await driverService.updateDriverStatus('offline');
       
-      if (response.isSuccess) {
+      if (response.success) {
         setState(() {
           isDriverAvailable = false;
-          colorToShow = Colors.black;
-          titleToShow = "GO ONLINE NOW";
+          _updateStatusUI();
         });
         
         // Save status locally as backup
@@ -241,6 +250,9 @@ class _HomePageState extends State<HomePage> {
           positionStreamHomePage = null;
           print("Location stream cancelled - driver is now offline");
         }
+        
+        // Stop periodic location updates
+        _stopPeriodicLocationUpdates();
       } else {
         print("Failed to go offline: ${response.error}");
       }
@@ -279,6 +291,8 @@ class _HomePageState extends State<HomePage> {
     if (positionStreamHomePage != null) {
       positionStreamHomePage!.cancel();
     }
+    // Cancel location update timer
+    _stopPeriodicLocationUpdates();
     super.dispose();
   }
 

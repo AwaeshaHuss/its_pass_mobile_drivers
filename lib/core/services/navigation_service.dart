@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:itspass_driver/authentication/login_screen.dart';
 import '../services/secure_storage_service.dart';
 import '../services/auth_service.dart';
-import '../../pages/auth/register_screen.dart';
+import '../services/driver_service.dart';
 import '../../pages/dashboard.dart';
-import '../../pages/driverRegistration/basic_info_screen.dart';
+import '../../pages/registration/driver_registration_flow_screen.dart';
 
 class NavigationService {
   static final NavigationService _instance = NavigationService._internal();
@@ -33,9 +33,30 @@ class NavigationService {
         return;
       }
 
-      // User is authenticated, check registration status
+      // User is authenticated, check registration and trip status
+      await _navigateBasedOnDriverState();
+      
+    } catch (e) {
+      // Error occurred, go to login for safety
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        (route) => false,
+      );
+    }
+  }
+
+  // Navigate based on comprehensive driver state
+  Future<void> _navigateBasedOnDriverState() async {
+    final context = currentContext;
+    if (context == null) return;
+
+    try {
       final authService = AuthService();
+      final driverService = DriverService();
+      
+      // Get driver profile and status
       final profileResponse = await authService.getCurrentDriverProfile();
+      final statusResponse = await driverService.getDriverStatus();
       
       // Check if driver profile is complete
       final isProfileComplete = _isDriverProfileComplete(profileResponse);
@@ -43,22 +64,38 @@ class NavigationService {
       if (!isProfileComplete) {
         // Profile incomplete, go to registration flow
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const BasicInfoScreen()),
+          MaterialPageRoute(builder: (context) => const DriverRegistrationFlowScreen()),
           (route) => false,
         );
         return;
       }
 
-      // User authenticated and profile complete, go to dashboard
+      // Check if driver has active trip
+      if (statusResponse.success && statusResponse.data != null) {
+        final driverStatus = statusResponse.data as Map<String, dynamic>;
+        final hasActiveTrip = driverStatus['has_active_trip'] == true;
+        final activeTripId = driverStatus['active_trip_id'];
+        
+        if (hasActiveTrip && activeTripId != null) {
+          // For now, navigate to dashboard - active trip screen integration pending
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const Dashboard()),
+            (route) => false,
+          );
+          return;
+        }
+      }
+
+      // Default: User authenticated and profile complete, go to dashboard
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => const Dashboard()),
         (route) => false,
       );
       
     } catch (e) {
-      // Error occurred, go to login for safety
+      // Fallback to dashboard on error
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        MaterialPageRoute(builder: (context) => const Dashboard()),
         (route) => false,
       );
     }
@@ -106,7 +143,7 @@ class NavigationService {
     if (context == null) return;
     
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const RegisterScreen()),
+      MaterialPageRoute(builder: (context) => const DriverRegistrationFlowScreen()),
       (route) => false,
     );
   }
