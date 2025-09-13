@@ -20,9 +20,9 @@ class ActiveTripScreen extends StatefulWidget {
 
 class _ActiveTripScreenState extends State<ActiveTripScreen> {
   final DriverService _driverService = DriverService();
+  final Set<Polyline> _polylines = {};
   GoogleMapController? _mapController;
   Set<Marker> _markers = {};
-  Set<Polyline> _polylines = {};
   Position? _currentPosition;
   StreamSubscription<Position>? _positionStream;
   

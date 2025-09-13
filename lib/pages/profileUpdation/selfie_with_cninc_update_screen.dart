@@ -22,7 +22,6 @@ class _SelfieWithCnincUpdateScreenState
     extends State<SelfieWithCnincUpdateScreen> {
   @override
   Widget build(BuildContext context) {
-    final _formKey = GlobalKey<FormState>();
     return Consumer<RegistrationProvider>(
       builder: (context, registrationProvider, child) => Scaffold(
         appBar: AppBar(
@@ -49,7 +48,7 @@ class _SelfieWithCnincUpdateScreenState
                     'ID Confirmation',
                     registrationProvider.cnicWithSelfieImage,
                     registrationProvider.pickCnincImageWithSelfie,
-                    'Bring your CNIC in front of you and take a photo as an example. The photo should clerly show face and ID card. The photo must be taken in good light and good quality.' // Pick image when button is pressed
+                    'Bring your CNIC in front of you and take a photo as an example. The photo should clearly show face and ID card. The photo must be taken in good light and good quality.' // Pick image when button is pressed
                     ),
                 const SizedBox(height: 16),
 
@@ -66,8 +65,10 @@ class _SelfieWithCnincUpdateScreenState
                                     await registrationProvider
                                         .updateSelfieWithCnincInfo(context);
                                   }
-                                  commonMethods.displaySnackBar(
-                                      "Data has been updated.", context);
+                                  if (context.mounted) {
+                                    commonMethods.displaySnackBar(
+                                        "Data has been updated.", context);
+                                  }
                                 } catch (e) {
                                   AppLogger.info("Error while saving data: $e");
                                 } finally {}

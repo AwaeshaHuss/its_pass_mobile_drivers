@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../core/utils/app_logger.dart';
 import 'package:image_picker/image_picker.dart';
@@ -19,9 +18,10 @@ class DrivingLicenseUpdateScreen extends StatefulWidget {
 
 class _DrivingLicenseUpdateScreenState
     extends State<DrivingLicenseUpdateScreen> {
+  final _formKey = GlobalKey<FormState>();
+  
   @override
   Widget build(BuildContext context) {
-    final _formKey = GlobalKey<FormState>();
     return Consumer<RegistrationProvider>(
       builder: (context, registrationProvider, child) => Scaffold(
         appBar: AppBar(
@@ -118,8 +118,10 @@ class _DrivingLicenseUpdateScreenState
                                   await registrationProvider
                                       .updatedriverLicenseInfo(context);
 
-                                  commonMethods.displaySnackBar(
-                                      "Data has been updated", context);
+                                  if (context.mounted) {
+                                    commonMethods.displaySnackBar(
+                                        "Data has been updated", context);
+                                  }
                                 } catch (e) {
                                   AppLogger.info("Error while saving data: $e");
                                 } finally {}

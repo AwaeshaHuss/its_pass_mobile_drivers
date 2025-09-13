@@ -16,8 +16,8 @@ class CommonMethods {
     var connectionResults = await Connectivity().checkConnectivity();
     AppLogger.info("Connectivity result: $connectionResults"); // Add this line
 
-    if (connectionResults != ConnectivityResult.wifi &&
-        connectionResults != ConnectivityResult.mobile) {
+    if (!connectionResults.contains(ConnectivityResult.wifi) &&
+        !connectionResults.contains(ConnectivityResult.mobile)) {
       if (!context.mounted) return;
       displaySnackBar(
           "Your internet is not working. Check your connection. Try again.",

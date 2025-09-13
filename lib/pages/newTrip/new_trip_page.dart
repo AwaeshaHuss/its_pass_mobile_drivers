@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../core/utils/app_logger.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -13,8 +14,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../global/global.dart';
 
 class NewTripPage extends StatefulWidget {
-  TripDetails? newTripDetailsInfo;
-  NewTripPage({super.key, this.newTripDetailsInfo});
+  final TripDetails? newTripDetailsInfo;
+  const NewTripPage({super.key, this.newTripDetailsInfo});
 
   @override
   State<NewTripPage> createState() => _NewTripPageState();
@@ -28,9 +29,9 @@ class _NewTripPageState extends State<NewTripPage> {
   double googleMapPaddingFromBottom = 0;
   List<LatLng> coordinatesPolylineLatLngList = [];
   PolylinePoints polylinePoints = PolylinePoints();
-  Set<Marker> markersSet = Set<Marker>();
-  Set<Circle> circlesSet = Set<Circle>();
-  Set<Polyline> polyLinesSet = Set<Polyline>();
+  Set<Marker> markersSet = <Marker>{};
+  Set<Circle> circlesSet = <Circle>{};
+  Set<Polyline> polyLinesSet = <Polyline>{};
   BitmapDescriptor? carMarkerIcon;
   bool directionRequested = false;
   String statusOfTrip = "accepted";
@@ -42,11 +43,8 @@ class _NewTripPageState extends State<NewTripPage> {
 
   makeMarker() {
     if (carMarkerIcon == null) {
-      ImageConfiguration configuration =
-          createLocalImageConfiguration(context, size: Size(2, 2));
-
-      BitmapDescriptor.fromAssetImage(
-              configuration, "assets/images/tracking.png")
+      BitmapDescriptor.asset(
+              const ImageConfiguration(size: Size(2, 2)), "assets/images/tracking.png")
           .then((valueIcon) {
         carMarkerIcon = valueIcon;
       });
@@ -69,7 +67,9 @@ class _NewTripPageState extends State<NewTripPage> {
       var tripDetailsInfo = await CommonMethods.getDirectionDetailsFromAPI(
           sourceLocationLatLng, destinationLocationLatLng);
 
-      Navigator.pop(context);
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
 
       if (tripDetailsInfo == null || tripDetailsInfo.encodedPoints == null) {
         return;
@@ -82,12 +82,12 @@ class _NewTripPageState extends State<NewTripPage> {
       coordinatesPolylineLatLngList.clear();
 
       if (latLngPoints.isNotEmpty) {
-        latLngPoints.forEach((PointLatLng pointLatLng) {
+        for (PointLatLng pointLatLng in latLngPoints) {
           coordinatesPolylineLatLngList
               .add(LatLng(pointLatLng.latitude, pointLatLng.longitude));
-        });
+        }
       } else {
-        print("No polyline points found");
+        AppLogger.warning('No polyline points found');
       }
 
       // Draw polyline
@@ -186,13 +186,12 @@ class _NewTripPageState extends State<NewTripPage> {
       });
     } catch (e, stackTrace) {
       // Catch and log any errors that occur
-      print("Error in obtainDirectionAndDrawRoute: $e");
-      print("StackTrace: $stackTrace");
+      AppLogger.error('Error in obtainDirectionAndDrawRoute', e);
+      AppLogger.error('StackTrace', stackTrace);
     }
   }
 
   getLiveLocationUpdatesOfDriver() {
-    LatLng lastPositionLatLng = LatLng(0, 0);
 
     positionStreamNewTripPage =
         Geolocator.getPositionStream().listen((Position positionDriver) {
@@ -218,8 +217,6 @@ class _NewTripPageState extends State<NewTripPage> {
             .removeWhere((element) => element.markerId.value == "carMarkerID");
         markersSet.add(carMarker);
       });
-
-      lastPositionLatLng = driverCurrentPositionLatLng;
 
       //update Trip Details Information
       updateTripDetailsInformation();
@@ -280,11 +277,12 @@ class _NewTripPageState extends State<NewTripPage> {
 
     var driverCurrentLocationLatLng = LatLng(
         driverCurrentPosition!.latitude, driverCurrentPosition!.longitude);
-    var directionDetailsEndTripInfo =
-        await CommonMethods.getDirectionDetailsFromAPI(
+    await CommonMethods.getDirectionDetailsFromAPI(
             widget.newTripDetailsInfo!.pickUpLatLng!,
             driverCurrentLocationLatLng);
-    Navigator.pop(context);
+    if (context.mounted) {
+      Navigator.pop(context);
+    }
     // String fareamount =
     //     (commonMethods.calculateFareAmountInPKR(directionDetailsEndTripInfo!))
     //         .toString();
@@ -521,7 +519,9 @@ class _NewTripPageState extends State<NewTripPage> {
                                   widget.newTripDetailsInfo!.pickUpLatLng,
                                   widget.newTripDetailsInfo!.dropOffLatLng!);
 
-                              Navigator.pop(context);
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                              }
                             } else if (statusOfTrip == "arrived") {
                               setState(() {
                                 buttonTitleText = "END TRIP";

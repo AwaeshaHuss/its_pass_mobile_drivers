@@ -1,4 +1,4 @@
-package com.example.uber_drivers_app
+package com.itspass_driver
 
 import io.flutter.embedding.android.FlutterActivity
 

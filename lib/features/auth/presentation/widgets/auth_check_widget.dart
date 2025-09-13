@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/app_logger.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../pages/auth/register_screen.dart';
@@ -30,8 +31,8 @@ class _AuthCheckWidgetState extends State<AuthCheckWidget> {
     bool hasSelectedCountry = savedCountry != null;
     
     // Debug logging
-    print('DEBUG: Saved country: $savedCountry');
-    print('DEBUG: Has selected country: $hasSelectedCountry');
+    AppLogger.info('DEBUG: Saved country: $savedCountry');
+    AppLogger.info('DEBUG: Has selected country: $hasSelectedCountry');
     
     setState(() {
       _hasSelectedCountry = hasSelectedCountry;
@@ -41,10 +42,10 @@ class _AuthCheckWidgetState extends State<AuthCheckWidget> {
 
   @override
   Widget build(BuildContext context) {
-    print('DEBUG: Building AuthCheckWidget - isLoading: $_isLoading, hasSelectedCountry: $_hasSelectedCountry');
+    AppLogger.info('DEBUG: Building AuthCheckWidget - isLoading: $_isLoading, hasSelectedCountry: $_hasSelectedCountry');
     
     if (_isLoading) {
-      print('DEBUG: Showing loading screen');
+      AppLogger.info('DEBUG: Showing loading screen');
       return const Scaffold(
         body: Center(
           child: CircularProgressIndicator(
@@ -55,11 +56,11 @@ class _AuthCheckWidgetState extends State<AuthCheckWidget> {
     }
 
     if (!_hasSelectedCountry) {
-      print('DEBUG: Showing SelectCountryScreen');
+      AppLogger.info('DEBUG: Showing SelectCountryScreen');
       return const SelectCountryScreen();
     }
 
-    print('DEBUG: Showing BlocBuilder for auth');
+    AppLogger.info('DEBUG: Showing BlocBuilder for auth');
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         if (state is AuthLoading || state is AuthInitial) {

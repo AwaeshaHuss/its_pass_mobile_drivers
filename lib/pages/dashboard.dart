@@ -41,11 +41,11 @@ class _DashboardState extends State<Dashboard>
         body: TabBarView(
           physics: const NeverScrollableScrollPhysics(),
           controller: controller,
-          children: [
-            const HomePage(),
-            const EarningsPage(),
+          children: const [
+            HomePage(),
+            EarningsPage(),
             TripsPage(),
-            const ProfilePage(),
+            ProfilePage(),
           ],
         ),
         bottomNavigationBar: Container(
@@ -53,7 +53,7 @@ class _DashboardState extends State<Dashboard>
             color: Colors.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 10,
                 offset: const Offset(0, -2),
               ),

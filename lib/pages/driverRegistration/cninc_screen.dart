@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../../core/utils/app_logger.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:itspass_driver/providers/registration_provider.dart';
@@ -59,7 +60,7 @@ class _CNICScreenState extends State<CNICScreen> {
                                 //await registrationProvider.saveUserData();
                                 Navigator.pop(context, true);
                               } catch (e) {
-                                print("Error while saving data: $e");
+                                AppLogger.error("Error while saving data: $e");
                               } finally {}
                             }
                           : null,

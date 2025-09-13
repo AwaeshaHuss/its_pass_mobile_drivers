@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../core/utils/app_logger.dart';
 import 'package:image_picker/image_picker.dart';
@@ -111,8 +110,10 @@ class _CnincUpdateScreenState extends State<CnincUpdateScreen> {
                                 try {
                                   await registrationProvider
                                       .updateCnincInfo(context);
-                                                                    commonMethods.displaySnackBar(
-                                      "Data has been updated.", context);
+                                  if (context.mounted) {
+                                    commonMethods.displaySnackBar(
+                                        "Data has been updated", context);
+                                  }
                                 } catch (e) {
                                   AppLogger.info("Error while saving data: $e");
                                 } finally {}

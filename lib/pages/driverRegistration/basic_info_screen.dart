@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../../core/utils/app_logger.dart';
 import 'package:provider/provider.dart';
 import 'package:itspass_driver/providers/auth_provider.dart';
 import 'package:itspass_driver/providers/registration_provider.dart';
@@ -266,7 +267,7 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
                                   //await registrationProvider.saveUserData();
                                   Navigator.pop(context, true);
                                 } catch (e) {
-                                  print("Error while saving data: $e");
+                                  AppLogger.error("Error while saving data: $e");
                                 } finally {}
                               }
                             }

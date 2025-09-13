@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/utils/app_logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:itspass_driver/l10n/app_localizations.dart';
@@ -59,7 +60,7 @@ class _SelectCountryScreenState extends State<SelectCountryScreen> {
     )['currency']!;
     await prefs.setString('selectedCurrency', currency);
     
-    print('Saved preferences: Country: $selectedCountry, Language: $selectedLanguage, Currency: $currency');
+    AppLogger.info('Saved preferences: Country: $selectedCountry, Language: $selectedLanguage, Currency: $currency');
   }
 
   void _showCountrySelection() {
@@ -239,7 +240,7 @@ class _SelectCountryScreenState extends State<SelectCountryScreen> {
                     _changeLanguage(language['code']!);
                   },
                 );
-              }).toList(),
+              }),
               
               const SizedBox(height: 20),
             ],

@@ -1,0 +1,227 @@
+{
+  "project_info": {
+    "project_number": "191720887438",
+    "firebase_url": "https://pass-7f424-default-rtdb.firebaseio.com",
+    "project_id": "pass-7f424",
+    "storage_bucket": "pass-7f424.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:191720887438:android:bba9c4eb656094d4dfa5df",
+        "android_client_info": {
+          "package_name": "com.csc.itspass"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "191720887438-p0laphd0ieg69ub7hp1jluu4ort6kvsu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmylUvcuf-r762VHjnMcbDFbgU81U8L-E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "191720887438-p0laphd0ieg69ub7hp1jluu4ort6kvsu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "191720887438-0h6li6741pmdvkoklsdng6a9r30igv4n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.csc.passdriver"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:191720887438:android:b5504212cf638652dfa5df",
+        "android_client_info": {
+          "package_name": "com.csc.pass"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "191720887438-p0laphd0ieg69ub7hp1jluu4ort6kvsu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmylUvcuf-r762VHjnMcbDFbgU81U8L-E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "191720887438-p0laphd0ieg69ub7hp1jluu4ort6kvsu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "191720887438-0h6li6741pmdvkoklsdng6a9r30igv4n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.csc.passdriver"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:191720887438:android:df328b39ce5586acdfa5df",
+        "android_client_info": {
+          "package_name": "com.itspass_driver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "191720887438-p0laphd0ieg69ub7hp1jluu4ort6kvsu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmylUvcuf-r762VHjnMcbDFbgU81U8L-E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "191720887438-p0laphd0ieg69ub7hp1jluu4ort6kvsu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "191720887438-0h6li6741pmdvkoklsdng6a9r30igv4n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.csc.passdriver"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:191720887438:android:e81ecef84336512bdfa5df",
+        "android_client_info": {
+          "package_name": "com.itspass_store"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "191720887438-p0laphd0ieg69ub7hp1jluu4ort6kvsu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmylUvcuf-r762VHjnMcbDFbgU81U8L-E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "191720887438-p0laphd0ieg69ub7hp1jluu4ort6kvsu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "191720887438-0h6li6741pmdvkoklsdng6a9r30igv4n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.csc.passdriver"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:191720887438:android:9bda3df0cb7f2ca3dfa5df",
+        "android_client_info": {
+          "package_name": "com.pass_driver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "191720887438-p0laphd0ieg69ub7hp1jluu4ort6kvsu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmylUvcuf-r762VHjnMcbDFbgU81U8L-E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "191720887438-p0laphd0ieg69ub7hp1jluu4ort6kvsu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "191720887438-0h6li6741pmdvkoklsdng6a9r30igv4n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.csc.passdriver"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:191720887438:android:831a1009c755317adfa5df",
+        "android_client_info": {
+          "package_name": "com.pass_store"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "191720887438-p0laphd0ieg69ub7hp1jluu4ort6kvsu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmylUvcuf-r762VHjnMcbDFbgU81U8L-E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "191720887438-p0laphd0ieg69ub7hp1jluu4ort6kvsu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "191720887438-0h6li6741pmdvkoklsdng6a9r30igv4n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.csc.passdriver"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

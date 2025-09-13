@@ -1,16 +1,11 @@
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:itspass_driver/methods/common_method.dart';
-import 'package:itspass_driver/pages/dashboard.dart';
 import 'package:provider/provider.dart';
-import 'package:itspass_driver/pages/auth/otp_screen.dart';
 import 'package:itspass_driver/providers/auth_provider.dart';
 import 'package:itspass_driver/l10n/app_localizations.dart';
 import 'package:itspass_driver/pages/driverRegistration/driver_registration.dart';
-
-import '../../providers/auth_provider.dart';
+import 'package:itspass_driver/methods/common_method.dart';
+import 'package:itspass_driver/pages/dashboard.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
