@@ -9,6 +9,7 @@ import 'package:itspass_driver/pages/profileUpdation/vehicle_info_update_screen.
 import 'package:itspass_driver/providers/registration_provider.dart';
 
 class DriverMainInfo extends StatefulWidget {
+  const DriverMainInfo({super.key});
   @override
   _DriverMainInfoState createState() => _DriverMainInfoState();
 }

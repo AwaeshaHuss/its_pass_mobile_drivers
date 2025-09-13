@@ -16,7 +16,7 @@ class AuthenticationProvider extends ChangeNotifier {
   
   CommonMethods commonMethods = CommonMethods();
   bool _isLoading = false;
-  bool _isSuccessful = false;
+  final bool _isSuccessful = false;
   bool _isGoogleSignedIn = false;
   bool _isGoogleSignInLoading = false;
   bool _isLoggedIn = false;
