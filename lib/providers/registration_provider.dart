@@ -52,7 +52,6 @@ class RegistrationProvider extends ChangeNotifier {
   XFile? _vehicleRegistrationBackImage;
   bool _isDataFetched = false;
   bool get isDataFetched => _isDataFetched;
-  bool _currentDriverInfo = false;
   double _driverEarnings = 0.0;
   get driverEarnings => _driverEarnings;
 

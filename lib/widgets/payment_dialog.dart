@@ -1,20 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:itspass_driver/methods/common_method.dart';
 
-class PaymentDialog extends StatefulWidget {
-  String fareAmount;
+class PaymentDialog extends StatelessWidget {
+  final String fareAmount;
 
-  PaymentDialog({
-    super.key,
-    required this.fareAmount,
-  });
-
-  @override
-  State<PaymentDialog> createState() => _PaymentDialogState();
-}
-
-class _PaymentDialogState extends State<PaymentDialog> {
-  CommonMethods cMethods = CommonMethods();
+  const PaymentDialog({super.key, required this.fareAmount});
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +44,7 @@ class _PaymentDialogState extends State<PaymentDialog> {
               height: 16,
             ),
             Text(
-              "\Rs ${widget.fareAmount}",
+              "\$Rs $fareAmount",
               style: const TextStyle(
                 color: Colors.black,
                 fontSize: 36,
@@ -67,7 +57,7 @@ class _PaymentDialogState extends State<PaymentDialog> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(
-                "This is fare amount ( \Rs ${widget.fareAmount} ) to be charged from the user.",
+                "This is fare amount ( Rs $fareAmount ) to be charged from the user.",
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: Colors.black),
               ),
@@ -79,7 +69,7 @@ class _PaymentDialogState extends State<PaymentDialog> {
               onPressed: () {
                 Navigator.pop(context);
                 Navigator.pop(context);
-                cMethods.turnOnLocationUpdatesForHomePage();
+                CommonMethods().turnOnLocationUpdatesForHomePage();
 
                 //Restart.restartApp();
               },
