@@ -24,15 +24,13 @@ class AuthApiService {
 
   // Login method
   Future<ApiResponse<AuthResponse>> login({
-    required String phoneNumber,
+    required String username,
     required String password,
-    required String deviceToken,
   }) async {
     try {
       final response = await _apiService.login(
-        phoneNumber: phoneNumber,
+        username: username,
         password: password,
-        deviceToken: deviceToken,
       );
 
       if (response.isSuccess && response.data != null) {
@@ -64,25 +62,16 @@ class AuthApiService {
     }
   }
 
-  // Forgot password
-  Future<ApiResponse<void>> forgotPassword({
-    required String phoneNumber,
+  // Change password
+  Future<ApiResponse<void>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String newPasswordConfirmation,
   }) async {
-    return await _apiService.forgotPassword(phoneNumber: phoneNumber);
-  }
-
-  // Reset password
-  Future<ApiResponse<void>> resetPassword({
-    required String phoneNumber,
-    required String token,
-    required String password,
-    required String passwordConfirmation,
-  }) async {
-    return await _apiService.resetPassword(
-      phoneNumber: phoneNumber,
-      token: token,
-      password: password,
-      passwordConfirmation: passwordConfirmation,
+    return await _apiService.changePassword(
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+      newPasswordConfirmation: newPasswordConfirmation,
     );
   }
 

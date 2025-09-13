@@ -82,35 +82,33 @@ test_endpoint "GET" "$BASE_URL/mobile/config" "" "-H 'Accept: application/json'"
 echo -e "\n${YELLOW}=== AUTHENTICATION ENDPOINTS ===${NC}"
 
 # Driver Login
-test_endpoint "POST" "$BASE_URL/mobile/driver/login" \
-    '{"phone_number": "962791111111", "password": "12345678", "device_token": "fcm_token_here"}' \
+test_endpoint "POST" "$BASE_URL/mobile/login" \
+    '{"username": "962791111111", "password": "12345678"}' \
     "-H 'Content-Type: application/json' -H 'Accept: application/json'" \
     "Driver Login"
 
-# Driver Forgot Password
-test_endpoint "POST" "$BASE_URL/mobile/driver/forgot-password" \
-    '{"phone_number": "962791111111"}' \
-    "-H 'Content-Type: application/json' -H 'Accept: application/json'" \
-    "Driver Forgot Password"
+# Get Profile
+test_endpoint "GET" "$BASE_URL/mobile/profile" "" \
+    "-H 'Authorization: Bearer test_token' -H 'Accept: application/json'" \
+    "Get Profile"
 
-# Driver Reset Password
-test_endpoint "POST" "$BASE_URL/mobile/driver/reset-password" \
-    '{"phone_number": "962791111111", "token": "reset_token_here", "password": "newpassword123", "password_confirmation": "newpassword123"}' \
-    "-H 'Content-Type: application/json' -H 'Accept: application/json'" \
-    "Driver Reset Password"
+# Logout
+test_endpoint "POST" "$BASE_URL/mobile/logout" "" \
+    "-H 'Authorization: Bearer test_token' -H 'Accept: application/json'" \
+    "Driver Logout"
 
 # 3. DRIVER REGISTRATION ENDPOINTS
 echo -e "\n${YELLOW}=== DRIVER REGISTRATION ENDPOINTS ===${NC}"
 
 # Check Registration Status
 test_endpoint "POST" "$BASE_URL/mobile/driver/check-status" \
-    '{"phone_number": "962791111111"}' \
+    '{"phone_number": "962791234567"}' \
     "-H 'Content-Type: application/json' -H 'Accept: application/json'" \
     "Check Registration Status"
 
 # Register Driver
 test_endpoint "POST" "$BASE_URL/mobile/driver/register" \
-    '{"name": "Ahmed Ali", "email": "ahmed.driver@example.com", "phone_number": "962791111111", "password": "12345678", "password_confirmation": "12345678", "vehicle_type": "standard", "car_name": "Toyota", "car_model": "Camry 2020", "car_number": "123-456-789", "car_color": "White", "device_token": "fcm_token_here"}' \
+    '{"full_name": "Ahmed Hassan", "email": "ahmed.driver@example.com", "phone_number": "962791234567", "password": "password123", "password_confirmation": "password123", "date_of_birth": "1990-01-01", "address": "Amman, Jordan", "vehicle_type": "standard", "license_plate": "ABC123", "vehicle_make": "Toyota", "vehicle_model": "Camry", "vehicle_year": "2020", "vehicle_color": "White"}' \
     "-H 'Content-Type: application/json' -H 'Accept: application/json'" \
     "Register Driver"
 
@@ -165,15 +163,11 @@ test_endpoint "POST" "$BASE_URL/mobile/driver/upload-car-registration-back" \
     "-H 'Accept: application/json'" \
     "Upload Car Registration Back (No File)"
 
-# 4. PROFILE & STATUS ENDPOINTS (These require authentication)
-echo -e "\n${YELLOW}=== PROFILE & STATUS ENDPOINTS (Without Auth) ===${NC}"
+# 4. DRIVER OPERATIONS ENDPOINTS (These require authentication)
+echo -e "\n${YELLOW}=== DRIVER OPERATIONS ENDPOINTS (Without Auth) ===${NC}"
 
-test_endpoint "GET" "$BASE_URL/mobile/driver/profile" "" \
-    "-H 'Accept: application/json'" \
-    "Get Profile (No Auth)"
-
-test_endpoint "POST" "$BASE_URL/mobile/driver/profile" \
-    '{"name": "Ahmed Ali Updated", "email": "ahmed.updated@example.com", "car_name": "Toyota", "car_model": "Camry 2021", "car_color": "Black"}' \
+test_endpoint "POST" "$BASE_URL/mobile/driver/update-profile" \
+    '{"name": "Updated Driver Name", "email": "updated.driver@example.com", "address": "Updated Address, Amman"}' \
     "-H 'Content-Type: application/json' -H 'Accept: application/json'" \
     "Update Profile (No Auth)"
 
@@ -189,7 +183,7 @@ test_endpoint "PUT" "$BASE_URL/mobile/driver/location" \
 
 test_endpoint "POST" "$BASE_URL/mobile/driver/change-password" \
     '{"current_password": "12345678", "new_password": "newpassword123", "new_password_confirmation": "newpassword123"}' \
-    "-H 'Content-Type: application/json' -H 'Accept: application/json'" \
+    "-H 'Authorization: Bearer test_token' -H 'Content-Type: application/json' -H 'Accept: application/json'" \
     "Change Password (No Auth)"
 
 # 5. TRIP MANAGEMENT ENDPOINTS
@@ -245,12 +239,6 @@ test_endpoint "GET" "$BASE_URL/mobile/user" "" \
     "-H 'Accept: application/json'" \
     "Get User Info (No Auth)"
 
-# 8. LOGOUT ENDPOINT
-echo -e "\n${YELLOW}=== LOGOUT ENDPOINT (Without Auth) ===${NC}"
-
-test_endpoint "POST" "$BASE_URL/mobile/driver/logout" "" \
-    "-H 'Content-Type: application/json' -H 'Accept: application/json'" \
-    "Driver Logout (No Auth)"
 
 echo -e "\n${GREEN}=== API Testing Complete ===${NC}"
 echo "Note: Many endpoints will return 401 Unauthorized without proper authentication token."

@@ -2,10 +2,9 @@ class ApiConstants {
   static const String baseUrl = 'https://pass.elite-center-ld.com';
   
   // Authentication Endpoints
-  static const String login = '/mobile/driver/login';
-  static const String forgotPassword = '/mobile/driver/forgot-password';
-  static const String resetPassword = '/mobile/driver/reset-password';
-  static const String logout = '/mobile/driver/logout';
+  static const String login = '/mobile/login';
+  static const String logout = '/mobile/logout';
+  static const String profile = '/mobile/profile';
   
   // Driver Registration Endpoints
   static const String registerDriver = '/mobile/driver/register';
@@ -23,8 +22,8 @@ class ApiConstants {
   static const String uploadCarRegistrationFront = '/mobile/driver/upload-car-registration-front';
   static const String uploadCarRegistrationBack = '/mobile/driver/upload-car-registration-back';
   
-  // Profile & Status Endpoints
-  static const String profile = '/mobile/driver/profile';
+  // Driver Operations Endpoints
+  static const String updateProfile = '/mobile/driver/update-profile';
   static const String updateStatus = '/mobile/driver/status';
   static const String updateLocation = '/mobile/driver/location';
   static const String changePassword = '/mobile/driver/change-password';
@@ -45,5 +44,4 @@ class ApiConstants {
   // Utility Endpoints
   static const String health = '/mobile/health';
   static const String config = '/mobile/config';
-  static const String userInfo = '/mobile/user';
 }

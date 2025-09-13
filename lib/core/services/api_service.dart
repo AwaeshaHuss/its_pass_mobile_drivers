@@ -48,17 +48,15 @@ class ApiService {
 
   // Authentication Methods
   Future<ApiResponse<AuthResponse>> login({
-    required String phoneNumber,
+    required String username,
     required String password,
-    required String deviceToken,
   }) async {
     try {
       final response = await _dio.post(
         ApiConstants.login,
         data: {
-          'phone_number': phoneNumber,
+          'username': username,
           'password': password,
-          'device_token': deviceToken,
         },
       );
 
@@ -77,41 +75,18 @@ class ApiService {
     }
   }
 
-  Future<ApiResponse<void>> forgotPassword({
-    required String phoneNumber,
+  Future<ApiResponse<void>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+    required String newPasswordConfirmation,
   }) async {
     try {
       final response = await _dio.post(
-        ApiConstants.forgotPassword,
-        data: {'phone_number': phoneNumber},
-      );
-
-      if (response.statusCode == 200) {
-        return ApiResponse.success(null);
-      } else {
-        return ApiResponse.error('Failed to send reset code');
-      }
-    } on DioException catch (e) {
-      return ApiResponse.error(_handleDioError(e));
-    } catch (e) {
-      return ApiResponse.error('Unexpected error: $e');
-    }
-  }
-
-  Future<ApiResponse<void>> resetPassword({
-    required String phoneNumber,
-    required String token,
-    required String password,
-    required String passwordConfirmation,
-  }) async {
-    try {
-      final response = await _dio.post(
-        ApiConstants.resetPassword,
+        ApiConstants.changePassword,
         data: {
-          'phone_number': phoneNumber,
-          'token': token,
-          'password': password,
-          'password_confirmation': passwordConfirmation,
+          'current_password': currentPassword,
+          'new_password': newPassword,
+          'new_password_confirmation': newPasswordConfirmation,
         },
       );
 
