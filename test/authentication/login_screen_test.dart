@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uber_drivers_app/authentication/login_screen.dart';
-import 'package:uber_drivers_app/providers/auth_provider.dart';
+import 'package:itspass_driver/authentication/login_screen.dart';
+import 'package:itspass_driver/providers/auth_provider.dart';
 
 void main() {
   group('LoginScreen Widget Tests', () {

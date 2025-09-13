@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uber_drivers_app/authentication/signup_screen.dart';
-import 'package:uber_drivers_app/providers/registration_provider.dart';
+import 'package:itspass_driver/authentication/signup_screen.dart';
+import 'package:itspass_driver/providers/registration_provider.dart';
 
 void main() {
   group('SignUpScreen Widget Tests', () {

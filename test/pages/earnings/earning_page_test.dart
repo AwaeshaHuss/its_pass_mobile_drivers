@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uber_drivers_app/pages/earnings/earning_page.dart';
-import 'package:uber_drivers_app/providers/registration_provider.dart';
+import 'package:itspass_driver/pages/earnings/earning_page.dart';
+import 'package:itspass_driver/providers/registration_provider.dart';
 
 void main() {
   group('EarningsPage Widget Tests', () {

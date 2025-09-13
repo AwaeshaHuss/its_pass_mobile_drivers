@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uber_drivers_app/pages/driverRegistration/driver_registration.dart';
-import 'package:uber_drivers_app/providers/registration_provider.dart';
+import 'package:itspass_driver/pages/driverRegistration/basic_info_screen.dart';
+import 'package:itspass_driver/providers/registration_provider.dart';
 
 void main() {
   group('DriverRegistration Widget Tests', () {
@@ -26,7 +26,7 @@ void main() {
       return MaterialApp(
         home: ChangeNotifierProvider<RegistrationProvider>(
           create: (_) => mockRegistrationProvider,
-          child: const DriverRegistration(),
+          child: const BasicInfoScreen(),
         ),
       );
     }
