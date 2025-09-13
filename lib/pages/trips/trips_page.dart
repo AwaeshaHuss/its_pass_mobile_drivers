@@ -5,6 +5,7 @@ import '../../core/models/trip_models.dart';
 import 'trip_history_page.dart';
 
 class TripsPage extends StatefulWidget {
+  const TripsPage({super.key});
   @override
   _TripsPageState createState() => _TripsPageState();
 }
@@ -190,7 +191,7 @@ class _TripsPageState extends State<TripsPage> {
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 10,
                               offset: const Offset(0, 2),
                             ),
@@ -342,7 +343,7 @@ class _TripsPageState extends State<TripsPage> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(

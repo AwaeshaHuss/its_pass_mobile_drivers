@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import '../global/global.dart';
 import '../methods/common_method.dart';
 import '../models/trip_details.dart';
-import '../pages/newTrip/new_trip_page.dart';
 import 'loading_dialog.dart';
 
 class NotificationDialog extends StatefulWidget {
@@ -12,7 +11,7 @@ class NotificationDialog extends StatefulWidget {
   final String? fareAmount;
   final String? bidAmount;
 
-  NotificationDialog({
+  const NotificationDialog({
     super.key,
     this.tripDetailsInfo,
     this.fareAmount,
@@ -77,23 +76,13 @@ class _NotificationDialogState extends State<NotificationDialog> {
     // For now, just proceed with accepting the trip
     try {
       if (mounted) {
-        Navigator.pop(context); // Close loading dialog
-        Navigator.pop(context); // Close notification dialog
       }
 
       // TODO: Make API call to accept trip
       // For now, just navigate to the new trip page
       cMethods.turnOffLocationUpdatesForHomePage();
-
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (c) =>
-              NewTripPage(newTripDetailsInfo: widget.tripDetailsInfo),
-        ),
-      );
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         Navigator.pop(context); // Close loading dialog
         cMethods.displaySnackBar("Error accepting trip: ${e.toString()}", context);
       }

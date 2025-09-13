@@ -288,9 +288,9 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                     width: double.infinity,
                     padding: EdgeInsets.all(16.w),
                     decoration: BoxDecoration(
-                      color: _buttonColor.withOpacity(0.1),
+                      color: _buttonColor.withAlpha(128),
                       borderRadius: BorderRadius.circular(12.r),
-                      border: Border.all(color: _buttonColor.withOpacity(0.3)),
+                      border: Border.all(color: _buttonColor.withValues(alpha: 0.3)),
                     ),
                     child: Column(
                       children: [
