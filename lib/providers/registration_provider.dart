@@ -7,10 +7,11 @@ import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:itspass_driver/global/global.dart';
-import 'package:itspass_driver/methods/common_method.dart';
-import '../core/utils/app_logger.dart';
+import 'package:itspass_driver/core/utils/app_logger.dart';
+import '../core/services/secure_storage_service.dart';
+import '../methods/common_method.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:itspass_driver/methods/image_picker_service.dart';
 // Removed unused imports: driver.dart, vehicleInfo.dart, profile_page.dart
 import 'package:itspass_driver/providers/auth_provider.dart';
@@ -417,7 +418,9 @@ class RegistrationProvider extends ChangeNotifier {
       stopLoading();
     } catch (e) {
       stopLoading();
-      commonMethods.displaySnackBar("An error occurred while saving user data: $e", context);
+      if (context.mounted) {
+        commonMethods.displaySnackBar("An error occurred while saving user data: $e", context);
+      }
       AppLogger.error("Error saving user data", e);
     }
   }
@@ -513,9 +516,9 @@ class RegistrationProvider extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         // Get the temporary directory to store the downloaded image
-        final directory = await getTemporaryDirectory();
+        final tempDir = await getTemporaryDirectory();
         final filePath =
-            '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+            '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
 
         // Write the image to the file
         final file = File(filePath);
@@ -569,7 +572,7 @@ class RegistrationProvider extends ChangeNotifier {
 
   Future<void> retrieveCurrentDriverInfo() async {
     try {
-      final token = sharedPreferences.getString('auth_token');
+      final token = await SecureStorageService.getAuthToken();
       if (token == null) {
         throw Exception('Authentication token not found');
       }

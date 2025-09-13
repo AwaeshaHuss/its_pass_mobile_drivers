@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:itspass_driver/global/global.dart';
 import 'package:itspass_driver/providers/registration_provider.dart';
+import '../../core/services/secure_storage_service.dart';
 
 import '../../methods/map_theme_methods.dart';
 import '../../pushNotifications/push_notification.dart';
@@ -284,13 +285,25 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _loadDriverStatus();
     initializePushNotificationSystem();
-    Provider.of<RegistrationProvider>(context, listen: false)
-        .retrieveCurrentDriverInfo();
-    
+    _initializeDriverInfo();
+  }
+
+  void _initializeDriverInfo() async {
+    try {
+      // Check if user is authenticated before fetching driver info
+      final isAuthenticated = await SecureStorageService.isAuthenticated();
+      if (isAuthenticated && mounted) {
+        Provider.of<RegistrationProvider>(context, listen: false)
+            .retrieveCurrentDriverInfo();
+      } else {
+        AppLogger.info("User not authenticated, skipping driver info retrieval");
+      }
+    } catch (e) {
+      AppLogger.warning("Error checking authentication status: $e");
+    }
   }
 
   @override
