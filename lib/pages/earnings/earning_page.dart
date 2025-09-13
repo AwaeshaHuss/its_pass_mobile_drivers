@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../providers/registration_provider.dart';
 import '../../core/services/driver_service.dart';
+import '../../core/utils/error_handler.dart';
 
 class EarningsPage extends StatefulWidget {
   const EarningsPage({super.key});
@@ -41,7 +42,7 @@ class _EarningsPageState extends State<EarningsPage> {
         });
       } else {
         setState(() {
-          _errorMessage = response.error ?? 'Failed to load earnings';
+          _errorMessage = ErrorHandler.getErrorMessage(response.error ?? 'Failed to load earnings');
           _isLoading = false;
         });
         
@@ -53,7 +54,7 @@ class _EarningsPageState extends State<EarningsPage> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'Error loading earnings: $e';
+        _errorMessage = ErrorHandler.getErrorMessage(e);
         _isLoading = false;
       });
       
@@ -90,18 +91,43 @@ class _EarningsPageState extends State<EarningsPage> {
     }
 
     if (_errorMessage != null) {
-      return Consumer<RegistrationProvider>(
-        builder: (context, provider, child) {
-          return Text(
-            'JOD ${provider.driverEarnings ?? 0}',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 36.sp,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -1,
-            ),
-          );
-        },
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Consumer<RegistrationProvider>(
+            builder: (context, provider, child) {
+              return Text(
+                'JOD ${provider.driverEarnings ?? 0}',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 36.sp,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -1,
+                ),
+              );
+            },
+          ),
+          SizedBox(height: 8.h),
+          Row(
+            children: [
+              Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.orange[300],
+                size: 16.sp,
+              ),
+              SizedBox(width: 4.w),
+              Expanded(
+                child: Text(
+                  'Using cached data',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12.sp,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       );
     }
 
