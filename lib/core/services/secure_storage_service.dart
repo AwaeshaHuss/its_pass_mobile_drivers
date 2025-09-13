@@ -1,5 +1,4 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SecureStorageService {
   static const FlutterSecureStorage _secureStorage = FlutterSecureStorage(
@@ -63,13 +62,6 @@ class SecureStorageService {
     await _secureStorage.delete(key: _refreshTokenKey);
     await _secureStorage.delete(key: _userIdKey);
     await _secureStorage.delete(key: _driverIdKey);
-    
-    // Also clear from SharedPreferences for backward compatibility
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('auth_token');
-    await prefs.remove('refresh_token');
-    await prefs.remove('user_id');
-    await prefs.remove('driver_id');
   }
 
   // Check if user is authenticated
@@ -78,30 +70,26 @@ class SecureStorageService {
     return token != null && token.isNotEmpty;
   }
 
-  // Store driver profile data (non-sensitive)
+  // Store driver profile data in secure storage
   static Future<void> storeDriverProfile(Map<String, dynamic> profile) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('driver_name', profile['name'] ?? '');
-    await prefs.setString('driver_email', profile['email'] ?? '');
-    await prefs.setString('driver_phone', profile['phone'] ?? '');
-    await prefs.setString('driver_status', profile['status'] ?? 'offline');
+    await _secureStorage.write(key: 'driver_name', value: profile['name'] ?? '');
+    await _secureStorage.write(key: 'driver_email', value: profile['email'] ?? '');
+    await _secureStorage.write(key: 'driver_phone', value: profile['phone'] ?? '');
+    await _secureStorage.write(key: 'driver_status', value: profile['status'] ?? 'offline');
   }
 
   // Get driver profile data
   static Future<Map<String, String?>> getDriverProfile() async {
-    final prefs = await SharedPreferences.getInstance();
     return {
-      'name': prefs.getString('driver_name'),
-      'email': prefs.getString('driver_email'),
-      'phone': prefs.getString('driver_phone'),
-      'status': prefs.getString('driver_status'),
+      'name': await _secureStorage.read(key: 'driver_name'),
+      'email': await _secureStorage.read(key: 'driver_email'),
+      'phone': await _secureStorage.read(key: 'driver_phone'),
+      'status': await _secureStorage.read(key: 'driver_status'),
     };
   }
 
   // Clear all stored data
   static Future<void> clearAllData() async {
     await _secureStorage.deleteAll();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
   }
 }
