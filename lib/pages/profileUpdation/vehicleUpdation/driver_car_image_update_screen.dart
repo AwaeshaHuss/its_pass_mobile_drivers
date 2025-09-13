@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import '../../../core/utils/app_logger.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:itspass_driver/pages/profileUpdation/cninc_update_screen.dart';
@@ -44,7 +45,6 @@ class _DriverCarImageUpdateScreeenState
                   'Photo of your vehicle',
                   registrationProvider.vehicleImage,
                   registrationProvider.pickVehicleImageFromCamera,
-                  // Pick image when button is pressed
                 ),
                 const SizedBox(height: 16),
 
@@ -62,7 +62,7 @@ class _DriverCarImageUpdateScreeenState
                               commonMethods.displaySnackBar(
                                   "Vehicle image has been updated", context);
                             } catch (e) {
-                              print("Error while saving data: $e");
+                              AppLogger.info("Error while saving data: $e");
                             } finally {}
                           }
                         : null,

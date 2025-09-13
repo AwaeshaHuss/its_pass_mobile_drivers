@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import '../../core/utils/app_logger.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:itspass_driver/methods/common_method.dart';
@@ -61,12 +62,14 @@ class _SelfieWithCnincUpdateScreenState
                                 registrationProvider.isLoading == false
                             ? () async {
                                 try {
-                                  await registrationProvider
-                                      .updateSelfieWithCnincInfo(context);
+                                  if (context.mounted) {
+                                    await registrationProvider
+                                        .updateSelfieWithCnincInfo(context);
+                                  }
                                   commonMethods.displaySnackBar(
                                       "Data has been updated.", context);
                                 } catch (e) {
-                                  print("Error while saving data: $e");
+                                  AppLogger.info("Error while saving data: $e");
                                 } finally {}
                               }
                             : null,

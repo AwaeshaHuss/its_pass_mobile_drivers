@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/utils/app_logger.dart';
 import 'package:provider/provider.dart';
 import 'package:itspass_driver/pages/profileUpdation/basic_driver_info_update_screen.dart';
 import 'package:itspass_driver/pages/profileUpdation/cninc_update_screen.dart';
@@ -27,7 +28,7 @@ class _DriverMainInfoState extends State<DriverMainInfo> {
       await Provider.of<RegistrationProvider>(context, listen: false)
           .fetchUserData();
     } catch (e) {
-      print('Error fetching user data: $e');
+      AppLogger.info('Error fetching user data: $e');
     }
   }
 
