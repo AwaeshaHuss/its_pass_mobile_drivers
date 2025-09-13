@@ -114,15 +114,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              selectedCountry.flagEmoji,
-                              style: const TextStyle(fontSize: 20),
+                            Container(
+                              width: 28,
+                              height: 20,
+                              alignment: Alignment.center,
+                              child: Text(
+                                selectedCountry.flagEmoji,
+                                style: const TextStyle(fontSize: 18),
+                              ),
                             ),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: 6),
                             Text(
                               '+${selectedCountry.phoneCode}',
                               style: const TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(
+                              Icons.keyboard_arrow_down,
+                              color: Colors.grey,
+                              size: 20,
                             ),
                           ],
                         ),
