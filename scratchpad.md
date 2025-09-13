@@ -243,7 +243,19 @@ Major Firebase removal completed, but compilation issues need resolution before 
 - **Typography Hierarchy**: Bold headers with lighter subtitles improve readability
 - **Consistent Spacing**: 16px, 20px, 24px spacing creates visual rhythm
 
+## Git Workflow Update - September 13, 2025
+
+**IMPORTANT CHANGE**: From now on, all commits will be pushed directly to the remote **main branch** instead of feature branches. This is a workflow change requested by the user for streamlined deployment.
+
+**Previous Workflow**: Feature branches (ui/dashboard-redesign) → Main
+**New Workflow**: Direct commits to main branch
+
 ## Lessons Learned
+
+### Git Workflow
+- User prefers direct commits to main branch for faster deployment
+- Always ensure code is tested before pushing to main
+- Use descriptive commit messages for main branch history
 
 ### Firebase Removal & API Integration
 - Firebase Messaging should be kept for push notifications as it's the most reliable cross-platform solution

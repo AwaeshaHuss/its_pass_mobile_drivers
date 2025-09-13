@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:itspass_driver/l10n/app_localizations.dart';
 import 'package:itspass_driver/main.dart';
+import 'package:itspass_driver/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:itspass_driver/pages/dashboard.dart';
 
 class SelectCountryScreen extends StatefulWidget {
   const SelectCountryScreen({super.key});
@@ -249,9 +252,22 @@ class _SelectCountryScreenState extends State<SelectCountryScreen> {
   void _saveAndContinue() async {
     await _savePreferences();
     
-    // Navigate to register screen (mobile number entry)
     if (mounted) {
-      Navigator.pushReplacementNamed(context, '/register');
+      // Check authentication status using BLoC
+      final authState = context.read<AuthBloc>().state;
+      
+      if (authState is AuthAuthenticated && 
+          authState.isProfileComplete && 
+          !authState.isBlocked) {
+        // User is authenticated and profile is complete - go directly to Dashboard
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Dashboard()),
+        );
+      } else {
+        // User is not authenticated or profile incomplete - go to auth flow
+        Navigator.pushReplacementNamed(context, '/register');
+      }
     }
   }
 
