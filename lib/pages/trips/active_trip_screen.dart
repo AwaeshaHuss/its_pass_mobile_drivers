@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../core/utils/app_logger.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -90,7 +91,7 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
         });
       }
     } catch (e) {
-      print('Error getting location: $e');
+      AppLogger.info('Error getting location: $e');
     }
   }
 
@@ -126,7 +127,7 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
         longitude: position.longitude,
       );
     } catch (e) {
-      print('Error updating location: $e');
+      AppLogger.info('Error updating location: $e');
     }
   }
 

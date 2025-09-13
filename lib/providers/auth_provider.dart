@@ -8,6 +8,7 @@ import '../methods/common_method.dart';
 import '../pages/auth/otp_screen.dart';
 import '../core/services/auth_service.dart';
 import '../core/services/secure_storage_service.dart';
+import '../core/utils/app_logger.dart';
 
 class AuthenticationProvider extends ChangeNotifier {
   final Dio dio;
@@ -100,21 +101,25 @@ class AuthenticationProvider extends ChangeNotifier {
         
         // Navigate to the OTP screen
         Future.delayed(const Duration(seconds: 1)).whenComplete(() {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => OTPScreen(
-                verificationId: _verificationId ?? '',
+          if (context.mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => OTPScreen(
+                  verificationId: _verificationId ?? '',
+                ),
               ),
-            ),
-          );
+            );
+          }
         });
       } else {
         throw Exception('Failed to send OTP');
       }
     } catch (e) {
       stopLoading();
-      commonMethods.displaySnackBar(e.toString(), context);
+      if (context.mounted) {
+        commonMethods.displaySnackBar(e.toString(), context);
+      }
     }
   }
 
@@ -147,7 +152,7 @@ class AuthenticationProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       stopLoading();
-      commonMethods.displaySnackBar(e.toString(), context);
+      AppLogger.error("Error during OTP verification", e);
       throw Exception(e.toString());
     }
   }
@@ -183,6 +188,7 @@ class AuthenticationProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       stopLoading();
+      AppLogger.error("Error during login", e);
       throw Exception(e.toString());
     }
   }
@@ -224,7 +230,7 @@ class AuthenticationProvider extends ChangeNotifier {
         }
       }
     } catch (e) {
-      print("Error checking driver availability: $e");
+      AppLogger.error("Error checking driver availability", e);
     }
   }
 
@@ -247,7 +253,7 @@ class AuthenticationProvider extends ChangeNotifier {
         }
       }
     } catch (e) {
-      print("Error updating driver availability: $e");
+      AppLogger.error("Error updating driver availability", e);
     }
   }
 
@@ -278,7 +284,7 @@ class AuthenticationProvider extends ChangeNotifier {
         }
       }
     } catch (e) {
-      print("Error retrieving driver info: $e");
+      AppLogger.error("Error retrieving driver info", e);
     }
   }
 
@@ -354,17 +360,21 @@ class AuthenticationProvider extends ChangeNotifier {
       await signOut();
       await googleSignIn.signOut();
 
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-            builder: (context) => const RegisterScreen()),
-        (route) => false,
-      );
+      if (context.mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const RegisterScreen()),
+          (route) => false,
+        );
+      }
 
       stopLoading();
     } catch (e) {
       stopLoading();
-      commonMethods.displaySnackBar("Failed to sign out: ${e.toString()}", context);
+      if (context.mounted) {
+        commonMethods.displaySnackBar("Signup successful! Please verify your phone number.", context);
+      }
     }
   }
 
@@ -381,13 +391,12 @@ class AuthenticationProvider extends ChangeNotifier {
         );
         
         if (response.statusCode == 200) {
-          final data = response.data;
-          return data['isBlocked'] ?? false;
+          return response.data['exists'] ?? false;
         }
       }
       return false;
     } catch (e) {
-      print("An error occurred while checking block status: $e");
+      AppLogger.error("Error checking driver block status", e);
       return false;
     }
   }
@@ -417,7 +426,7 @@ class AuthenticationProvider extends ChangeNotifier {
       }
       return false;
     } catch (e) {
-      print("An error occurred while checking driver fields: $e");
+      AppLogger.error("Error checking driver completeness", e);
       return false;
     }
   }

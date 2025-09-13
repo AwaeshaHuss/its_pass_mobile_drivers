@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 // import 'package:firebase_auth/firebase_auth.dart'; // Removed due to unused import after Geofire removal
 import 'package:flutter/material.dart';
+import '../core/utils/app_logger.dart';
 // import 'package:flutter_geofire/flutter_geofire.dart'; // Commented out due to compatibility issues with AGP 8.1.0+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -13,7 +14,7 @@ import '../models/direction_details.dart';
 class CommonMethods {
   Future<void> checkConnectivity(BuildContext context) async {
     var connectionResults = await Connectivity().checkConnectivity();
-    print("Connectivity result: $connectionResults"); // Add this line
+    AppLogger.info("Connectivity result: $connectionResults"); // Add this line
 
     if (connectionResults != ConnectivityResult.wifi &&
         connectionResults != ConnectivityResult.mobile) {
@@ -22,7 +23,7 @@ class CommonMethods {
           "Your internet is not working. Check your connection. Try again.",
           context);
     } else {
-      print("Internet is working"); // Add this line
+      AppLogger.info("Internet is working"); // Add this line
     }
   }
 
@@ -36,7 +37,7 @@ class CommonMethods {
       positionStreamHomePage!.pause();
     } else {
       // Handle the case where the stream is null (optional)
-      print("positionStreamHomePage is null, cannot pause.");
+      AppLogger.info("positionStreamHomePage is null, cannot pause.");
     }
   }
 
@@ -46,7 +47,7 @@ class CommonMethods {
       positionStreamHomePage!.resume();
     } else {
       // Handle the case where the stream is null (optional)
-      print("positionStreamHomePage is null, cannot resume.");
+      AppLogger.info("positionStreamHomePage is null, cannot resume.");
     }
 
     // Check if driverCurrentPosition is not null before updating Geofire
@@ -56,10 +57,10 @@ class CommonMethods {
       //   driverCurrentPosition!.latitude,
       //   driverCurrentPosition!.longitude,
       // );
-      print("Geofire functionality temporarily disabled due to compatibility issues.");
+      AppLogger.info("Geofire functionality temporarily disabled due to compatibility issues.");
     } else {
       // Handle the case where driverCurrentPosition is null (optional)
-      print("driverCurrentPosition is null, cannot update Geofire.");
+      AppLogger.info("driverCurrentPosition is null, cannot update Geofire.");
     }
   }
 
@@ -86,7 +87,7 @@ class CommonMethods {
         "https://maps.googleapis.com/maps/api/directions/json?destination=${destination.latitude},${destination.longitude}&origin=${source.latitude},${source.longitude}&mode=driving&key=$googleMapKey";
 
     var responseFromDirectionsAPI = await sendRequestToAPI(urlDirectionsAPI);
-    print("This is response from direction api $responseFromDirectionsAPI");
+    AppLogger.info("This is response from direction api $responseFromDirectionsAPI");
     if (responseFromDirectionsAPI == "error") {
       return null;
     }

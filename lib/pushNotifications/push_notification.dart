@@ -4,11 +4,12 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:itspass_driver/global/global.dart';
+import '../core/utils/app_logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:flutter_notification_channel/flutter_notification_channel.dart'; // Commented out due to compatibility issues
 // import 'package:flutter_notification_channel/notification_importance.dart'; // Commented out due to compatibility issues
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '../global/global.dart';
 import '../main.dart';
 import '../models/trip_details.dart';
 import '../widgets/notification_dialog.dart';
@@ -65,16 +66,20 @@ class PushNotificationSystem {
         .then((RemoteMessage? messageRemote) {
       if (messageRemote != null) {
         String tripID = messageRemote.data["tripID"];
-        print(tripID);
-        retrieveTripRequestInfo(tripID, context);
+        AppLogger.info('Trip notification received: $tripID');
+        if (context.mounted) {
+          retrieveTripRequestInfo(tripID, context);
+        }
       }
     });
     //Foreground
     FirebaseMessaging.onMessage.listen((RemoteMessage? messageRemote) {
       if (messageRemote != null) {
         String tripID = messageRemote.data["tripID"];
-        print(tripID);
-        retrieveTripRequestInfo(tripID, context);
+        AppLogger.info('Trip notification received: $tripID');
+        if (context.mounted) {
+          retrieveTripRequestInfo(tripID, context);
+        }
       }
     });
 
@@ -82,8 +87,10 @@ class PushNotificationSystem {
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage? messageRemote) {
       if (messageRemote != null) {
         String tripID = messageRemote.data["tripID"];
-        print(tripID);
-        retrieveTripRequestInfo(tripID, context);
+        AppLogger.info('Trip notification received: $tripID');
+        if (context.mounted) {
+          retrieveTripRequestInfo(tripID, context);
+        }
       }
     });
   }
@@ -150,14 +157,16 @@ class PushNotificationSystem {
           tripDetailsInfo.tripID = tripID;
 
           // Show the notification dialog with trip details
-          showDialog(
-            context: currentContext,
-            builder: (BuildContext context) => NotificationDialog(
-              tripDetailsInfo: tripDetailsInfo,
-              bidAmount: bidAmount,
-              fareAmount: fareAmount,
-            ),
-          );
+          if (currentContext.mounted) {
+            showDialog(
+              context: currentContext,
+              builder: (BuildContext context) => NotificationDialog(
+                tripDetailsInfo: tripDetailsInfo,
+                bidAmount: bidAmount,
+                fareAmount: fareAmount,
+              ),
+            );
+          }
         } else {
           log("Error: Failed to fetch trip data for tripID $tripID");
         }

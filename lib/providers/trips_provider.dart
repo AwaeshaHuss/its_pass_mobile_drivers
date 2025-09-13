@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/utils/app_logger.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -48,9 +49,9 @@ class TripProvider with ChangeNotifier {
         currentDriverTotalTripsCompleted = "0";
       }
 
-      print("Total trips completed: $currentDriverTotalTripsCompleted");
+      AppLogger.info("Total trips completed: $currentDriverTotalTripsCompleted");
     } catch (e) {
-      print("Error fetching total trips: $e");
+      AppLogger.error('Error fetching trip count', e);
       currentDriverTotalTripsCompleted = "0";
     } finally {
       isLoading = false;
@@ -91,10 +92,9 @@ class TripProvider with ChangeNotifier {
         completedTrips.clear();
       }
 
-      print("Completed trips count: ${completedTrips.length}");
+      AppLogger.info("Completed trips count: ${completedTrips.length}");
     } catch (e) {
-      print("Error fetching completed trips: $e");
-      completedTrips.clear();
+      AppLogger.error('Error fetching completed trips', e);
     } finally {
       isLoading = false;
       notifyListeners();

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import '../../../core/utils/app_logger.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:itspass_driver/pages/profileUpdation/cninc_update_screen.dart';
@@ -78,13 +79,15 @@ class _VehicleRegistrationUpdateScreenState
                           ? () async {
                               if (_formKey.currentState?.validate() == true) {
                                 try {
-                                  await registrationProvider
-                                      .updateVehicleRegistraionImages(context);
+                                  if (context.mounted) {
+                                    await registrationProvider
+                                        .updateVehicleRegistraionImages(context);
+                                  }
                                   commonMethods.displaySnackBar(
                                       "Vehicle registration certificate images update",
                                       context);
                                 } catch (e) {
-                                  print("Error while saving data: $e");
+                                  AppLogger.info("Error while saving data: $e");
                                 } finally {}
                               }
                             }

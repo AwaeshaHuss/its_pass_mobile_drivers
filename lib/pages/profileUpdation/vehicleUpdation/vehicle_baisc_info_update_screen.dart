@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/utils/app_logger.dart';
 import 'package:provider/provider.dart';
 import 'package:itspass_driver/pages/profileUpdation/cninc_update_screen.dart';
 
@@ -39,7 +40,9 @@ class _VehicleBaiscInfoUpdateScreenState
             child: Form(
               key: _formKey,
               onChanged: () {
-                registrationProvider.checkVehicleBasicFormValidity();
+                if (context.mounted) {
+                  registrationProvider.updateVehicleBasicInfo(context);
+                }
               }, // Check form validity on changes
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,7 +248,7 @@ class _VehicleBaiscInfoUpdateScreenState
                                   commonMethods.displaySnackBar(
                                       "Vehicle data has been updated", context);
                                 } catch (e) {
-                                  print("Error while saving data: $e");
+                                  AppLogger.info("Error while saving data: $e");
                                 } finally {}
                               }
                             }

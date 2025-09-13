@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:itspass_driver/global/global.dart';
 import 'package:itspass_driver/methods/common_method.dart';
+import '../core/utils/app_logger.dart';
 import 'package:itspass_driver/methods/image_picker_service.dart';
 // Removed unused imports: driver.dart, vehicleInfo.dart, profile_page.dart
 import 'package:itspass_driver/providers/auth_provider.dart';
@@ -238,7 +239,7 @@ class RegistrationProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print('Error picking CNIC image: $e');
+      AppLogger.error('Error picking CNIC image', e);
     }
   }
 
@@ -259,7 +260,7 @@ class RegistrationProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print('Error picking vehicle registration image: $e');
+      AppLogger.error('Error picking vehicle registration image', e);
     }
   }
 
@@ -281,7 +282,7 @@ class RegistrationProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print('Error picking driving license image: $e');
+      AppLogger.error('Error picking driving license image', e);
     }
   }
 
@@ -299,7 +300,7 @@ class RegistrationProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print('Error picking selfie with CNIC image: $e');
+      AppLogger.error('Error picking selfie with CNIC image', e);
     }
   }
 
@@ -407,7 +408,9 @@ class RegistrationProvider extends ChangeNotifier {
       );
       
       if (response.statusCode == 200) {
-        commonMethods.displaySnackBar("Profile updated successfully!", context);
+        if (context.mounted) {
+          commonMethods.displaySnackBar("Profile updated successfully!", context);
+        }
       } else {
         throw Exception('Failed to save driver data: ${response.statusMessage}');
       }
@@ -416,13 +419,13 @@ class RegistrationProvider extends ChangeNotifier {
     } catch (e) {
       stopLoading();
       commonMethods.displaySnackBar("An error occurred while saving user data: $e", context);
-      print("An error occurred while saving user data: $e");
+      AppLogger.error("Error saving user data", e);
     }
   }
 
   Future<void> fetchUserData() async {
     if (_isDataFetched) {
-      print("Data already fetched, skipping...");
+      AppLogger.info("Data already fetched, skipping...");
       return; // Data already fetched, so skip further fetching
     }
     try {
@@ -499,7 +502,7 @@ class RegistrationProvider extends ChangeNotifier {
         throw Exception('Failed to fetch driver data: ${response.statusMessage}');
       }
     } catch (e) {
-      print("An error occurred while fetching user data: $e");
+      AppLogger.error("An error occurred while fetching user data", e);
       stopFetchLoading();
     }
   }
@@ -522,11 +525,11 @@ class RegistrationProvider extends ChangeNotifier {
         // Return the XFile
         return XFile(file.path);
       } else {
-        print('Failed to download image: ${response.statusCode}');
+        AppLogger.warning('Failed to download image: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      print('Error occurred: $e');
+      AppLogger.error('Error downloading image', e);
       return null;
     }
   }
@@ -559,7 +562,7 @@ class RegistrationProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print("Error fetching driver's earnings: $e");
+      AppLogger.error("Error fetching driver's earnings", e);
       _driverEarnings = 0.0;
       notifyListeners();
     }
@@ -603,7 +606,7 @@ class RegistrationProvider extends ChangeNotifier {
         throw Exception('Failed to fetch driver info: ${response.statusMessage}');
       }
     } catch (e) {
-      print("An error occurred while fetching user data: $e");
+      AppLogger.error("An error occurred while fetching user data", e);
     }
   }
 
@@ -649,7 +652,9 @@ class RegistrationProvider extends ChangeNotifier {
       );
       
       if (response.statusCode == 200) {
-        commonMethods.displaySnackBar("Basic info updated successfully!", context);
+        if (context.mounted) {
+          commonMethods.displaySnackBar("Basic info updated successfully!", context);
+        }
       } else {
         throw Exception('Failed to update basic info: ${response.statusMessage}');
       }
@@ -657,8 +662,10 @@ class RegistrationProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      print("An error occurred while updating basic driver info: $e");
-      commonMethods.displaySnackBar("Error updating basic info: $e", context);
+      AppLogger.error("Error updating basic driver info", e);
+      if (context.mounted) {
+        commonMethods.displaySnackBar("Error updating basic info: $e", context);
+      }
       _isLoading = false;
       notifyListeners();
     }
@@ -698,16 +705,20 @@ class RegistrationProvider extends ChangeNotifier {
       );
       
       if (response.statusCode == 200) {
-        commonMethods.displaySnackBar("CNIC info updated successfully!", context);
+        if (context.mounted) {
+          commonMethods.displaySnackBar("CNIC updated successfully!", context);
+        }
       } else {
-        throw Exception('Failed to update CNIC info: ${response.statusMessage}');
+        throw Exception('Failed to update selfie: ${response.statusMessage}');
       }
       
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      print("An error occurred while updating CNIC info: $e");
-      commonMethods.displaySnackBar("Error updating CNIC info: $e", context);
+      AppLogger.error("Error updating CNIC info", e);
+      if (context.mounted) {
+        commonMethods.displaySnackBar("Error updating CNIC info: $e", context);
+      }
       _isLoading = false;
       notifyListeners();
     }
@@ -744,7 +755,9 @@ class RegistrationProvider extends ChangeNotifier {
       );
       
       if (response.statusCode == 200) {
-        commonMethods.displaySnackBar("Selfie with CNIC updated successfully!", context);
+        if (context.mounted) {
+          commonMethods.displaySnackBar("Selfie with CNIC updated successfully!", context);
+        }
       } else {
         throw Exception('Failed to update selfie: ${response.statusMessage}');
       }
@@ -752,8 +765,10 @@ class RegistrationProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      print("An error occurred while updating selfie info: $e");
-      commonMethods.displaySnackBar("Error updating selfie: $e", context);
+      AppLogger.error("Error updating selfie info", e);
+      if (context.mounted) {
+        commonMethods.displaySnackBar("Error updating selfie: $e", context);
+      }
       _isLoading = false;
       notifyListeners();
     }
@@ -793,7 +808,9 @@ class RegistrationProvider extends ChangeNotifier {
       );
       
       if (response.statusCode == 200) {
-        commonMethods.displaySnackBar("Driving license updated successfully!", context);
+        if (context.mounted) {
+          commonMethods.displaySnackBar("License updated successfully!", context);
+        }
       } else {
         throw Exception('Failed to update license: ${response.statusMessage}');
       }
@@ -801,8 +818,10 @@ class RegistrationProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      print("An error occurred while updating license info: $e");
-      commonMethods.displaySnackBar("Error updating license: $e", context);
+      AppLogger.error("Error updating license info", e);
+      if (context.mounted) {
+        commonMethods.displaySnackBar("Error updating license: $e", context);
+      }
       _isLoading = false;
       notifyListeners();
     }
@@ -841,7 +860,9 @@ class RegistrationProvider extends ChangeNotifier {
       );
       
       if (response.statusCode == 200) {
-        commonMethods.displaySnackBar("Vehicle info updated successfully!", context);
+        if (context.mounted) {
+          commonMethods.displaySnackBar("Vehicle info updated successfully!", context);
+        }
       } else {
         throw Exception('Failed to update vehicle info: ${response.statusMessage}');
       }
@@ -849,8 +870,10 @@ class RegistrationProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      print("An error occurred while updating vehicle info: $e");
-      commonMethods.displaySnackBar("Error updating vehicle info: $e", context);
+      AppLogger.error("Error updating vehicle info", e);
+      if (context.mounted) {
+        commonMethods.displaySnackBar("Error updating vehicle info: $e", context);
+      }
       _isLoading = false;
       notifyListeners();
     }
@@ -887,7 +910,9 @@ class RegistrationProvider extends ChangeNotifier {
       );
       
       if (response.statusCode == 200) {
-        commonMethods.displaySnackBar("Vehicle image updated successfully!", context);
+        if (context.mounted) {
+          commonMethods.displaySnackBar("Vehicle images updated successfully!", context);
+        }
       } else {
         throw Exception('Failed to update vehicle image: ${response.statusMessage}');
       }
@@ -895,8 +920,10 @@ class RegistrationProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      print("An error occurred while updating vehicle image: $e");
-      commonMethods.displaySnackBar("Error updating vehicle image: $e", context);
+      AppLogger.error("Error updating vehicle image", e);
+      if (context.mounted) {
+        commonMethods.displaySnackBar("Failed to update vehicle. Please try again.", context);
+      }
       _isLoading = false;
       notifyListeners();
     }
@@ -935,7 +962,9 @@ class RegistrationProvider extends ChangeNotifier {
       );
       
       if (response.statusCode == 200) {
-        commonMethods.displaySnackBar("Vehicle registration images updated successfully!", context);
+        if (context.mounted) {
+          commonMethods.displaySnackBar("Registration updated successfully!", context);
+        }
       } else {
         throw Exception('Failed to update registration images: ${response.statusMessage}');
       }
@@ -943,8 +972,10 @@ class RegistrationProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      print("An error occurred while updating registration images: $e");
-      commonMethods.displaySnackBar("Error updating registration images: $e", context);
+      AppLogger.error("Error updating registration images", e);
+      if (context.mounted) {
+        commonMethods.displaySnackBar("Failed to update registration. Please try again.", context);
+      }
       _isLoading = false;
       notifyListeners();
     }

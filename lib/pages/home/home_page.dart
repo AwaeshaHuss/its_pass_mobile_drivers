@@ -13,6 +13,7 @@ import 'package:itspass_driver/providers/registration_provider.dart';
 import '../../methods/map_theme_methods.dart';
 import '../../pushNotifications/push_notification.dart';
 import '../../core/services/driver_service.dart';
+import '../../core/utils/app_logger.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -41,13 +42,13 @@ class _HomePageState extends State<HomePage> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          print('Location permissions are denied');
+          AppLogger.warning('Location permissions are denied');
           return;
         }
       }
       
       if (permission == LocationPermission.deniedForever) {
-        print('Location permissions are permanently denied');
+        AppLogger.warning('Location permissions are permanently denied');
         return;
       }
 
@@ -67,19 +68,19 @@ class _HomePageState extends State<HomePage> {
           await controllerGoogleMap!
               .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
         } catch (e) {
-          print("Error animating camera: $e");
+          AppLogger.error("Error animating camera", e);
           // Fallback to direct position setting
           try {
             await controllerGoogleMap!
                 .moveCamera(CameraUpdate.newCameraPosition(cameraPosition));
           } catch (moveError) {
-            print("Error moving camera: $moveError");
+            AppLogger.error("Error moving camera", moveError);
           }
         }
       }
     } catch (e) {
-      print("Error getting location: $e");
-      // Use default Jordan location if location access fails
+      AppLogger.error("Error getting location", e);
+    }  // Use default Jordan location if location access fails
       LatLng defaultPosition = const LatLng(31.9454, 35.9284); // Amman, Jordan
       CameraPosition defaultCameraPosition =
           CameraPosition(target: defaultPosition, zoom: 12);
@@ -89,18 +90,17 @@ class _HomePageState extends State<HomePage> {
           await controllerGoogleMap!
               .animateCamera(CameraUpdate.newCameraPosition(defaultCameraPosition));
         } catch (e) {
-          print("Error animating to default camera: $e");
+          AppLogger.error("Error animating to default camera", e);
           // Fallback to direct position setting
           try {
             await controllerGoogleMap!
                 .moveCamera(CameraUpdate.newCameraPosition(defaultCameraPosition));
           } catch (moveError) {
-            print("Error moving to default camera: $moveError");
+            AppLogger.error("Error moving to default camera", moveError);
           }
         }
       }
     }
-  }
 
   _loadDriverStatus() async {
     try {
@@ -114,21 +114,23 @@ class _HomePageState extends State<HomePage> {
           _updateStatusUI();
         });
       } else {
-        // Fallback to SharedPreferences if API fails
-        SharedPreferences prefs = await SharedPreferences.getInstance();
+        // Set default offline status if API fails
+        if (mounted) {
+          setState(() {
+            isDriverAvailable = false;
+            _updateStatusUI();
+          });
+        }
+      }
+    } catch (e) {
+      AppLogger.error("Error loading driver status", e);
+      // Set default offline status on error
+      if (mounted) {
         setState(() {
-          isDriverAvailable = prefs.getBool('isDriverAvailable') ?? false;
+          isDriverAvailable = false;
           _updateStatusUI();
         });
       }
-    } catch (e) {
-      print("Error loading driver status: $e");
-      // Fallback to SharedPreferences
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      setState(() {
-        isDriverAvailable = prefs.getBool('isDriverAvailable') ?? false;
-        _updateStatusUI();
-      });
     }
   }
 
@@ -143,8 +145,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   _saveDriverStatus(bool status) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isDriverAvailable', status);
+    // Driver status is now managed purely through API calls
+    // No local storage fallbacks - status persisted on server
+    AppLogger.info("Driver status saved to server: $status");
   }
 
   goOnlineNow() async {
@@ -173,10 +176,10 @@ class _HomePageState extends State<HomePage> {
           );
         }
       } else {
-        print("Failed to go online: ${response.error}");
+        AppLogger.warning("Failed to go online: ${response.error}");
       }
     } catch (e) {
-      print("Error going online: $e");
+      AppLogger.error("Error going online", e);
     }
   }
 
@@ -192,13 +195,13 @@ class _HomePageState extends State<HomePage> {
           controllerGoogleMap!
               .animateCamera(CameraUpdate.newLatLng(positionLatLng));
         } catch (e) {
-          print("Error animating camera in position stream: $e");
+          AppLogger.error("Error animating camera in position stream", e);
           // Fallback to direct position setting
           try {
             controllerGoogleMap!
                 .moveCamera(CameraUpdate.newLatLng(positionLatLng));
           } catch (moveError) {
-            print("Error moving camera in position stream: $moveError");
+            AppLogger.error("Error moving camera in position stream", moveError);
           }
         }
       }
@@ -217,9 +220,12 @@ class _HomePageState extends State<HomePage> {
             latitude: currentPositionOfDriver!.latitude,
             longitude: currentPositionOfDriver!.longitude,
           );
-          print("Location updated: ${currentPositionOfDriver!.latitude}, ${currentPositionOfDriver!.longitude}");
+          AppLogger.location("Location updated on server", {
+        'latitude': currentPositionOfDriver!.latitude,
+        'longitude': currentPositionOfDriver!.longitude,
+      });
         } catch (e) {
-          print("Error updating location: $e");
+          AppLogger.error("Error updating location on server", e);
         }
       }
     });
@@ -248,16 +254,16 @@ class _HomePageState extends State<HomePage> {
         if (positionStreamHomePage != null) {
           positionStreamHomePage!.cancel();
           positionStreamHomePage = null;
-          print("Location stream cancelled - driver is now offline");
+          AppLogger.info("Location stream cancelled - driver is now offline");
         }
         
         // Stop periodic location updates
         _stopPeriodicLocationUpdates();
       } else {
-        print("Failed to go offline: ${response.error}");
+        AppLogger.warning("Failed to go offline: ${response.error}");
       }
     } catch (e) {
-      print("Error going offline: $e");
+      AppLogger.error("Error going offline", e);
     }
   }
 
@@ -324,7 +330,7 @@ class _HomePageState extends State<HomePage> {
                 // Get current location
                 getCurrentLiveLocationOfDriver();
               } catch (e) {
-                print("Error initializing map: $e");
+                AppLogger.error("Error initializing map", e);
               }
             },
           ),
@@ -530,9 +536,9 @@ class _HomePageState extends State<HomePage> {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
-                            print("Toggle button pressed. Current state: isDriverAvailable = $isDriverAvailable");
+                            AppLogger.debug("Toggle button pressed. Current state: isDriverAvailable = $isDriverAvailable");
                             if (!isDriverAvailable) {
-                              print("Going online...");
+                              AppLogger.info("Going online...");
                               goOnlineNow();
                               setAndGetLocationUpdates();
                               setState(() {
@@ -541,9 +547,9 @@ class _HomePageState extends State<HomePage> {
                                 isDriverAvailable = true;
                               });
                               _saveDriverStatus(true);
-                              print("Driver is now ONLINE");
+                              AppLogger.info("Driver is now ONLINE");
                             } else {
-                              print("Going offline...");
+                              AppLogger.info("Going offline...");
                               goOfflineNow();
                               setState(() {
                                 colorToShow = Colors.black;
@@ -551,7 +557,7 @@ class _HomePageState extends State<HomePage> {
                                 isDriverAvailable = false;
                               });
                               _saveDriverStatus(false);
-                              print("Driver is now OFFLINE");
+                              AppLogger.info("Driver is now OFFLINE");
                             }
                             Navigator.pop(context);
                           },

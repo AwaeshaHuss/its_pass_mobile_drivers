@@ -1,3 +1,4 @@
+import '../core/utils/app_logger.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ImagePickerService {
@@ -9,7 +10,7 @@ class ImagePickerService {
     required ImageSource imageSource,
   }) async {
     try {
-      print('Picking image from camera...');
+      AppLogger.info('Picking image from camera...');
       
       final XFile? image = await _picker.pickImage(
         source: imageSource,
@@ -20,14 +21,14 @@ class ImagePickerService {
       );
       
       if (image != null) {
-        print('Image picked successfully: ${image.path}');
+        AppLogger.info('Image picked successfully: ${image.path}');
       } else {
-        print('No image selected');
+        AppLogger.info('No image selected');
       }
       
       return image;
     } catch (e) {
-      print('Error in pickCropImage: $e');
+      AppLogger.info('Error in pickCropImage: $e');
       return null;
     }
   }
@@ -37,7 +38,7 @@ class ImagePickerService {
     required ImageSource imageSource,
   }) async {
     try {
-      print('Picking image only...');
+      AppLogger.info('Picking image only...');
       
       final XFile? image = await _picker.pickImage(
         source: imageSource,
@@ -48,14 +49,14 @@ class ImagePickerService {
       );
       
       if (image != null) {
-        print('Image picked successfully: ${image.path}');
+        AppLogger.info('Image picked successfully: ${image.path}');
       } else {
-        print('No image selected');
+        AppLogger.info('No image selected');
       }
       
       return image;
     } catch (e) {
-      print('Error in pickImageOnly: $e');
+      AppLogger.info('Error in pickImageOnly: $e');
       return null;
     }
   }

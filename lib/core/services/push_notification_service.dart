@@ -1,12 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '../models/trip_models.dart';
+import '../utils/app_logger.dart';
 
 // Top-level function for background message handling
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print('Handling a background message: ${message.messageId}');
+  AppLogger.notification('Handling a background message: ${message.messageId}');
 }
 
 class PushNotificationService {
@@ -39,17 +38,17 @@ class PushNotificationService {
       );
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        print('User granted permission');
+        AppLogger.info('User granted permission');
       } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
-        print('User granted provisional permission');
+        AppLogger.info('User granted provisional permission');
       } else {
-        print('User declined or has not accepted permission');
+        AppLogger.warning('User declined or has not accepted permission');
         return false;
       }
 
       // Get FCM token
       _fcmToken = await _firebaseMessaging.getToken();
-      print('FCM Token: $_fcmToken');
+      AppLogger.info('FCM Token: $_fcmToken');
 
       // Configure message handlers
       _configureMessageHandlers();
@@ -57,7 +56,7 @@ class PushNotificationService {
       _isInitialized = true;
       return true;
     } catch (e) {
-      print('Error initializing push notifications: $e');
+      AppLogger.error('Error initializing push notifications', e);
       return false;
     }
   }
@@ -83,11 +82,11 @@ class PushNotificationService {
 
   /// Handle foreground messages
   void _handleForegroundMessage(RemoteMessage message) {
-    print('Got a message whilst in the foreground!');
-    print('Message data: ${message.data}');
+    AppLogger.notification('Got a message whilst in the foreground!');
+    AppLogger.notification('Message data: ${message.data}');
 
     if (message.notification != null) {
-      print('Message also contained a notification: ${message.notification}');
+      AppLogger.notification('Message also contained a notification: ${message.notification}');
     }
 
     // Handle custom data
@@ -96,7 +95,7 @@ class PushNotificationService {
 
   /// Handle background messages
   void _handleBackgroundMessage(RemoteMessage message) {
-    print('Message clicked!');
+    AppLogger.notification('Message clicked!');
     _processNotificationData(message.data);
   }
 
@@ -116,7 +115,7 @@ class PushNotificationService {
   }) async {
     // For Firebase-only implementation, we rely on server-sent notifications
     // The actual notification display is handled by the Firebase SDK
-    print('Trip request notification: $title - $body');
+    AppLogger.notification('Trip request notification: $title - $body');
     _processNotificationData(tripData);
   }
 

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
+import '../utils/app_logger.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../models/api_response.dart';
 import 'driver_service.dart';
@@ -49,7 +50,7 @@ class LocationService {
 
       return true;
     } catch (e) {
-      print('Error initializing location service: $e');
+      AppLogger.info('Error initializing location service: $e');
       return false;
     }
   }
@@ -63,7 +64,7 @@ class LocationService {
       _lastKnownPosition = position;
       return position;
     } catch (e) {
-      print('Error getting current position: $e');
+      AppLogger.info('Error getting current position: $e');
       return _lastKnownPosition;
     }
   }
@@ -85,7 +86,7 @@ class LocationService {
           _notifyLocationCallbacks(position);
         },
         onError: (error) {
-          print('Location stream error: $error');
+          AppLogger.info('Location stream error: $error');
         },
       );
 
@@ -98,7 +99,7 @@ class LocationService {
       _isTracking = true;
       return true;
     } catch (e) {
-      print('Error starting location tracking: $e');
+      AppLogger.info('Error starting location tracking: $e');
       return false;
     }
   }
@@ -130,7 +131,7 @@ class LocationService {
       try {
         callback(position);
       } catch (e) {
-        print('Error in location callback: $e');
+        AppLogger.info('Error in location callback: $e');
       }
     }
   }
@@ -145,7 +146,7 @@ class LocationService {
         longitude: _lastKnownPosition!.longitude,
       );
     } catch (e) {
-      print('Error updating location to server: $e');
+      AppLogger.info('Error updating location to server: $e');
     }
   }
 
