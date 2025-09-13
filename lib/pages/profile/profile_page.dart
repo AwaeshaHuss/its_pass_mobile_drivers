@@ -8,6 +8,7 @@ import 'package:itspass_driver/providers/registration_provider.dart';
 
 import '../../global/global.dart';
 import '../../widgets/ratting_stars.dart';
+import '../../core/services/auth_service.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -17,17 +18,64 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  bool _isLoading = true;
+  Map<String, String?>? _driverProfile;
+  String? _errorMessage;
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    Provider.of<RegistrationProvider>(context, listen: false)
-        .retrieveCurrentDriverInfo();
+    _fetchDriverProfile();
+  }
+
+  Future<void> _fetchDriverProfile() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final authService = AuthService();
+      final profile = await authService.getCurrentDriverProfile();
+      
+      setState(() {
+        _driverProfile = profile;
+        _isLoading = false;
+      });
+      
+      // Also fetch from provider for additional data
+      if (mounted) {
+        Provider.of<RegistrationProvider>(context, listen: false)
+            .retrieveCurrentDriverInfo();
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error loading profile: $e';
+        _isLoading = false;
+      });
+      
+      // Fallback to provider method if API fails
+      if (mounted) {
+        Provider.of<RegistrationProvider>(context, listen: false)
+            .retrieveCurrentDriverInfo();
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthenticationProvider>(context);
+
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.grey[50],
+        body: const Center(
+          child: CircularProgressIndicator(
+            color: Colors.black,
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -83,7 +131,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       child: ClipOval(
                         child: CachedNetworkImage(
-                          imageUrl: driverPhoto,
+                          imageUrl: _errorMessage != null 
+                              ? driverPhoto 
+                              : (_driverProfile?['photo'] ?? driverPhoto),
                           fit: BoxFit.cover,
                           placeholder: (context, url) => Container(
                             color: Colors.grey[200],
@@ -108,9 +158,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
                     // Name
                     Text(
-                      driverName.isEmpty && driverSecondName.isEmpty 
-                          ? "Driver Name" 
-                          : "$driverName $driverSecondName".trim(),
+                      _errorMessage != null 
+                          ? (driverName.isEmpty && driverSecondName.isEmpty 
+                              ? "Driver Name" 
+                              : "$driverName $driverSecondName".trim())
+                          : (_driverProfile?['name'] ?? "Driver Name"),
                       style: TextStyle(
                         fontSize: 22.sp,
                         fontWeight: FontWeight.bold,
@@ -123,10 +175,16 @@ class _ProfilePageState extends State<ProfilePage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        RatingStars(ratting: ratting.isEmpty ? "0.0" : ratting),
+                        RatingStars(
+                          ratting: _errorMessage != null 
+                              ? (ratting.isEmpty ? "0.0" : ratting)
+                              : (_driverProfile?['rating'] ?? "0.0")
+                        ),
                         SizedBox(width: 8.w),
                         Text(
-                          ratting.isEmpty ? "0.0" : ratting,
+                          _errorMessage != null 
+                              ? (ratting.isEmpty ? "0.0" : ratting)
+                              : (_driverProfile?['rating'] ?? "0.0"),
                           style: TextStyle(
                             fontSize: 16.sp,
                             fontWeight: FontWeight.w600,
@@ -138,14 +196,29 @@ class _ProfilePageState extends State<ProfilePage> {
                     SizedBox(height: 20.h),
 
                     // Contact Info
-                    _buildInfoRow(Icons.phone, driverPhone.isEmpty ? "Phone not set" : driverPhone),
-                    if (driverEmail.isNotEmpty) ...[
+                    _buildInfoRow(
+                      Icons.phone, 
+                      _errorMessage != null 
+                          ? (driverPhone.isEmpty ? "Phone not set" : driverPhone)
+                          : (_driverProfile?['phone'] ?? "Phone not set")
+                    ),
+                    if ((_errorMessage != null ? driverEmail.isNotEmpty : (_driverProfile?['email']?.isNotEmpty ?? false))) ...[
                       SizedBox(height: 12.h),
-                      _buildInfoRow(Icons.email, driverEmail),
+                      _buildInfoRow(
+                        Icons.email, 
+                        _errorMessage != null 
+                            ? driverEmail 
+                            : (_driverProfile?['email'] ?? "")
+                      ),
                     ],
-                    if (address.isNotEmpty) ...[
+                    if ((_errorMessage != null ? address.isNotEmpty : (_driverProfile?['address']?.isNotEmpty ?? false))) ...[
                       SizedBox(height: 12.h),
-                      _buildInfoRow(Icons.location_on, address),
+                      _buildInfoRow(
+                        Icons.location_on, 
+                        _errorMessage != null 
+                            ? address 
+                            : (_driverProfile?['address'] ?? "")
+                      ),
                     ],
                   ],
                 ),

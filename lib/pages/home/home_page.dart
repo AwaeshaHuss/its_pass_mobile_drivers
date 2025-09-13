@@ -1,11 +1,8 @@
 import 'dart:async';
-// import 'dart:convert'; // Removed due to unused import
-// import 'dart:typed_data'; // Removed due to unused import
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// import 'package:flutter_geofire/flutter_geofire.dart'; // Commented out due to compatibility issues with AGP 8.1.0+
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +12,7 @@ import 'package:itspass_driver/providers/registration_provider.dart';
 
 import '../../methods/map_theme_methods.dart';
 import '../../pushNotifications/push_notification.dart';
+import '../../core/services/driver_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -104,17 +102,51 @@ class _HomePageState extends State<HomePage> {
   }
 
   _loadDriverStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      isDriverAvailable = prefs.getBool('isDriverAvailable') ?? false;
-      if (isDriverAvailable) {
-        colorToShow = Colors.red[400]!;
-        titleToShow = "GO OFFLINE NOW";
+    try {
+      final driverService = DriverService();
+      final response = await driverService.getDriverStatus();
+      
+      if (response.isSuccess && response.data != null) {
+        final status = response.data!['status'] ?? 'offline';
+        setState(() {
+          isDriverAvailable = status == 'waiting' || status == 'online';
+          if (isDriverAvailable) {
+            colorToShow = Colors.red[400]!;
+            titleToShow = "GO OFFLINE NOW";
+          } else {
+            colorToShow = Colors.black;
+            titleToShow = "GO ONLINE NOW";
+          }
+        });
       } else {
-        colorToShow = Colors.black;
-        titleToShow = "GO ONLINE NOW";
+        // Fallback to SharedPreferences if API fails
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        setState(() {
+          isDriverAvailable = prefs.getBool('isDriverAvailable') ?? false;
+          if (isDriverAvailable) {
+            colorToShow = Colors.red[400]!;
+            titleToShow = "GO OFFLINE NOW";
+          } else {
+            colorToShow = Colors.black;
+            titleToShow = "GO ONLINE NOW";
+          }
+        });
       }
-    });
+    } catch (e) {
+      print("Error loading driver status: $e");
+      // Fallback to SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        isDriverAvailable = prefs.getBool('isDriverAvailable') ?? false;
+        if (isDriverAvailable) {
+          colorToShow = Colors.red[400]!;
+          titleToShow = "GO OFFLINE NOW";
+        } else {
+          colorToShow = Colors.black;
+          titleToShow = "GO ONLINE NOW";
+        }
+      });
+    }
   }
 
   _saveDriverStatus(bool status) async {
@@ -122,19 +154,37 @@ class _HomePageState extends State<HomePage> {
     await prefs.setBool('isDriverAvailable', status);
   }
 
-  goOnlineNow() {
-    //all drivers who are Available for new trip requests
-    // Geofire.initialize("onlineDrivers"); // Commented out due to compatibility issues with AGP 8.1.0+
-
-    // Geofire.setLocation( // Commented out due to compatibility issues with AGP 8.1.0+
-    //   FirebaseAuth.instance.currentUser!.uid,
-    //   currentPositionOfDriver!.latitude,
-    //   currentPositionOfDriver!.longitude,
-    // );
-    print("Geofire functionality temporarily disabled due to compatibility issues.");
-
-    // TODO: Replace with API call to set driver status to "waiting"
-    // await updateDriverStatus("waiting");
+  goOnlineNow() async {
+    try {
+      final driverService = DriverService();
+      final response = await driverService.updateDriverStatus('waiting');
+      
+      if (response.isSuccess) {
+        setState(() {
+          isDriverAvailable = true;
+          colorToShow = Colors.red[400]!;
+          titleToShow = "GO OFFLINE NOW";
+        });
+        
+        // Save status locally as backup
+        await _saveDriverStatus(true);
+        
+        // Start location updates
+        setAndGetLocationUpdates();
+        
+        // Update location if available
+        if (currentPositionOfDriver != null) {
+          await driverService.updateLocation(
+            latitude: currentPositionOfDriver!.latitude,
+            longitude: currentPositionOfDriver!.longitude,
+          );
+        }
+      } else {
+        print("Failed to go online: ${response.error}");
+      }
+    } catch (e) {
+      print("Error going online: $e");
+    }
   }
 
   setAndGetLocationUpdates() {
@@ -170,20 +220,33 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  goOfflineNow() {
-    //stop sharing driver live location updates
-    // Geofire.removeLocation(FirebaseAuth.instance.currentUser!.uid); // Commented out due to compatibility issues with AGP 8.1.0+
-    print("Geofire remove location temporarily disabled due to compatibility issues.");
-
-    // Cancel location stream when going offline
-    if (positionStreamHomePage != null) {
-      positionStreamHomePage!.cancel();
-      positionStreamHomePage = null;
-      print("Location stream cancelled - driver is now offline");
+  goOfflineNow() async {
+    try {
+      final driverService = DriverService();
+      final response = await driverService.updateDriverStatus('offline');
+      
+      if (response.isSuccess) {
+        setState(() {
+          isDriverAvailable = false;
+          colorToShow = Colors.black;
+          titleToShow = "GO ONLINE NOW";
+        });
+        
+        // Save status locally as backup
+        await _saveDriverStatus(false);
+        
+        // Cancel location stream when going offline
+        if (positionStreamHomePage != null) {
+          positionStreamHomePage!.cancel();
+          positionStreamHomePage = null;
+          print("Location stream cancelled - driver is now offline");
+        }
+      } else {
+        print("Failed to go offline: ${response.error}");
+      }
+    } catch (e) {
+      print("Error going offline: $e");
     }
-
-    // TODO: Replace with API call to set driver status to "offline"
-    // await updateDriverStatus("offline");
   }
 
   initializePushNotificationSystem() async {

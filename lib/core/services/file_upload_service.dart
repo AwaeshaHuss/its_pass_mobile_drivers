@@ -1,229 +1,165 @@
-import 'dart:io';
+import 'package:dio/dio.dart';
+import 'package:image_picker/image_picker.dart';
 import '../constants/api_constants.dart';
 import '../models/api_response.dart';
-import 'api_service.dart';
+import 'secure_storage_service.dart';
 
 class FileUploadService {
   static final FileUploadService _instance = FileUploadService._internal();
   factory FileUploadService() => _instance;
   FileUploadService._internal();
 
-  final ApiService _apiService = ApiService();
+  final Dio _dio = Dio();
+  bool _isInitialized = false;
 
-  // Document upload methods
-  Future<ApiResponse<void>> uploadProfilePhoto({
-    required File file,
-    required String phoneNumber,
+  void initialize() {
+    if (_isInitialized) return;
+    
+    _dio.options.baseUrl = ApiConstants.baseUrl;
+    _dio.options.connectTimeout = const Duration(seconds: 60); // Longer timeout for file uploads
+    _dio.options.receiveTimeout = const Duration(seconds: 60);
+    
+    // Add interceptor for automatic token attachment
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        final token = await SecureStorageService.getAuthToken();
+        if (token != null) {
+          options.headers['Authorization'] = 'Bearer $token';
+        }
+        options.headers['Accept'] = 'application/json';
+        handler.next(options);
+      },
+    ));
+    
+    _isInitialized = true;
+  }
+
+  Future<ApiResponse<String>> uploadFile({
+    required XFile file,
+    required String endpoint,
+    String fieldName = 'file',
   }) async {
-    return await _apiService.uploadDocument(
-      endpoint: ApiConstants.uploadProfilePhoto,
+    try {
+      initialize(); // Ensure service is initialized
+      
+      final formData = FormData.fromMap({
+        fieldName: await MultipartFile.fromFile(
+          file.path,
+          filename: file.name,
+        ),
+      });
+
+      final response = await _dio.post(
+        endpoint,
+        data: formData,
+        options: Options(
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return ApiResponse.success(response.data['file_url'] ?? response.data['url'] ?? '');
+      } else {
+        return ApiResponse.error('Upload failed: ${response.statusMessage}');
+      }
+    } catch (e) {
+      if (e is DioException) {
+        return ApiResponse.error('Upload failed: ${e.message}');
+      }
+      return ApiResponse.error('Upload failed: $e');
+    }
+  }
+
+  // Profile Photo Upload
+  Future<ApiResponse<String>> uploadProfilePhoto(XFile file) async {
+    return uploadFile(
       file: file,
-      phoneNumber: phoneNumber,
+      endpoint: ApiConstants.uploadProfilePhoto,
       fieldName: 'profile_photo',
     );
   }
 
-  Future<ApiResponse<void>> uploadIdFront({
-    required File file,
-    required String phoneNumber,
-  }) async {
-    return await _apiService.uploadDocument(
-      endpoint: ApiConstants.uploadIdFront,
+  // ID Front Upload
+  Future<ApiResponse<String>> uploadIdFront(XFile file) async {
+    return uploadFile(
       file: file,
-      phoneNumber: phoneNumber,
+      endpoint: ApiConstants.uploadIdFront,
       fieldName: 'id_front',
     );
   }
 
-  Future<ApiResponse<void>> uploadIdBack({
-    required File file,
-    required String phoneNumber,
-  }) async {
-    return await _apiService.uploadDocument(
-      endpoint: ApiConstants.uploadIdBack,
+  // ID Back Upload
+  Future<ApiResponse<String>> uploadIdBack(XFile file) async {
+    return uploadFile(
       file: file,
-      phoneNumber: phoneNumber,
+      endpoint: ApiConstants.uploadIdBack,
       fieldName: 'id_back',
     );
   }
 
-  Future<ApiResponse<void>> uploadLicenseFront({
-    required File file,
-    required String phoneNumber,
-  }) async {
-    return await _apiService.uploadDocument(
-      endpoint: ApiConstants.uploadLicenseFront,
+  // License Front Upload
+  Future<ApiResponse<String>> uploadLicenseFront(XFile file) async {
+    return uploadFile(
       file: file,
-      phoneNumber: phoneNumber,
+      endpoint: ApiConstants.uploadLicenseFront,
       fieldName: 'license_front',
     );
   }
 
-  Future<ApiResponse<void>> uploadLicenseBack({
-    required File file,
-    required String phoneNumber,
-  }) async {
-    return await _apiService.uploadDocument(
-      endpoint: ApiConstants.uploadLicenseBack,
+  // License Back Upload
+  Future<ApiResponse<String>> uploadLicenseBack(XFile file) async {
+    return uploadFile(
       file: file,
-      phoneNumber: phoneNumber,
+      endpoint: ApiConstants.uploadLicenseBack,
       fieldName: 'license_back',
     );
   }
 
-  Future<ApiResponse<void>> uploadNoConvictionCertificate({
-    required File file,
-    required String phoneNumber,
-  }) async {
-    return await _apiService.uploadDocument(
-      endpoint: ApiConstants.uploadNoConvictionCertificate,
+  // No Conviction Certificate Upload
+  Future<ApiResponse<String>> uploadNoConvictionCertificate(XFile file) async {
+    return uploadFile(
       file: file,
-      phoneNumber: phoneNumber,
+      endpoint: ApiConstants.uploadNoConvictionCertificate,
       fieldName: 'no_conviction_certificate',
     );
   }
 
-  Future<ApiResponse<void>> uploadSelfieWithId({
-    required File file,
-    required String phoneNumber,
-  }) async {
-    return await _apiService.uploadDocument(
-      endpoint: ApiConstants.uploadSelfieWithId,
+  // Selfie with ID Upload
+  Future<ApiResponse<String>> uploadSelfieWithId(XFile file) async {
+    return uploadFile(
       file: file,
-      phoneNumber: phoneNumber,
+      endpoint: ApiConstants.uploadSelfieWithId,
       fieldName: 'selfie_with_id',
     );
   }
 
-  Future<ApiResponse<void>> uploadCarImage({
-    required File file,
-    required String phoneNumber,
-  }) async {
-    return await _apiService.uploadDocument(
-      endpoint: ApiConstants.uploadCarImage,
+  // Car Image Upload
+  Future<ApiResponse<String>> uploadCarImage(XFile file) async {
+    return uploadFile(
       file: file,
-      phoneNumber: phoneNumber,
+      endpoint: ApiConstants.uploadCarImage,
       fieldName: 'car_image',
     );
   }
 
-  Future<ApiResponse<void>> uploadCarRegistrationFront({
-    required File file,
-    required String phoneNumber,
-  }) async {
-    return await _apiService.uploadDocument(
-      endpoint: ApiConstants.uploadCarRegistrationFront,
+  // Car Registration Front Upload
+  Future<ApiResponse<String>> uploadCarRegistrationFront(XFile file) async {
+    return uploadFile(
       file: file,
-      phoneNumber: phoneNumber,
+      endpoint: ApiConstants.uploadCarRegistrationFront,
       fieldName: 'car_registration_front',
     );
   }
 
-  Future<ApiResponse<void>> uploadCarRegistrationBack({
-    required File file,
-    required String phoneNumber,
-  }) async {
-    return await _apiService.uploadDocument(
-      endpoint: ApiConstants.uploadCarRegistrationBack,
+  // Car Registration Back Upload
+  Future<ApiResponse<String>> uploadCarRegistrationBack(XFile file) async {
+    return uploadFile(
       file: file,
-      phoneNumber: phoneNumber,
+      endpoint: ApiConstants.uploadCarRegistrationBack,
       fieldName: 'car_registration_back',
     );
-  }
-
-  // Batch upload method for multiple documents
-  Future<Map<String, ApiResponse<void>>> uploadMultipleDocuments({
-    required String phoneNumber,
-    File? profilePhoto,
-    File? idFront,
-    File? idBack,
-    File? licenseFront,
-    File? licenseBack,
-    File? noConvictionCertificate,
-    File? selfieWithId,
-    File? carImage,
-    File? carRegistrationFront,
-    File? carRegistrationBack,
-  }) async {
-    final Map<String, ApiResponse<void>> results = {};
-
-    // Upload profile photo
-    if (profilePhoto != null) {
-      results['profile_photo'] = await uploadProfilePhoto(
-        file: profilePhoto,
-        phoneNumber: phoneNumber,
-      );
-    }
-
-    // Upload ID documents
-    if (idFront != null) {
-      results['id_front'] = await uploadIdFront(
-        file: idFront,
-        phoneNumber: phoneNumber,
-      );
-    }
-
-    if (idBack != null) {
-      results['id_back'] = await uploadIdBack(
-        file: idBack,
-        phoneNumber: phoneNumber,
-      );
-    }
-
-    // Upload license documents
-    if (licenseFront != null) {
-      results['license_front'] = await uploadLicenseFront(
-        file: licenseFront,
-        phoneNumber: phoneNumber,
-      );
-    }
-
-    if (licenseBack != null) {
-      results['license_back'] = await uploadLicenseBack(
-        file: licenseBack,
-        phoneNumber: phoneNumber,
-      );
-    }
-
-    // Upload no conviction certificate
-    if (noConvictionCertificate != null) {
-      results['no_conviction_certificate'] = await uploadNoConvictionCertificate(
-        file: noConvictionCertificate,
-        phoneNumber: phoneNumber,
-      );
-    }
-
-    // Upload selfie with ID
-    if (selfieWithId != null) {
-      results['selfie_with_id'] = await uploadSelfieWithId(
-        file: selfieWithId,
-        phoneNumber: phoneNumber,
-      );
-    }
-
-    // Upload car documents
-    if (carImage != null) {
-      results['car_image'] = await uploadCarImage(
-        file: carImage,
-        phoneNumber: phoneNumber,
-      );
-    }
-
-    if (carRegistrationFront != null) {
-      results['car_registration_front'] = await uploadCarRegistrationFront(
-        file: carRegistrationFront,
-        phoneNumber: phoneNumber,
-      );
-    }
-
-    if (carRegistrationBack != null) {
-      results['car_registration_back'] = await uploadCarRegistrationBack(
-        file: carRegistrationBack,
-        phoneNumber: phoneNumber,
-      );
-    }
-
-    return results;
   }
 
   // Helper method to check upload results

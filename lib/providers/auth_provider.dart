@@ -6,6 +6,8 @@ import 'package:itspass_driver/models/driver.dart';
 import 'package:itspass_driver/pages/auth/register_screen.dart';
 import '../methods/common_method.dart';
 import '../pages/auth/otp_screen.dart';
+import '../core/services/auth_service.dart';
+import '../core/services/secure_storage_service.dart';
 
 class AuthenticationProvider extends ChangeNotifier {
   final Dio dio;
@@ -157,34 +159,24 @@ class AuthenticationProvider extends ChangeNotifier {
   }) async {
     startLoading();
     try {
-      final response = await dio.post(
-        '$baseUrl/auth/login',
-        data: {
-          'email': email,
-          'password': password,
-        },
+      final authService = AuthService();
+      final response = await authService.login(
+        username: email, // Using email as username
+        password: password,
       );
       
-      if (response.statusCode == 200) {
-        final data = response.data;
-        
-        // Check if driver is blocked
-        if (data['driver']['blockStatus'] == 'yes') {
-          throw Exception('You are blocked. Contact admin: alizeb875@gmail.com');
-        }
-        
-        await sharedPreferences.setString('auth_token', data['token']);
-        await sharedPreferences.setString('driver_id', data['driver']['id']);
-        await sharedPreferences.setString('driver_email', email);
-        
+      if (response.isSuccess) {
         _isLoggedIn = true;
-        _uid = data['driver']['id'];
+        
+        // Get stored user info from secure storage
+        final userId = await SecureStorageService.getUserId();
+        _uid = userId;
         driverEmail = email;
         
         // Load driver data
         await retrieveCurrentDriverInfo();
       } else {
-        throw Exception('Login failed');
+        throw Exception(response.error ?? 'Login failed');
       }
       
       stopLoading();
@@ -197,11 +189,11 @@ class AuthenticationProvider extends ChangeNotifier {
 
   Future<void> checkIfUserIsLoggedIn() async {
     try {
-      final token = sharedPreferences.getString('auth_token');
+      final token = await SecureStorageService.getAuthToken();
       if (token != null && token.isNotEmpty) {
         _isLoggedIn = true;
-        _phoneNumber = sharedPreferences.getString('driver_phone') ?? '';
-        _uid = sharedPreferences.getString('driver_id');
+        _phoneNumber = await SecureStorageService.getDriverProfile().then((profile) => profile['phone'] ?? '');
+        _uid = await SecureStorageService.getUserId();
         notifyListeners();
       } else {
         _isLoggedIn = false;
@@ -341,10 +333,8 @@ class AuthenticationProvider extends ChangeNotifier {
 
   Future<void> signOut() async {
     try {
-      await sharedPreferences.remove('auth_token');
-      await sharedPreferences.remove('driver_id');
-      await sharedPreferences.remove('driver_phone');
-      await sharedPreferences.remove('driver_email');
+      final authService = AuthService();
+      await authService.logout();
       
       _isLoggedIn = false;
       _isGoogleSignedIn = false;

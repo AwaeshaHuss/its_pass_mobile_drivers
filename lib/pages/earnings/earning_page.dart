@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../providers/registration_provider.dart';
+import '../../core/services/driver_service.dart';
 
 class EarningsPage extends StatefulWidget {
   const EarningsPage({super.key});
@@ -13,14 +14,108 @@ class EarningsPage extends StatefulWidget {
 }
 
 class _EarningsPageState extends State<EarningsPage> {
+  bool _isLoading = true;
+  Map<String, dynamic>? _earningsData;
+  String? _errorMessage;
+
   @override
   void initState() {
     super.initState();
-    // Fetch the earnings as soon as the page is initialized
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<RegistrationProvider>(context, listen: false)
-          .fetchDriverEarnings();
+    _fetchEarningsData();
+  }
+
+  Future<void> _fetchEarningsData() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
     });
+
+    try {
+      final driverService = DriverService();
+      final response = await driverService.getEarnings();
+      
+      if (response.isSuccess && response.data != null) {
+        setState(() {
+          _earningsData = response.data;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _errorMessage = response.error ?? 'Failed to load earnings';
+          _isLoading = false;
+        });
+        
+        // Fallback to provider method if API fails
+        if (mounted) {
+          Provider.of<RegistrationProvider>(context, listen: false)
+              .fetchDriverEarnings();
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error loading earnings: $e';
+        _isLoading = false;
+      });
+      
+      // Fallback to provider method if API fails
+      if (mounted) {
+        Provider.of<RegistrationProvider>(context, listen: false)
+            .fetchDriverEarnings();
+      }
+    }
+  }
+
+  Widget _buildEarningsDisplay() {
+    if (_isLoading) {
+      return Row(
+        children: [
+          SizedBox(
+            width: 20.w,
+            height: 20.w,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.w,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Text(
+            'Loading...',
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 16.sp,
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Consumer<RegistrationProvider>(
+        builder: (context, provider, child) {
+          return Text(
+            'JOD ${provider.driverEarnings ?? 0}',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 36.sp,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -1,
+            ),
+          );
+        },
+      );
+    }
+
+    // Use API data if available, otherwise fallback to provider
+    final totalEarnings = _earningsData?['total_earnings'] ?? 0;
+    return Text(
+      'JOD $totalEarnings',
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 36.sp,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -1,
+      ),
+    );
   }
 
   @override
@@ -95,42 +190,7 @@ class _EarningsPageState extends State<EarningsPage> {
                       ],
                     ),
                     SizedBox(height: 16.h),
-                    Consumer<RegistrationProvider>(
-                      builder: (context, provider, child) {
-                        if (provider.driverEarnings == null) {
-                          return Row(
-                            children: [
-                              SizedBox(
-                                width: 20.w,
-                                height: 20.w,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.w,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                ),
-                              ),
-                              SizedBox(width: 12.w),
-                              Text(
-                                'Loading...',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 16.sp,
-                                ),
-                              ),
-                            ],
-                          );
-                        } else {
-                          return Text(
-                            'JOD ${provider.driverEarnings ?? 0}',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 36.sp,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: -1,
-                            ),
-                          );
-                        }
-                      },
-                    ),
+                    _buildEarningsDisplay(),
                   ],
                 ),
               ),

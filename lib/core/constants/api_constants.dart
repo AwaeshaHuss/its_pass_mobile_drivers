@@ -24,6 +24,7 @@ class ApiConstants {
   
   // Driver Operations Endpoints
   static const String updateProfile = '/mobile/driver/update-profile';
+  static const String getDriverStatus = '/mobile/driver/status';
   static const String updateStatus = '/mobile/driver/status';
   static const String updateLocation = '/mobile/driver/location';
   static const String changePassword = '/mobile/driver/change-password';

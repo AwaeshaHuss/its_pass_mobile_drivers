@@ -534,17 +534,17 @@ class RegistrationProvider extends ChangeNotifier {
 // Fetch the driver's earnings from API
   Future<void> fetchDriverEarnings() async {
     try {
-      final driverId = sharedPreferences.getString('driver_id');
-      if (driverId == null) {
-        throw Exception('Driver ID not found');
+      final token = sharedPreferences.getString('auth_token');
+      if (token == null) {
+        throw Exception('Authentication token not found');
       }
       
-      final token = sharedPreferences.getString('auth_token');
       final response = await dio.get(
-        '$baseUrl/drivers/$driverId',
+        '$baseUrl/mobile/driver/earnings',
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
+            'Accept': 'application/json',
           },
         ),
       );
@@ -567,17 +567,17 @@ class RegistrationProvider extends ChangeNotifier {
 
   Future<void> retrieveCurrentDriverInfo() async {
     try {
-      final driverId = sharedPreferences.getString('driver_id');
-      if (driverId == null) {
-        throw Exception('Driver ID not found');
+      final token = sharedPreferences.getString('auth_token');
+      if (token == null) {
+        throw Exception('Authentication token not found');
       }
       
-      final token = sharedPreferences.getString('auth_token');
       final response = await dio.get(
-        '$baseUrl/drivers/$driverId',
+        '$baseUrl/mobile/profile',
         options: Options(
           headers: {
             'Authorization': 'Bearer $token',
+            'Accept': 'application/json',
           },
         ),
       );

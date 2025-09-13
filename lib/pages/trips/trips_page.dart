@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/trips_provider.dart';
+import '../../core/services/driver_service.dart';
+import '../../core/models/trip_models.dart';
 import 'trip_history_page.dart';
 
 class TripsPage extends StatefulWidget {
@@ -10,23 +12,99 @@ class TripsPage extends StatefulWidget {
 }
 
 class _TripsPageState extends State<TripsPage> {
+  bool _isLoading = true;
+  List<Trip>? _trips;
+  String? _errorMessage;
+
   @override
   void initState() {
     super.initState();
-    // Fetch the trip data when the widget is initialized
-    Future.microtask(() =>
+    _fetchTripData();
+  }
+
+  Future<void> _fetchTripData() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final driverService = DriverService();
+      final response = await driverService.getTripHistory();
+      
+      if (response.isSuccess && response.data != null) {
+        setState(() {
+          _trips = response.data;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _errorMessage = response.error ?? 'Failed to load trip data';
+          _isLoading = false;
+        });
+        
+        // Fallback to provider method if API fails
+        if (mounted) {
+          Provider.of<TripProvider>(context, listen: false)
+              .getCurrentDriverTotalNumberOfTripsCompleted();
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error loading trip data: $e';
+        _isLoading = false;
+      });
+      
+      // Fallback to provider method if API fails
+      if (mounted) {
         Provider.of<TripProvider>(context, listen: false)
-            .getCurrentDriverTotalNumberOfTripsCompleted());
+            .getCurrentDriverTotalNumberOfTripsCompleted();
+      }
+    }
+  }
+
+  // Calculate statistics from trip data
+  Map<String, dynamic> _calculateTripStats() {
+    if (_trips == null || _trips!.isEmpty) {
+      return {
+        'totalTrips': 0,
+        'weeklyTrips': 0,
+        'averageRating': 0.0,
+        'totalDistance': 0.0,
+      };
+    }
+
+    final now = DateTime.now();
+    final weekStart = now.subtract(Duration(days: now.weekday - 1));
+    
+    final weeklyTrips = _trips!.where((trip) => 
+      trip.completedAt != null && trip.completedAt!.isAfter(weekStart)
+    ).length;
+    
+    final completedTrips = _trips!.where((trip) => trip.rating != null).toList();
+    final averageRating = completedTrips.isEmpty 
+      ? 0.0 
+      : completedTrips.map((trip) => trip.rating!).reduce((a, b) => a + b) / completedTrips.length;
+    
+    final totalDistance = _trips!.fold(0.0, (sum, trip) => sum + trip.distance);
+
+    return {
+      'totalTrips': _trips!.length,
+      'weeklyTrips': weeklyTrips,
+      'averageRating': averageRating,
+      'totalDistance': totalDistance,
+    };
   }
 
   @override
   Widget build(BuildContext context) {
     final tripProvider = Provider.of<TripProvider>(context);
+    final stats = _calculateTripStats();
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: SafeArea(
-        child: tripProvider.isLoading
+        child: _isLoading || tripProvider.isLoading
             ? const Center(
                 child: CircularProgressIndicator(
                   color: Colors.black,
@@ -62,9 +140,11 @@ class _TripsPageState extends State<TripsPage> {
                         Expanded(
                           child: _buildStatsCard(
                             title: 'Total Trips',
-                            value: tripProvider.currentDriverTotalTripsCompleted.isEmpty 
-                                ? "0" 
-                                : tripProvider.currentDriverTotalTripsCompleted,
+                            value: _errorMessage != null 
+                                ? (tripProvider.currentDriverTotalTripsCompleted.isEmpty 
+                                    ? "0" 
+                                    : tripProvider.currentDriverTotalTripsCompleted)
+                                : stats['totalTrips'].toString(),
                             icon: Icons.route,
                             color: Colors.blue,
                           ),
@@ -73,7 +153,7 @@ class _TripsPageState extends State<TripsPage> {
                         Expanded(
                           child: _buildStatsCard(
                             title: 'This Week',
-                            value: '12', // TODO: Add weekly trips from API
+                            value: stats['weeklyTrips'].toString(),
                             icon: Icons.calendar_today,
                             color: Colors.green,
                           ),
@@ -86,7 +166,7 @@ class _TripsPageState extends State<TripsPage> {
                         Expanded(
                           child: _buildStatsCard(
                             title: 'Rating',
-                            value: '4.8', // TODO: Add rating from API
+                            value: stats['averageRating'].toStringAsFixed(1),
                             icon: Icons.star,
                             color: Colors.orange,
                           ),
@@ -95,7 +175,7 @@ class _TripsPageState extends State<TripsPage> {
                         Expanded(
                           child: _buildStatsCard(
                             title: 'Distance',
-                            value: '2.4k km', // TODO: Add distance from API
+                            value: '${(stats['totalDistance'] / 1000).toStringAsFixed(1)}k km',
                             icon: Icons.speed,
                             color: Colors.purple,
                           ),

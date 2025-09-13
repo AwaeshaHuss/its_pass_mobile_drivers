@@ -20,19 +20,24 @@ class TripProvider with ChangeNotifier {
       notifyListeners();
 
       if (dio != null && sharedPreferences != null && baseUrl != null) {
-        final driverId = sharedPreferences!.getString('driver_id');
         final token = sharedPreferences!.getString('auth_token');
         
-        if (driverId != null && token != null) {
+        if (token != null) {
           final response = await dio!.get(
-            '$baseUrl/drivers/$driverId/trips/count',
+            '$baseUrl/mobile/driver/trip-history',
             options: Options(
-              headers: {'Authorization': 'Bearer $token'},
+              headers: {
+                'Authorization': 'Bearer $token',
+                'Accept': 'application/json',
+              },
             ),
           );
           
           if (response.statusCode == 200) {
-            currentDriverTotalTripsCompleted = response.data['totalTrips']?.toString() ?? "0";
+            final List<dynamic> trips = response.data['trips'] ?? [];
+            currentDriverTotalTripsCompleted = trips.length.toString();
+            // Also store the trips data for later use
+            completedTrips = trips.map((trip) => Map<String, dynamic>.from(trip)).toList();
           } else {
             currentDriverTotalTripsCompleted = "0";
           }
@@ -60,14 +65,16 @@ class TripProvider with ChangeNotifier {
       notifyListeners();
 
       if (dio != null && sharedPreferences != null && baseUrl != null) {
-        final driverId = sharedPreferences!.getString('driver_id');
         final token = sharedPreferences!.getString('auth_token');
         
-        if (driverId != null && token != null) {
+        if (token != null) {
           final response = await dio!.get(
-            '$baseUrl/drivers/$driverId/trips/completed',
+            '$baseUrl/mobile/driver/trip-history',
             options: Options(
-              headers: {'Authorization': 'Bearer $token'},
+              headers: {
+                'Authorization': 'Bearer $token',
+                'Accept': 'application/json',
+              },
             ),
           );
           
