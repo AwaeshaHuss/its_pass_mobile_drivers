@@ -2,7 +2,7 @@
 
 # API Testing Script for Driver Mobile API - Pass Dashboard
 # Base URL
-BASE_URL="http://127.0.0.1:8000"
+BASE_URL="https://pass.elite-center-ld.com"
 AUTH_TOKEN=""
 
 # Colors for output
